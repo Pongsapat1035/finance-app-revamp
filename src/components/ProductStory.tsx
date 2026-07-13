@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { CircleDollarSign, ShieldCheck, TrendingDown, TrendingUp } from 'lucide-react'
 import GridOverlay from '#/components/GridOverlay'
+import LedgrIcon from './icons/LedgrIcon'
 
 const ProductStory = () => {
   return (
@@ -9,17 +10,13 @@ const ProductStory = () => {
 
       <div className="relative flex items-center justify-between">
         <Link to="/" className="ds-focus-ring inline-flex items-center gap-3 text-white no-underline">
-          <span className="grid size-9 place-items-center rounded-sm bg-accent text-sm font-bold tracking-[-0.08em] text-accent-foreground">
+          {/* <span className="grid size-9 place-items-center rounded-sm bg-accent text-sm font-bold tracking-[-0.08em] text-accent-foreground">
             F/
-          </span>
-          <span className="text-sm font-medium">My finance</span>
+          </span> */}
+          <LedgrIcon size={40} />
+          <span className="text-sm font-medium">Ledgr</span>
         </Link>
-        <Link
-          to="/design-system"
-          className="ds-focus-ring text-xs text-white/55 underline decoration-white/25 underline-offset-4 hover:text-white"
-        >
-          Design system
-        </Link>
+        
       </div>
 
       <div className="relative my-auto max-w-xl py-16 lg:py-12">

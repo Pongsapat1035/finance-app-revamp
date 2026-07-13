@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
 import SignUpForm from '#/components/auth/SignUpForm'
 import SignInForm from '#/components/auth/SignInForm'
 import SegmentedTab from '#/components/ui/SegmentedTab'
+import { useSignup, useSignIn } from '#/hooks/auth/useAuth'
 
 type AuthMode = 'signup' | 'signin'
 
@@ -15,30 +15,26 @@ const AuthForm = () => {
   const [mode, setMode] = useState<AuthMode>('signup')
   const isSignup = mode === 'signup'
 
+  const { mutate: signUp, isPending: isSigningUp } = useSignup()
+  const { mutate: signIn, isPending: isSigningIn } = useSignIn()
+
   return (
-    <section className="flex min-h-dvh  justify-center bg-background px-4 py-12 sm:px-8 lg:h-dvh lg:overflow-y-auto lg:px-12">
-      <div className="w-full max-w-110">
-        <div className="mb-9 lg:hidden">
-          <Link to="/" className="ds-focus-ring inline-flex items-center gap-3 text-foreground no-underline">
-            <span className="grid size-9 place-items-center rounded-sm bg-foreground text-sm font-bold tracking-[-0.08em] text-background">
-              F/
-            </span>
-            <span className="text-sm font-medium">My finance</span>
-          </Link>
-        </div>
+    <>
+      <SegmentedTab
+        tabs={AUTH_TABS}
+        active={mode}
+        onChange={setMode}
+        ariaLabel="Authentication mode"
+      />
 
-        <SegmentedTab
-          tabs={AUTH_TABS}
-          active={mode}
-          onChange={setMode}
-          ariaLabel="Authentication mode"
-        />
-
-        <div className="pt-9">
-          {isSignup ? <SignUpForm /> : <SignInForm />}
-        </div>
+      <div className="pt-9">
+        {isSignup ? (
+          <SignUpForm onSubmit={signUp} isPending={isSigningUp} />
+        ) : (
+          <SignInForm onSubmit={signIn} isPending={isSigningIn} />
+        )}
       </div>
-    </section>
+    </>
   )
 }
 
