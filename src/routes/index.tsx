@@ -1,27 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router'
-import AuthForm from '#/components/auth/AuthForm'
-import ProductStory from '#/components/ProductStory'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
-  component: AuthPage,
-  head: () => ({
-    meta: [
-      { title: 'Welcome | Finance App' },
-      {
-        name: 'description',
-        content: 'Track personal income and expenses in one clear dashboard.',
-      },
-    ],
-  }),
+     component: RouteComponent,
 })
 
-const AuthPage = () => {
-  return (
-    <main className="grid min-h-dvh bg-background lg:h-dvh lg:grid-cols-[minmax(0,1.08fr)_minmax(440px,0.92fr)] lg:overflow-hidden">
-      <div className="hidden lg:block lg:h-dvh">
-        <ProductStory />
-      </div>
-      <AuthForm />
-    </main>
-  )
+function RouteComponent() {
+     return <>
+          <Link
+               to="/auth"
+               className="ds-focus-ring ds-interactive inline-flex h-9 items-center gap-2 rounded-sm text-xs font-medium text-muted-foreground no-underline hover:text-foreground"
+          >
+               <ArrowLeft size={15} strokeWidth={1.75} />
+               to sign in
+          </Link>
+          <Link
+               to="/design-system"
+               className="ds-focus-ring text-xs text-white/55 underline decoration-white/25 underline-offset-4 hover:text-white"
+          >
+               Design system
+          </Link>
+     </>
 }
