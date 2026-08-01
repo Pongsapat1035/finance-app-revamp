@@ -6,6 +6,15 @@ export interface InputFieldProps {
   type?: string
   placeholder: string
   autoComplete?: string
+
+  // Controlled mode — pass these from form.Field
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
+  error?: string
+  touched?: boolean
+
+  // Uncontrolled mode — for standalone use without a form library
   validate?: (value: string) => string | undefined
 }
 
@@ -15,23 +24,36 @@ const InputField = ({
   type = 'text',
   placeholder,
   autoComplete,
+  value,
+  onChange,
+  onBlur,
+  error: controlledError,
+  touched: controlledTouched,
   validate,
 }: InputFieldProps) => {
-  const [error, setError] = useState<string | undefined>(undefined)
-  const [touched, setTouched] = useState(false)
+  const [internalError, setInternalError] = useState<string | undefined>(undefined)
+  const [internalTouched, setInternalTouched] = useState(false)
+
+  const isControlled = value !== undefined
+  const error = isControlled ? controlledError : internalError
+  const touched = isControlled ? (controlledTouched ?? false) : internalTouched
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setTouched(true)
-    if (validate) {
-      setError(validate(e.target.value))
+    if (!isControlled) {
+      setInternalTouched(true)
+      if (validate) setInternalError(validate(e.target.value))
     }
+    onBlur?.(e)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (touched && validate) {
-      setError(validate(e.target.value))
+    if (!isControlled && internalTouched && validate) {
+      setInternalError(validate(e.target.value))
     }
+    onChange?.(e)
   }
+
+  const hasError = touched && !!error
 
   return (
     <label htmlFor={id} className="grid gap-2 text-[13px] font-medium text-foreground">
@@ -42,15 +64,16 @@ const InputField = ({
         type={type}
         autoComplete={autoComplete}
         placeholder={placeholder}
+        value={value}
         onBlur={handleBlur}
         onChange={handleChange}
-        aria-invalid={touched && !!error}
-        aria-describedby={error ? `${id}-error` : undefined}
+        aria-invalid={hasError}
+        aria-describedby={hasError ? `${id}-error` : undefined}
         className={`ds-focus-ring h-11 w-full rounded-sm border bg-background px-3.5 text-[14px] font-normal text-foreground placeholder:text-[#8a8a86] hover:border-[#a9a9a5] ${
-          touched && error ? 'border-destructive' : 'border-input'
+          hasError ? 'border-destructive' : 'border-input'
         }`}
       />
-      {touched && error && (
+      {hasError && (
         <span id={`${id}-error`} className="text-[12px] font-normal text-destructive">
           {error}
         </span>
