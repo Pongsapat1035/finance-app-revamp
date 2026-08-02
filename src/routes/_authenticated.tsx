@@ -23,7 +23,7 @@ const AuthenticatedLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-background-dark text-slate-100 font-display selection:bg-primary selection:text-white">
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <Outlet />
       </div>
     </div>
