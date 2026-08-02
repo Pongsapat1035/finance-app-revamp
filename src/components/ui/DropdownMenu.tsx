@@ -45,7 +45,7 @@ function DropdownMenuItem({
     <DropdownMenuPrimitive.Item
       className={cn(
         'relative flex h-9 cursor-default select-none items-center gap-2 rounded-sm px-2 text-[13px] outline-none',
-        'data-[highlighted]:bg-muted data-[highlighted]:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-45',
+        'data-highlighted:bg-muted data-highlighted:text-foreground data-disabled:pointer-events-none data-disabled:opacity-45',
         className,
       )}
       {...props}

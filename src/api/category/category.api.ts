@@ -10,10 +10,10 @@ export const getCategories = (params?: PaginationParams) => {
   return apiClient.get<CategoryResponse>('/category', { params })
 }
 
-export const patchCategory = (id: string, payload: CreateCategoryDto) => {
+export const patchCategory = (id: number, payload: CreateCategoryDto) => {
   return apiClient.patch<Category>(`/category/${id}`, payload)
 }
 
-export const deleteCategory = (id: string) => {
+export const deleteCategory = (id: number) => {
   return apiClient.delete(`/category/${id}`)
 }
