@@ -2,7 +2,7 @@ import { useState } from 'react'
 import SignUpForm from '#/components/auth/SignUpForm'
 import SignInForm from '#/components/auth/SignInForm'
 import SegmentedTab from '#/components/ui/SegmentedTab'
-import { useSignup, useSignIn } from '#/hooks/auth/useAuth'
+import { useSignup, useSignIn } from '#/hooks/useAuth'
 
 type AuthMode = 'signup' | 'signin'
 
