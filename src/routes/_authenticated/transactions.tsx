@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
 import TransactionSummary from '#/components/transactions/TransactionSummary'
 import TransactionTable from '#/components/transactions/TransactionTable'
 import TransactionModal from '#/components/transactions/TransactionModal'
+import {  useFetchCategory } from '#/hooks/useCategory'
+import Button from '#/components/ui/Button'
+import { useFetchTransaction } from '#/hooks/useTransaction'
 
 export const Route = createFileRoute('/_authenticated/transactions')({
   component: TransactionsPage,
@@ -22,6 +25,9 @@ export const Route = createFileRoute('/_authenticated/transactions')({
 
 function TransactionsPage() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const { data: categories } = useFetchCategory({ page: 1, limit: 10 })
+  const { data: transactions } = useFetchTransaction({ page, limit: 10 })
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -36,13 +42,13 @@ function TransactionsPage() {
               <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">Transactions</h1>
               <p className="mt-2 text-sm text-muted-foreground">Track income and expenses across your personal accounts.</p>
             </div>
-            <button
-              type="button"
+            <Button
+              fullWidth={false}
               onClick={() => setModalOpen(true)}
-              className="ds-focus-ring ds-interactive flex h-10 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-accent-foreground hover:bg-[#c7e600]"
+              prefixIcon={<Plus size={16} />}
             >
-              <Plus size={16} strokeWidth={2} /> Add transaction
-            </button>
+              Add transaction
+            </Button>
           </div>
 
           <div className="mt-8">
@@ -55,16 +61,18 @@ function TransactionsPage() {
                 <h2 className="text-lg font-medium tracking-[-0.02em]">Recent activity</h2>
                 <p className="mt-1 text-xs text-muted-foreground">Example transactions for the current month.</p>
               </div>
-              <Link to="/" className="ds-focus-ring hidden text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground sm:block">
-                Back to auth
-              </Link>
             </div>
-            <TransactionTable />
+            <TransactionTable
+              transactions={transactions?.data ?? []}
+              meta={transactions?.meta}
+              page={page}
+              onPageChange={setPage}
+            />
           </section>
         </div>
       </main>
 
-      <TransactionModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <TransactionModal open={modalOpen} categories={categories?.data} onClose={() => setModalOpen(false)} />
     </div>
   )
 }

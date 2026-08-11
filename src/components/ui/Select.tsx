@@ -168,14 +168,16 @@ const SelectField = ({
 
   return (
     <div className="grid gap-2">
-      <label htmlFor={fieldId} className="text-[13px] font-medium text-foreground">
-        {label}
-        {required && (
-          <span className="ml-1 text-muted-foreground" aria-hidden="true">
-            *
-          </span>
-        )}
-      </label>
+      {label && (
+        <label htmlFor={fieldId} className="text-[13px] font-medium text-foreground">
+          {label}
+          {required && (
+            <span className="ml-1 text-muted-foreground" aria-hidden="true">
+              *
+            </span>
+          )}
+        </label>
+      )}
       <Select
         value={value}
         defaultValue={defaultValue}
@@ -184,12 +186,7 @@ const SelectField = ({
         required={required}
         name={name}
       >
-        <SelectTrigger
-          id={fieldId}
-          size={size}
-          invalid={!!error}
-          aria-describedby={descriptionId}
-        >
+        <SelectTrigger id={fieldId} size={size} invalid={!!error} aria-describedby={descriptionId}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

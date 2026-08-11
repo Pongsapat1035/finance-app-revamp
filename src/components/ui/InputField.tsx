@@ -7,6 +7,8 @@ export interface InputFieldProps {
   type?: string
   placeholder?: string
   autoComplete?: string
+  max?: string
+  required?: boolean
 
   // Controlled mode — pass these from form.Field
   value?: string
@@ -27,6 +29,8 @@ const InputField = ({
   type = 'text',
   placeholder,
   autoComplete,
+  max,
+  required,
   value,
   onChange,
   onBlur,
@@ -67,6 +71,8 @@ const InputField = ({
         name={id}
         type={type}
         autoComplete={autoComplete}
+        max={max}
+        required={required}
         placeholder={placeholder}
         value={value}
         onBlur={handleBlur}
