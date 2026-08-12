@@ -7,7 +7,7 @@ export interface Transaction extends CreateTransactionDto {
   userId: number
   createdAt: string
   updatedAt: string
-  categories: Category[]
+  category: Category
 }
 
 export type TransactionResponse = PaginatedResponse<Transaction>
@@ -18,4 +18,14 @@ export interface CreateTransactionDto {
   amount: number
   description: string
   date: string
+}
+
+export interface NormalizedTransaction {
+  id: number
+  type: TransactionType
+  amount: number
+  date: string
+  description: string
+  categoryId: number
+  categoryTitle: string
 }

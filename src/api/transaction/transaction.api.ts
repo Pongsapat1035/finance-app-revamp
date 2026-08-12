@@ -10,8 +10,8 @@ export const getTransactions = (params?: PaginationParams) => {
   return apiClient.get<TransactionResponse>('/transaction', { params })
 }
 
-export const patchTransaction = (id: number, payload: Partial<CreateTransactionDto>) => {
-  return apiClient.patch<Transaction>(`/transaction/${id}`, payload)
+export const putTransaction = (id: number, payload: CreateTransactionDto) => {
+  return apiClient.put<Transaction>(`/transaction/${id}`, payload)
 }
 
 export const deleteTransaction = (id: number) => {

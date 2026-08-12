@@ -1,13 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import dayjs from "dayjs"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import {
   deleteTransaction,
   getTransactions,
   putTransaction,
   postTransaction,
-} from "#/api/transaction/transaction.api"
-import type { PaginationParams, PaginatedResponse } from "#/api/types"
-import type { CreateTransactionDto, NormalizedTransaction } from "#/api/transaction/transaction.type"
+} from '#/api/transaction/transaction.api'
+import type { PaginationParams, PaginatedResponse } from '#/api/types'
+import type {
+  CreateTransactionDto,
+  NormalizedTransaction,
+} from '#/api/transaction/transaction.type'
 
 export const useFetchTransaction = (params?: PaginationParams) => {
   return useQuery({
@@ -18,7 +21,7 @@ export const useFetchTransaction = (params?: PaginationParams) => {
         id: transaction.id,
         type: transaction.type,
         amount: transaction.amount,
-        date: dayjs(transaction.date).format('MMM D, YYYY'),
+        date: dayjs(transaction.date).format('YYYY-MM-DD'),
         description: transaction.description,
         categoryId: transaction.category?.id,
         categoryTitle: transaction.category?.title,
