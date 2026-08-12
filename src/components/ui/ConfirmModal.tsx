@@ -84,6 +84,8 @@ export interface ConfirmModalProps {
   tone?: ConfirmTone
   /** Keeps the dialog open and disables both actions while the work is in flight. */
   loading?: boolean
+  /** Persistent failure shown inside the dialog so the action can be retried. */
+  error?: string
   onConfirm: () => void
 }
 
@@ -102,6 +104,7 @@ const ConfirmModal = ({
   cancelLabel = 'Cancel',
   tone = 'default',
   loading = false,
+  error,
   onConfirm,
 }: ConfirmModalProps) => {
   const { icon: ToneIcon, iconClass, confirmClass } = toneStyles[tone]
@@ -128,6 +131,16 @@ const ConfirmModal = ({
 
         {details && (
           <div className="rounded-md border bg-muted px-3.5 py-3 text-[13px]">{details}</div>
+        )}
+
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive"
+          >
+            <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
         )}
 
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
