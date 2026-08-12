@@ -37,10 +37,12 @@ const TransactionActionsMenu = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" collisionPadding={12}>
         <DropdownMenuLabel className="max-w-48 truncate">{merchant}</DropdownMenuLabel>
-        <DropdownMenuItem onSelect={onView}>
-          <Eye size={15} strokeWidth={1.75} aria-hidden="true" />
-          View details
-        </DropdownMenuItem>
+        {onView && (
+          <DropdownMenuItem onSelect={onView}>
+            <Eye size={15} strokeWidth={1.75} aria-hidden="true" />
+            View details
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={onEdit}>
           <Pencil size={15} strokeWidth={1.75} aria-hidden="true" />
           Edit transaction

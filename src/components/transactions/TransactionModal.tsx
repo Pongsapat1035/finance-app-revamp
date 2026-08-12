@@ -7,8 +7,13 @@ import TransactionForm, {
 import CategoryManager from '#/components/transactions/CategoryManager'
 import BaseModal, { BaseModalContent } from '#/components/ui/BaseModal'
 import type { Category as ApiCategory } from '#/api/category/category.type'
-import type { CreateTransactionDto } from '#/api/transaction/transaction.type'
-import { useCreateTransaction } from '#/hooks/useTransaction'
+import type {
+  CreateTransactionDto,
+  NormalizedTransaction,
+} from '#/api/transaction/transaction.type'
+import { TransactionType as ApiTransactionType } from '#/enum/enum'
+import { useCreateTransaction, useUpdateTransaction } from '#/hooks/useTransaction'
+import { handleAxiosError } from '#/lib/handleAxiosError'
 
 type ModalView = 'transaction' | 'categories'
 
@@ -16,17 +21,41 @@ interface TransactionModalProps {
   open: boolean
   onClose: () => void
   categories?: ApiCategory[]
+  transaction?: NormalizedTransaction | null
+  onSuccess?: (mode: 'create' | 'edit') => void
 }
 
-const TransactionModal = ({ open, onClose, categories }: TransactionModalProps) => {
+const TransactionModal = ({
+  open,
+  onClose,
+  categories,
+  transaction,
+  onSuccess,
+}: TransactionModalProps) => {
   const [view, setView] = useState<ModalView>('transaction')
   const [type, setType] = useState<TransactionType>('expense')
   const [manageCategories, setManageCategories] = useState<ApiCategory[]>(categories ?? [])
-  const { mutateAsync } = useCreateTransaction()
+  const [submitError, setSubmitError] = useState<string>()
+  const createTransaction = useCreateTransaction()
+  const updateTransaction = useUpdateTransaction()
+  const mode = transaction ? 'edit' : 'create'
+  const isSubmitting = createTransaction.isPending || updateTransaction.isPending
 
   useEffect(() => {
     setManageCategories(categories ?? [])
   }, [categories])
+
+  useEffect(() => {
+    if (!open) return
+
+    setView('transaction')
+    setType(transaction?.type === ApiTransactionType.INCOME ? 'income' : 'expense')
+    setSubmitError(undefined)
+  }, [open, transaction])
+
+  const handleClose = () => {
+    if (!isSubmitting) onClose()
+  }
 
   const handleSubmit = async (value: TransactionFormValues) => {
     const payload: CreateTransactionDto = {
@@ -37,21 +66,57 @@ const TransactionModal = ({ open, onClose, categories }: TransactionModalProps) 
       date: value.date,
     }
 
-    await mutateAsync(payload)
-    onClose()
+    setSubmitError(undefined)
+
+    try {
+      if (transaction) {
+        await updateTransaction.mutateAsync({ id: transaction.id, payload })
+      } else {
+        await createTransaction.mutateAsync(payload)
+      }
+
+      onClose()
+      onSuccess?.(mode)
+    } catch (error) {
+      const { message, statusCode } = handleAxiosError(error)
+      setSubmitError(
+        statusCode === null
+          ? `Could not ${mode === 'edit' ? 'update' : 'create'} the transaction. Try again.`
+          : `${message}. Review the details and try again.`,
+      )
+    }
   }
 
+  const initialValues: TransactionFormValues | undefined = transaction
+    ? {
+        amount: String(transaction.amount),
+        categoryId: String(transaction.categoryId),
+        date: transaction.date,
+        description: transaction.description,
+      }
+    : undefined
+
   return (
-    <BaseModal open={open} onOpenChange={(next) => { if (!next) onClose() }}>
+    <BaseModal
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) handleClose()
+      }}
+    >
       <BaseModalContent showCloseButton={false} aria-labelledby="transaction-dialog-title">
         {view === 'transaction' ? (
           <TransactionForm
+            key={`${mode}-${transaction?.id ?? 'new'}`}
             type={type}
             setType={setType}
             categories={manageCategories}
             onManageCategories={() => setView('categories')}
-            onClose={onClose}
+            onClose={handleClose}
             onSubmit={handleSubmit}
+            mode={mode}
+            initialValues={initialValues}
+            isSubmitting={isSubmitting}
+            submitError={submitError}
           />
         ) : (
           <CategoryManager
@@ -59,7 +124,7 @@ const TransactionModal = ({ open, onClose, categories }: TransactionModalProps) 
             setCategories={setManageCategories}
             transactionType={TYPE_TO_API_TYPE[type]}
             onBack={() => setView('transaction')}
-            onClose={onClose}
+            onClose={handleClose}
           />
         )}
       </BaseModalContent>

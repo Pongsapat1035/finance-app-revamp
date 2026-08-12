@@ -1,17 +1,30 @@
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronDown, Search } from 'lucide-react'
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CalendarDays,
+  ChevronDown,
+  Plus,
+  ReceiptText,
+  Search,
+} from 'lucide-react'
 import TransactionActionsMenu from '#/components/transactions/TransactionActionsMenu'
 import Button from '#/components/ui/Button'
 import { formatCurrency } from '#/lib/format'
 import { TransactionType } from '#/enum/enum'
 import type { NormalizedTransaction } from '#/api/transaction/transaction.type'
 import type { PaginationMeta } from '#/api/types'
+import dayjs from 'dayjs'
 
 const Filters = () => {
   return (
     <div className="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center">
       <label className="relative min-w-0 flex-1 sm:max-w-xs">
         <span className="sr-only">Search transaction list</span>
-        <Search className="pointer-events-none absolute left-3 top-2.5 text-muted-foreground" size={15} strokeWidth={1.75} />
+        <Search
+          className="pointer-events-none absolute left-3 top-2.5 text-muted-foreground"
+          size={15}
+          strokeWidth={1.75}
+        />
         <input
           type="search"
           placeholder="Search name or category"
@@ -33,48 +46,72 @@ const Filters = () => {
   )
 }
 
-const MobileTransactionRow = ({ transaction }: { transaction: NormalizedTransaction }) => {
+interface TransactionRowProps {
+  transaction: NormalizedTransaction
+  onEdit: (transaction: NormalizedTransaction) => void
+  onDelete: (transaction: NormalizedTransaction) => void
+}
+
+const MobileTransactionRow = ({ transaction, onEdit, onDelete }: TransactionRowProps) => {
   const isIncome = transaction.type === TransactionType.INCOME
+  const formattedDate = dayjs(transaction.date).format('MMM D, YYYY')
   return (
     <article className="flex items-center gap-3 p-4">
-      <div className={`grid size-9 shrink-0 place-items-center rounded-sm ${isIncome ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}>
+      <div
+        className={`grid size-9 shrink-0 place-items-center rounded-sm ${isIncome ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}
+      >
         {isIncome ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{transaction.description}</p>
-        <p className="mt-1 truncate text-[11px] text-muted-foreground">{transaction.categoryTitle} · {transaction.date}</p>
+        <p className="mt-1 truncate text-[11px] text-muted-foreground">
+          {transaction.categoryTitle} · {formattedDate}
+        </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <p className={`font-mono text-xs tabular-nums ${isIncome ? 'text-success' : ''}`}>
-          {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+          {isIncome ? '+' : '-'}
+          {formatCurrency(transaction.amount)}
         </p>
         <TransactionActionsMenu
           merchant={transaction.description}
           triggerClassName="size-11"
+          onEdit={() => onEdit(transaction)}
+          onDelete={() => onDelete(transaction)}
         />
       </div>
     </article>
   )
 }
 
-const DesktopTransactionRow = ({ transaction }: { transaction: NormalizedTransaction }) => {
+const DesktopTransactionRow = ({ transaction, onEdit, onDelete }: TransactionRowProps) => {
   const isIncome = transaction.type === TransactionType.INCOME
+  const formattedDate = dayjs(transaction.date).format('MMM D, YYYY')
   return (
     <tr className="border-b last:border-b-0 hover:bg-muted/65">
       <td className="px-4 py-3.5 font-medium">{transaction.description}</td>
       <td className="px-4 py-3.5 text-muted-foreground">{transaction.categoryTitle}</td>
       <td className="px-4 py-3.5">
-        <span className={`inline-flex items-center gap-1.5 text-xs ${isIncome ? 'text-success' : 'text-foreground'}`}>
+        <span
+          className={`inline-flex items-center gap-1.5 text-xs ${isIncome ? 'text-success' : 'text-foreground'}`}
+        >
           {isIncome ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
           {isIncome ? 'Income' : 'Expense'}
         </span>
       </td>
-      <td className="px-4 py-3.5 text-muted-foreground">{transaction.date}</td>
-      <td className={`px-4 py-3.5 text-right font-mono tabular-nums ${isIncome ? 'text-success' : ''}`}>
-        {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+      <td className="px-4 py-3.5 text-muted-foreground">{formattedDate}</td>
+      <td
+        className={`px-4 py-3.5 text-right font-mono tabular-nums ${isIncome ? 'text-success' : ''}`}
+      >
+        {isIncome ? '+' : '-'}
+        {formatCurrency(transaction.amount)}
       </td>
       <td className="px-3 py-3.5">
-        <TransactionActionsMenu merchant={transaction.description} />
+        <TransactionActionsMenu
+          merchant={transaction.description}
+          onEdit={() => onEdit(transaction)}
+          onDelete={() => onDelete(transaction)}
+        />
       </td>
     </tr>
   )
@@ -85,9 +122,54 @@ interface TransactionTableProps {
   meta?: PaginationMeta
   page: number
   onPageChange: (page: number) => void
+  onEdit: (transaction: NormalizedTransaction) => void
+  onDelete: (transaction: NormalizedTransaction) => void
+  onAdd: () => void
+  isLoading?: boolean
 }
 
-const TransactionTable = ({ transactions, meta, page, onPageChange }: TransactionTableProps) => {
+const TransactionTable = ({
+  transactions,
+  meta,
+  page,
+  onPageChange,
+  onEdit,
+  onDelete,
+  onAdd,
+  isLoading = false,
+}: TransactionTableProps) => {
+  if (!isLoading && transactions.length === 0) {
+    return (
+      <div className="overflow-hidden rounded-lg border bg-background">
+        <section
+          className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center"
+          aria-labelledby="transactions-empty-title"
+        >
+          <span className="grid size-10 place-items-center rounded-sm bg-muted text-muted-foreground">
+            <ReceiptText size={19} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+          <h3 id="transactions-empty-title" className="mt-5 text-base font-medium">
+            No transactions yet
+          </h3>
+          <p className="mt-2 max-w-sm text-[13px] leading-5 text-muted-foreground">
+            Add your first income or expense to start tracking money activity.
+          </p>
+          <Button
+            type="button"
+            variant="dark"
+            height="h-10"
+            fullWidth={false}
+            prefixIcon={<Plus size={15} strokeWidth={1.75} aria-hidden="true" />}
+            className="mt-5"
+            onClick={onAdd}
+          >
+            Add transaction
+          </Button>
+        </section>
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-hidden rounded-lg border bg-background">
       <Filters />
@@ -100,12 +182,19 @@ const TransactionTable = ({ transactions, meta, page, onPageChange }: Transactio
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3 text-right">Amount</th>
-              <th className="w-12 px-3 py-3"><span className="sr-only">Actions</span></th>
+              <th className="w-12 px-3 py-3">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody className="text-[13px]">
             {transactions.map((transaction) => (
-              <DesktopTransactionRow key={transaction.id} transaction={transaction} />
+              <DesktopTransactionRow
+                key={transaction.id}
+                transaction={transaction}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))}
           </tbody>
         </table>
@@ -113,12 +202,19 @@ const TransactionTable = ({ transactions, meta, page, onPageChange }: Transactio
 
       <div className="divide-y md:hidden">
         {transactions.map((transaction) => (
-          <MobileTransactionRow key={transaction.id} transaction={transaction} />
+          <MobileTransactionRow
+            key={transaction.id}
+            transaction={transaction}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         ))}
       </div>
 
       <footer className="flex items-center justify-between border-t px-4 py-3 text-[11px] text-muted-foreground">
-        <p>Showing {transactions.length} of {meta?.total ?? 0} transactions</p>
+        <p>
+          Showing {transactions.length} of {meta?.total ?? 0} transactions
+        </p>
         <div className="flex items-center gap-1">
           <Button
             variant="outline"

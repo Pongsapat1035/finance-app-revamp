@@ -2,6 +2,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useNavigate,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -11,6 +12,8 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import { useHasHydrated, useIsAuthenticated } from '#/store/authStore'
+import { useEffect } from 'react'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -41,6 +44,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate()
+  const isAuthenticated = useIsAuthenticated()
+  const hasHydrated = useHasHydrated()
+
+  useEffect(() => {
+    if (hasHydrated && isAuthenticated) {
+      navigate({ to: '/dashboard' })
+    }
+  }, [hasHydrated, isAuthenticated, navigate])
+
+
   return (
     <html lang="en">
       <head>

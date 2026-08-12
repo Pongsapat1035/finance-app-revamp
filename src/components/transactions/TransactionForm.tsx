@@ -1,4 +1,4 @@
-import { ArrowRight, X } from 'lucide-react'
+import { ArrowRight, CircleAlert, LoaderCircle, X } from 'lucide-react'
 import TypeSelector from '#/components/ui/TypeSelector'
 import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
@@ -23,6 +23,8 @@ interface TransactionFormValues {
   description: string
 }
 
+type TransactionFormMode = 'create' | 'edit'
+
 interface TransactionFormProps {
   type: TransactionType
   setType: (value: TransactionType) => void
@@ -30,6 +32,10 @@ interface TransactionFormProps {
   onManageCategories: () => void
   onClose: () => void
   onSubmit: (value: TransactionFormValues) => Promise<void> | void
+  mode?: TransactionFormMode
+  initialValues?: TransactionFormValues
+  isSubmitting?: boolean
+  submitError?: string
 }
 
 const TransactionForm = ({
@@ -39,6 +45,10 @@ const TransactionForm = ({
   onManageCategories,
   onClose,
   onSubmit,
+  mode = 'create',
+  initialValues,
+  isSubmitting = false,
+  submitError,
 }: TransactionFormProps) => {
   const availableCategories = categories
     .filter((category) => category.type === TYPE_TO_API_TYPE[type])
@@ -48,10 +58,10 @@ const TransactionForm = ({
 
   const form = useForm({
     defaultValues: {
-      amount: '',
-      categoryId: 'default',
-      date: today,
-      description: '',
+      amount: initialValues?.amount ?? '',
+      categoryId: initialValues?.categoryId ?? 'default',
+      date: initialValues?.date ?? today,
+      description: initialValues?.description ?? '',
     },
     onSubmit: async ({ value }) => {
       await onSubmit(value)
@@ -64,13 +74,15 @@ const TransactionForm = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="transaction-dialog-title" className="text-xl font-medium tracking-tight">
-              Add transaction
+              {mode === 'edit' ? 'Edit transaction' : 'Add transaction'}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Record money coming in or going out.
+              {mode === 'edit'
+                ? 'Update the amount, category, date, or description.'
+                : 'Record money coming in or going out.'}
             </p>
           </div>
-          <IconButton onClick={onClose} aria-label="Close dialog">
+          <IconButton onClick={onClose} disabled={isSubmitting} aria-label="Close dialog">
             <X size={17} />
           </IconButton>
         </div>
@@ -78,6 +90,7 @@ const TransactionForm = ({
 
       <form
         className="grid gap-6 p-5 sm:p-6"
+        aria-busy={isSubmitting}
         onSubmit={(event) => {
           event.preventDefault()
           event.stopPropagation()
@@ -89,42 +102,63 @@ const TransactionForm = ({
         <form.Field
           name="amount"
           validators={{
-            onChange: ({ value }) => (!value ? 'Amount is required' : undefined),
+            onChange: ({ value }) =>
+              !value || Number(value) <= 0 ? 'Enter an amount greater than 0' : undefined,
           }}
         >
-          {(field) => (
-            <label className="grid gap-2 text-[13px] font-medium" htmlFor="transaction-amount">
-              Amount
-              <span className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xl text-muted-foreground">
-                  $
+          {(field) => {
+            const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0
+            const descriptionId = hasError
+              ? 'transaction-amount-error'
+              : 'transaction-amount-helper'
+
+            return (
+              <div className="grid gap-2">
+                <label className="text-[13px] font-medium" htmlFor="transaction-amount">
+                  Amount
+                </label>
+                <span className="relative">
+                  <span
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xl text-muted-foreground"
+                    aria-hidden="true"
+                  >
+                    $
+                  </span>
+                  <input
+                    id="transaction-amount"
+                    name={field.name}
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    required
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    aria-invalid={hasError || undefined}
+                    aria-describedby={descriptionId}
+                    onChange={(event) => {
+                      const nextValue = event.target.value
+                      if (/^\d*(\.\d{0,2})?$/.test(nextValue)) field.handleChange(nextValue)
+                    }}
+                    className="ds-focus-ring h-14 w-full rounded-sm border border-input bg-background pl-10 pr-4 font-mono text-2xl font-medium tracking-[-0.04em] placeholder:text-[#aaa9a5]"
+                  />
                 </span>
-                <input
-                  id="transaction-amount"
-                  name={field.name}
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => {
-                    const normalizedValue = event.target.value.replace(/\D/g, '')
-                    field.handleChange(normalizedValue)
-                  }}
-                  className="ds-focus-ring h-14 w-full rounded-sm border border-input bg-background pl-10 pr-4 font-mono text-2xl font-medium tracking-[-0.04em] placeholder:text-[#aaa9a5]"
-                />
-              </span>
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
-                <span className="text-[11px] font-normal text-destructive">
-                  {field.state.meta.errors.join(', ')}
-                </span>
-              ) : (
-                <span className="text-[11px] font-normal text-muted-foreground">
-                  Amount is recorded in USD.
-                </span>
-              )}
-            </label>
-          )}
+                {hasError ? (
+                  <span
+                    id="transaction-amount-error"
+                    className="text-[11px] font-normal text-destructive"
+                  >
+                    {field.state.meta.errors.join(', ')}
+                  </span>
+                ) : (
+                  <span
+                    id="transaction-amount-helper"
+                    className="text-[11px] font-normal text-muted-foreground"
+                  >
+                    Amount is recorded in USD.
+                  </span>
+                )}
+              </div>
+            )
+          }}
         </form.Field>
 
         <form.Field
@@ -208,8 +242,26 @@ const TransactionForm = ({
           )}
         </form.Field>
 
+        {submitError && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive"
+          >
+            <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
+            <span>{submitError}</span>
+          </div>
+        )}
+
         <div className="flex flex-col-reverse gap-2 border-t pt-5 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" height="h-10" fullWidth={false} onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            height="h-10"
+            fullWidth={false}
+            disabled={isSubmitting}
+            onClick={onClose}
+            className="disabled:pointer-events-none disabled:opacity-45"
+          >
             Cancel
           </Button>
           <Button
@@ -217,9 +269,24 @@ const TransactionForm = ({
             variant="primary"
             height="h-10"
             fullWidth={false}
-            suffixIcon={<ArrowRight size={15} strokeWidth={2} />}
+            disabled={isSubmitting}
+            className="disabled:pointer-events-none disabled:opacity-70"
+            prefixIcon={
+              isSubmitting ? (
+                <LoaderCircle
+                  size={15}
+                  strokeWidth={2}
+                  className="animate-spin motion-reduce:animate-none"
+                />
+              ) : undefined
+            }
+            suffixIcon={
+              !isSubmitting && mode === 'create' ? (
+                <ArrowRight size={15} strokeWidth={2} />
+              ) : undefined
+            }
           >
-            Add transaction
+            {isSubmitting ? 'Saving' : mode === 'edit' ? 'Save changes' : 'Add transaction'}
           </Button>
         </div>
       </form>
@@ -227,5 +294,10 @@ const TransactionForm = ({
   )
 }
 
-export { type TransactionType, type TransactionFormValues, TYPE_TO_API_TYPE }
+export {
+  type TransactionType,
+  type TransactionFormValues,
+  type TransactionFormMode,
+  TYPE_TO_API_TYPE,
+}
 export default TransactionForm
