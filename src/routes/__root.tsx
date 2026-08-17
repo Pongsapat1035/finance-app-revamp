@@ -3,6 +3,7 @@ import {
   Scripts,
   createRootRouteWithContext,
   useNavigate,
+  useRouterState,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -47,13 +48,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const isAuthenticated = useIsAuthenticated()
   const hasHydrated = useHasHydrated()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
 
   useEffect(() => {
-    if (hasHydrated && isAuthenticated) {
+    if (hasHydrated && isAuthenticated && pathname.startsWith('/auth')) {
       navigate({ to: '/dashboard' })
     }
-  }, [hasHydrated, isAuthenticated, navigate])
-
+  }, [hasHydrated, isAuthenticated, navigate, pathname])
 
   return (
     <html lang="en">

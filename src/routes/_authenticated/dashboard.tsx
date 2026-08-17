@@ -124,9 +124,19 @@ const recurringPayments = [
   { name: 'Cloud storage', date: 'Aug 12', amount: 9.99, category: 'Subscriptions' },
 ]
 
-function PeriodSwitch({ period, setPeriod }: { period: Period; setPeriod: (period: Period) => void }) {
+function PeriodSwitch({
+  period,
+  setPeriod,
+}: {
+  period: Period
+  setPeriod: (period: Period) => void
+}) {
   return (
-    <div className="grid grid-cols-2 rounded-sm border bg-muted p-1" role="tablist" aria-label="Dashboard period">
+    <div
+      className="grid grid-cols-2 rounded-sm border bg-muted p-1"
+      role="tablist"
+      aria-label="Dashboard period"
+    >
       {(['monthly', 'yearly'] as Period[]).map((item) => {
         const active = period === item
         return (
@@ -137,7 +147,9 @@ function PeriodSwitch({ period, setPeriod }: { period: Period; setPeriod: (perio
             aria-selected={active}
             onClick={() => setPeriod(item)}
             className={`ds-focus-ring ds-interactive h-8 rounded-sm px-3 text-xs font-medium capitalize ${
-              active ? 'bg-background text-foreground shadow-[0_1px_3px_rgb(22_22_22/0.08)]' : 'text-muted-foreground hover:text-foreground'
+              active
+                ? 'bg-background text-foreground shadow-[0_1px_3px_rgb(22_22_22/0.08)]'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {item}
@@ -151,20 +163,41 @@ function PeriodSwitch({ period, setPeriod }: { period: Period; setPeriod: (perio
 function MetricStrip({ data }: { data: DashboardData }) {
   const metrics = [
     { label: 'Current balance', value: data.balance, note: data.range, icon: CircleDollarSign },
-    { label: 'Income', value: data.income, note: `${data.transactionCount} total transactions`, icon: ArrowDownLeft, positive: true },
+    {
+      label: 'Income',
+      value: data.income,
+      note: `${data.transactionCount} total transactions`,
+      icon: ArrowDownLeft,
+      positive: true,
+    },
     { label: 'Expenses', value: data.expenses, note: data.averageLabel, icon: ArrowUpRight },
-    { label: 'Net saved', value: data.net, note: `${data.savingsRate}% savings rate`, icon: TrendingUp, positive: true },
+    {
+      label: 'Net saved',
+      value: data.net,
+      note: `${data.savingsRate}% savings rate`,
+      icon: TrendingUp,
+      positive: true,
+    },
   ]
 
   return (
-    <section className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 xl:grid-cols-4" aria-label={`${data.label} financial summary`}>
+    <section
+      className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 xl:grid-cols-4"
+      aria-label={`${data.label} financial summary`}
+    >
       {metrics.map(({ label, value, note, icon: Icon, positive }) => (
         <article key={label} className="bg-background p-5">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <Icon size={15} strokeWidth={1.75} className={positive ? 'text-success' : 'text-muted-foreground'} />
+            <Icon
+              size={15}
+              strokeWidth={1.75}
+              className={positive ? 'text-success' : 'text-muted-foreground'}
+            />
           </div>
-          <p className={`mt-5 font-mono text-[24px] font-medium tracking-[-0.045em] ${positive && label !== 'Current balance' ? 'text-success' : ''}`}>
+          <p
+            className={`mt-5 font-mono text-[24px] font-medium tracking-[-0.045em] ${positive && label !== 'Current balance' ? 'text-success' : ''}`}
+          >
             {currency(value)}
           </p>
           <p className="mt-1.5 truncate text-[11px] text-muted-foreground">{note}</p>
@@ -182,29 +215,50 @@ function CashFlowChart({ data }: { data: DashboardData }) {
       <div className="flex flex-wrap items-start justify-between gap-4 border-b px-5 py-4">
         <div>
           <h2 className="text-base font-medium tracking-[-0.02em]">Cash flow</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Income compared with expenses for {data.contextLabel}.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Income compared with expenses for {data.contextLabel}.
+          </p>
         </div>
         <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-2"><span className="h-2 w-4 rounded-[1px] bg-success" /> Income</span>
-          <span className="inline-flex items-center gap-2"><span className="h-2 w-4 rounded-[1px] bg-chart-plum" /> Expenses</span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2 w-4 rounded-[1px] bg-success" /> Income
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2 w-4 rounded-[1px] bg-chart-plum" /> Expenses
+          </span>
         </div>
       </div>
 
       <div className="overflow-x-auto p-5">
         <div className="min-w-[520px]">
-          <div className="flex h-56 items-end gap-3 border-b border-l px-4 pt-4" role="img" aria-label={`Cash flow chart. Income ${currency(data.income)}, expenses ${currency(data.expenses)}.`}>
+          <div
+            className="flex h-56 items-end gap-3 border-b border-l px-4 pt-4"
+            role="img"
+            aria-label={`Cash flow chart. Income ${currency(data.income)}, expenses ${currency(data.expenses)}.`}
+          >
             {data.chart.map((point) => {
               const future = point.income === 0 && point.expense === 0
               return (
-                <div key={point.label} className="flex h-full min-w-8 flex-1 items-end justify-center gap-1.5">
+                <div
+                  key={point.label}
+                  className="flex h-full min-w-8 flex-1 items-end justify-center gap-1.5"
+                >
                   <span
                     className={`w-[42%] max-w-8 rounded-t-[2px] ${future ? 'border border-dashed border-border bg-transparent' : 'bg-success'}`}
-                    style={{ height: future ? '4%' : `${Math.max((point.income / maxValue) * 100, point.income ? 3 : 0)}%` }}
+                    style={{
+                      height: future
+                        ? '4%'
+                        : `${Math.max((point.income / maxValue) * 100, point.income ? 3 : 0)}%`,
+                    }}
                     title={`${point.label} income ${currency(point.income)}`}
                   />
                   <span
                     className={`w-[42%] max-w-8 rounded-t-[2px] ${future ? 'border border-dashed border-border bg-transparent' : 'bg-chart-plum'}`}
-                    style={{ height: future ? '4%' : `${Math.max((point.expense / maxValue) * 100, point.expense ? 3 : 0)}%` }}
+                    style={{
+                      height: future
+                        ? '4%'
+                        : `${Math.max((point.expense / maxValue) * 100, point.expense ? 3 : 0)}%`,
+                    }}
                     title={`${point.label} expenses ${currency(point.expense)}`}
                   />
                 </div>
@@ -213,7 +267,12 @@ function CashFlowChart({ data }: { data: DashboardData }) {
           </div>
           <div className="flex gap-3 pl-4 pt-2">
             {data.chart.map((point) => (
-              <span key={point.label} className="min-w-8 flex-1 text-center font-mono text-[10px] text-muted-foreground">{point.label}</span>
+              <span
+                key={point.label}
+                className="min-w-8 flex-1 text-center font-mono text-[10px] text-muted-foreground"
+              >
+                {point.label}
+              </span>
             ))}
           </div>
         </div>
@@ -242,23 +301,43 @@ function CategoryBreakdown({ data }: { data: DashboardData }) {
     <section className="overflow-hidden rounded-lg border bg-background">
       <div className="border-b px-5 py-4">
         <h2 className="text-base font-medium tracking-[-0.02em]">Spending by category</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Where your expenses went in {data.contextLabel}.</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Where your expenses went in {data.contextLabel}.
+        </p>
       </div>
       <div className="p-5">
-        <div className="flex h-3 overflow-hidden rounded-[2px]" aria-label="Stacked spending distribution">
+        <div
+          className="flex h-3 overflow-hidden rounded-[2px]"
+          aria-label="Stacked spending distribution"
+        >
           {data.categories.map((category) => (
-            <span key={category.name} style={{ width: `${category.percent}%`, backgroundColor: category.color }} title={`${category.name} ${category.percent}%`} />
+            <span
+              key={category.name}
+              style={{ width: `${category.percent}%`, backgroundColor: category.color }}
+              title={`${category.name} ${category.percent}%`}
+            />
           ))}
         </div>
         <div className="mt-6 divide-y">
           {data.categories.map((category) => (
-            <div key={category.name} className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-3 first:pt-0 last:pb-0">
-              <span className="h-8 rounded-[1px]" style={{ backgroundColor: category.color }} aria-hidden="true" />
+            <div
+              key={category.name}
+              className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-3 first:pt-0 last:pb-0"
+            >
+              <span
+                className="h-8 rounded-[1px]"
+                style={{ backgroundColor: category.color }}
+                aria-hidden="true"
+              />
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{category.name}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{category.percent}% of expenses</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {category.percent}% of expenses
+                </p>
               </div>
-              <p className="font-mono text-xs font-medium tabular-nums">{currency(category.amount)}</p>
+              <p className="font-mono text-xs font-medium tabular-nums">
+                {currency(category.amount)}
+              </p>
             </div>
           ))}
         </div>
@@ -273,9 +352,14 @@ function RecentTransactions() {
       <div className="flex items-start justify-between gap-4 border-b px-5 py-4">
         <div>
           <h2 className="text-base font-medium tracking-[-0.02em]">Latest transactions</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Most recent activity across all categories.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Most recent activity across all categories.
+          </p>
         </div>
-        <Link to="/transactions" className="ds-focus-ring flex items-center gap-1.5 text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground">
+        <Link
+          to="/transactions"
+          className="ds-focus-ring flex items-center gap-1.5 text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground"
+        >
           View all <ArrowRight size={13} />
         </Link>
       </div>
@@ -283,16 +367,26 @@ function RecentTransactions() {
         {recentTransactions.map((transaction) => {
           const income = transaction.amount > 0
           return (
-            <div key={`${transaction.name}-${transaction.date}`} className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/65">
-              <span className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}>
+            <div
+              key={`${transaction.name}-${transaction.date}`}
+              className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/65"
+            >
+              <span
+                className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}
+              >
                 {income ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{transaction.name}</p>
-                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{transaction.category}, {transaction.date}</p>
+                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                  {transaction.category}, {transaction.date}
+                </p>
               </div>
-              <p className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success' : ''}`}>
-                {income ? '+' : '-'}{currency(Math.abs(transaction.amount))}
+              <p
+                className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success' : ''}`}
+              >
+                {income ? '+' : '-'}
+                {currency(Math.abs(transaction.amount))}
               </p>
             </div>
           )
@@ -321,7 +415,9 @@ function RecurringPayments() {
           <div key={payment.name} className="flex items-center gap-3 px-5 py-3.5">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{payment.name}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{payment.category}, due {payment.date}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {payment.category}, due {payment.date}
+              </p>
             </div>
             <p className="font-mono text-xs font-medium tabular-nums">{currency(payment.amount)}</p>
           </div>
@@ -343,6 +439,7 @@ function DashboardPage() {
     <div className="min-h-[100dvh] bg-background text-foreground">
       <AppSidebar activeItem="Overview" />
       <AppTopBar
+        activeItem="Overview"
         searchLabel="Search your finances"
         periodLabel={data.label}
         periodClassName="hidden text-xs text-muted-foreground sm:block"
@@ -353,12 +450,19 @@ function DashboardPage() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground">Financial overview</p>
-              <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">Good morning, Mina</h1>
-              <p className="mt-2 text-sm text-muted-foreground">Here is the full picture for {data.contextLabel}.</p>
+              <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
+                Good morning, Mina
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Here is the full picture for {data.contextLabel}.
+              </p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
               <PeriodSwitch period={period} setPeriod={setPeriod} />
-              <button type="button" className="ds-focus-ring flex h-8 items-center justify-between gap-3 rounded-sm px-1 text-xs text-muted-foreground sm:justify-end">
+              <button
+                type="button"
+                className="ds-focus-ring flex h-8 items-center justify-between gap-3 rounded-sm px-1 text-xs text-muted-foreground sm:justify-end"
+              >
                 <CalendarDays size={14} /> {data.range} <ChevronDown size={13} />
               </button>
             </div>
@@ -381,7 +485,9 @@ function DashboardPage() {
           <div className="mt-8 flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-medium">Need the complete ledger?</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Review, filter, and add transactions from the activity page.</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Review, filter, and add transactions from the activity page.
+              </p>
             </div>
             <Link
               to="/transactions"

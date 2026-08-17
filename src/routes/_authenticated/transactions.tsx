@@ -99,7 +99,11 @@ function TransactionsPage() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <AppSidebar activeItem="Transactions" />
-      <AppTopBar searchLabel="Search transactions" periodLabel="July 2026" />
+      <AppTopBar
+        activeItem="Transactions"
+        searchLabel="Search transactions"
+        periodLabel="July 2026"
+      />
 
       <main className="lg:ml-56">
         <div className="mx-auto w-full max-w-330 px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
