@@ -1,20 +1,40 @@
 import { useMutation } from '@tanstack/react-query'
-import {
-  postResendOtp,
-  postSignIn,
-  postSignUp,
-  postVerifyOtp,
-} from '#/api/auth/auth.api'
-import type {
-  CreateUser,
-  LoginUser,
-  SignInResponse,
-  SignUpResponse,
-} from '#/api/auth/auth.type'
+import { postResendOtp, postSignIn, postSignUp, postVerifyOtp } from '#/api/auth/auth.api'
+import type { CreateUser, LoginUser, SignInResponse, SignUpResponse } from '#/api/auth/auth.type'
 import { useNavigate } from '@tanstack/react-router'
 import { handleAxiosError, type HandledError } from '@/lib/handleAxiosError'
 import useAuthStore from '#/store/authStore'
 
+const authenticatedPaths = [
+  '/dashboard',
+  '/transactions',
+  '/budgets',
+  '/reports',
+  '/settings',
+  '/profile',
+] as const
+
+type AuthenticatedPath = (typeof authenticatedPaths)[number]
+
+function getPostSignInDestination(): AuthenticatedPath {
+  const fallback = '/dashboard'
+
+  if (typeof window === 'undefined') return fallback
+
+  const redirect = new URLSearchParams(window.location.search).get('redirect')
+  if (!redirect) return fallback
+
+  try {
+    const destination = new URL(redirect, window.location.origin)
+    if (destination.origin !== window.location.origin) return fallback
+
+    return authenticatedPaths.includes(destination.pathname as AuthenticatedPath)
+      ? (destination.pathname as AuthenticatedPath)
+      : fallback
+  } catch {
+    return fallback
+  }
+}
 
 export const useSignup = () => {
   const navigate = useNavigate()
@@ -46,7 +66,7 @@ export const useSignIn = (onError?: (errMsg: HandledError) => void) => {
     onSuccess: (data: SignInResponse) => {
       const { token } = data
       setToken(token)
-      navigate({ to: '/dashboard' })
+      navigate({ to: getPostSignInDestination() })
     },
     onError: (err) => onError?.(handleAxiosError(err)),
   })
@@ -55,9 +75,7 @@ export const useSignIn = (onError?: (errMsg: HandledError) => void) => {
 export const useVerifyUser = () => {
   return useMutation({
     mutationFn: (otp: string) => {
-      const otpContext = JSON.parse(
-        sessionStorage.getItem('otpContext') ?? 'null',
-      )
+      const otpContext = JSON.parse(sessionStorage.getItem('otpContext') ?? 'null')
       console.log(otpContext)
       return postVerifyOtp({ otp, userId: otpContext.userId })
     },
@@ -69,9 +87,7 @@ export const useVerifyUser = () => {
 export const useResendOtp = () => {
   return useMutation({
     mutationFn: () => {
-      const otpContext = JSON.parse(
-        sessionStorage.getItem('otpContext') ?? 'null',
-      )
+      const otpContext = JSON.parse(sessionStorage.getItem('otpContext') ?? 'null')
 
       if (!otpContext) throw new Error('otp context not found')
 

@@ -27,6 +27,6 @@ export interface SignUpResponse {
   }
 }
 
-export interface SignInResponse { 
+export interface SignInResponse {
   token: string
 }
