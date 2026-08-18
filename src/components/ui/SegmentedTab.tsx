@@ -37,9 +37,7 @@ const SegmentedTab = <T extends string>({
             }`}
           >
             {tab.label}
-            {isActive && (
-              <span className="absolute inset-x-0 -bottom-px h-0.5 bg-foreground" />
-            )}
+            {isActive && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-foreground" />}
           </button>
         )
       })}

@@ -39,7 +39,8 @@ function OtpPage() {
             Enter verification code.
           </h1>
           <p className="mt-3 max-w-sm text-[14px] leading-6 text-muted-foreground">
-            We sent a six-digit code to <span className="font-medium text-foreground">mi••@example.com</span>.
+            We sent a six-digit code to{' '}
+            <span className="font-medium text-foreground">mi••@example.com</span>.
           </p>
         </div>
 

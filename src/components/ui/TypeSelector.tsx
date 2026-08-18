@@ -21,7 +21,9 @@ const TypeSelector = ({ value, onChange }: TypeSelectorProps) => {
               aria-pressed={selected}
               onClick={() => onChange(type)}
               className={`ds-focus-ring ds-interactive flex h-10 items-center justify-center gap-2 rounded-sm text-sm font-medium capitalize ${
-                selected ? 'bg-background shadow-[0_1px_3px_rgb(22_22_22/0.09)]' : 'text-muted-foreground hover:text-foreground'
+                selected
+                  ? 'bg-background shadow-[0_1px_3px_rgb(22_22_22/0.09)]'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {type === 'expense' ? <ArrowUpRight size={15} /> : <ArrowDownLeft size={15} />}

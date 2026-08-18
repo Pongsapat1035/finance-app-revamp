@@ -23,4 +23,3 @@ export const postVerifyOtp = (payload: VerifyUser) => {
 export const postResendOtp = (payload: ResendOtp) => {
   return apiClient.post('/otp/resent-otp', payload)
 }
-

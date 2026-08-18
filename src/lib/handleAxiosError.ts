@@ -16,9 +16,7 @@ export function handleAxiosError(error: unknown): HandledError {
   }
   const statusCode = error.response?.status ?? null
   const raw = error.response?.data?.message
-  const message = Array.isArray(raw)
-    ? raw.join(', ')
-    : (raw ?? error.message)
+  const message = Array.isArray(raw) ? raw.join(', ') : (raw ?? error.message)
   console.log({ message, statusCode })
   return { message, statusCode }
 }

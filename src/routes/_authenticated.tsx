@@ -18,7 +18,7 @@ const AuthenticatedLayout = () => {
   }, [hasHydrated, isAuthenticated, navigate])
 
   if (!hasHydrated || !isAuthenticated) {
-    return null 
+    return null
   }
 
   return (

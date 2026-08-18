@@ -40,7 +40,10 @@ const Nav = () => {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-330 items-center justify-between px-4 sm:h-18 sm:px-6 lg:px-8">
-        <Link to="/" className="ds-focus-ring inline-flex items-center gap-2.5 text-foreground no-underline">
+        <Link
+          to="/"
+          className="ds-focus-ring inline-flex items-center gap-2.5 text-foreground no-underline"
+        >
           <LedgrIcon size={30} />
           <span className="text-sm font-medium">Ledgr</span>
         </Link>
@@ -71,7 +74,9 @@ const HeroPreviewPanel = () => {
           <p className="text-[11px] font-medium text-muted-foreground">EXAMPLE MONTH</p>
           <p className="mt-1 text-sm font-medium">July 2026 overview</p>
         </div>
-        <span className="rounded-full bg-success-soft px-2 py-1 text-[10px] font-semibold text-success">On track</span>
+        <span className="rounded-full bg-success-soft px-2 py-1 text-[10px] font-semibold text-success">
+          On track
+        </span>
       </div>
       <div className="grid grid-cols-2 gap-px bg-border">
         <div className="bg-background p-5">
@@ -79,23 +84,32 @@ const HeroPreviewPanel = () => {
             <TrendingUp size={14} strokeWidth={1.75} />
             <span className="text-[11px]">Income</span>
           </div>
-          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">{currency(4150)}</p>
+          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
+            {currency(4150)}
+          </p>
         </div>
         <div className="bg-background p-5">
           <div className="flex items-center gap-2 text-muted-foreground">
             <TrendingDown size={14} strokeWidth={1.75} />
             <span className="text-[11px]">Expenses</span>
           </div>
-          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">{currency(1358.99)}</p>
+          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
+            {currency(1358.99)}
+          </p>
         </div>
       </div>
       <div className="p-5">
         <div className="flex items-end justify-between gap-6">
           <div>
             <p className="text-[11px] text-muted-foreground">Available after expenses</p>
-            <p className="mt-2 font-mono text-[28px] font-medium tracking-[-0.045em]">{currency(2791.01)}</p>
+            <p className="mt-2 font-mono text-[28px] font-medium tracking-[-0.045em]">
+              {currency(2791.01)}
+            </p>
           </div>
-          <div className="flex h-14 w-32 items-end gap-1" aria-label="Example daily spending trend, low to high">
+          <div
+            className="flex h-14 w-32 items-end gap-1"
+            aria-label="Example daily spending trend, low to high"
+          >
             {[42, 56, 38, 66, 48, 74, 62, 86, 72, 100].map((height, index) => (
               <span
                 key={`${height}-${index}`}
@@ -123,8 +137,8 @@ const Hero = () => {
             Know where your money goes.
           </h1>
           <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">
-            Ledgr brings your income, expenses, and savings into one clear picture, so
-            decisions take seconds, not spreadsheets.
+            Ledgr brings your income, expenses, and savings into one clear picture, so decisions
+            take seconds, not spreadsheets.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -159,7 +173,8 @@ const featureHighlights = [
   {
     icon: ReceiptText,
     title: 'Categorized automatically',
-    description: 'Every transaction is sorted into a category the moment it lands, no manual tagging.',
+    description:
+      'Every transaction is sorted into a category the moment it lands, no manual tagging.',
   },
   {
     icon: TrendingUp,
@@ -206,8 +221,8 @@ const TransactionsStory = () => {
             Every transaction, organized automatically.
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Income and expenses land in one ledger with categories already applied. Review
-            recent activity or add a transaction by hand in seconds.
+            Income and expenses land in one ledger with categories already applied. Review recent
+            activity or add a transaction by hand in seconds.
           </p>
         </div>
         <div className="overflow-hidden rounded-lg border bg-background">
@@ -218,16 +233,26 @@ const TransactionsStory = () => {
             {heroTransactions.map((transaction) => {
               const income = transaction.amount > 0
               return (
-                <div key={`${transaction.name}-${transaction.date}`} className="flex items-center gap-3 px-5 py-3.5">
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}>
+                <div
+                  key={`${transaction.name}-${transaction.date}`}
+                  className="flex items-center gap-3 px-5 py-3.5"
+                >
+                  <span
+                    className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}
+                  >
                     {income ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{transaction.name}</p>
-                    <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{transaction.category}, {transaction.date}</p>
+                    <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                      {transaction.category}, {transaction.date}
+                    </p>
                   </div>
-                  <p className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success' : ''}`}>
-                    {income ? '+' : '-'}{currency(Math.abs(transaction.amount))}
+                  <p
+                    className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success' : ''}`}
+                  >
+                    {income ? '+' : '-'}
+                    {currency(Math.abs(transaction.amount))}
                   </p>
                 </div>
               )
@@ -244,18 +269,36 @@ const CategoryStory = () => {
     <section className="border-b border-border">
       <div className="mx-auto grid w-full max-w-330 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-24">
         <div className="overflow-hidden rounded-lg border bg-background p-5 lg:order-1">
-          <p className="text-[11px] font-medium text-muted-foreground">EXAMPLE SPENDING, JULY 2026</p>
-          <div className="mt-4 flex h-3 overflow-hidden rounded-[2px]" aria-label="Stacked spending distribution by category">
+          <p className="text-[11px] font-medium text-muted-foreground">
+            EXAMPLE SPENDING, JULY 2026
+          </p>
+          <div
+            className="mt-4 flex h-3 overflow-hidden rounded-[2px]"
+            aria-label="Stacked spending distribution by category"
+          >
             {categoryBreakdown.map((category) => (
-              <span key={category.name} style={{ width: `${category.percent}%`, backgroundColor: category.color }} title={`${category.name} ${category.percent}%`} />
+              <span
+                key={category.name}
+                style={{ width: `${category.percent}%`, backgroundColor: category.color }}
+                title={`${category.name} ${category.percent}%`}
+              />
             ))}
           </div>
           <div className="mt-5 divide-y">
             {categoryBreakdown.map((category) => (
-              <div key={category.name} className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                <span className="h-6 rounded-[1px]" style={{ backgroundColor: category.color }} aria-hidden="true" />
+              <div
+                key={category.name}
+                className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-2.5 first:pt-0 last:pb-0"
+              >
+                <span
+                  className="h-6 rounded-[1px]"
+                  style={{ backgroundColor: category.color }}
+                  aria-hidden="true"
+                />
                 <p className="truncate text-sm font-medium">{category.name}</p>
-                <p className="font-mono text-xs font-medium tabular-nums text-muted-foreground">{currency(category.amount)}</p>
+                <p className="font-mono text-xs font-medium tabular-nums text-muted-foreground">
+                  {currency(category.amount)}
+                </p>
               </div>
             ))}
           </div>
@@ -266,8 +309,8 @@ const CategoryStory = () => {
             See exactly where it goes.
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Category breakdowns update as you spend, so you can catch a drifting budget
-            before the month closes, not after.
+            Category breakdowns update as you spend, so you can catch a drifting budget before the
+            month closes, not after.
           </p>
         </div>
       </div>
@@ -328,13 +371,21 @@ const Footer = () => {
   return (
     <footer className="bg-background">
       <div className="mx-auto flex w-full max-w-330 flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <Link to="/" className="ds-focus-ring inline-flex items-center gap-2.5 text-foreground no-underline">
+        <Link
+          to="/"
+          className="ds-focus-ring inline-flex items-center gap-2.5 text-foreground no-underline"
+        >
           <LedgrIcon size={22} />
-          <span className="text-xs font-medium text-muted-foreground">Ledgr, personal finance workspace</span>
+          <span className="text-xs font-medium text-muted-foreground">
+            Ledgr, personal finance workspace
+          </span>
         </Link>
         <div className="flex items-center gap-5 text-[11px] text-muted-foreground">
           <span>&copy; 2026 Ledgr</span>
-          <Link to="/design-system" className="ds-focus-ring underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-foreground">
+          <Link
+            to="/design-system"
+            className="ds-focus-ring underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-foreground"
+          >
             Design system
           </Link>
         </div>

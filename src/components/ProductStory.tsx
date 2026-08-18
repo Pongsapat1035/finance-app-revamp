@@ -9,14 +9,16 @@ const ProductStory = () => {
       <GridOverlay />
 
       <div className="relative flex items-center justify-between">
-        <Link to="/" className="ds-focus-ring inline-flex items-center gap-3 text-white no-underline">
+        <Link
+          to="/"
+          className="ds-focus-ring inline-flex items-center gap-3 text-white no-underline"
+        >
           {/* <span className="grid size-9 place-items-center rounded-sm bg-accent text-sm font-bold tracking-[-0.08em] text-accent-foreground">
             F/
           </span> */}
           <LedgrIcon size={40} />
           <span className="text-sm font-medium">Ledgr</span>
         </Link>
-        
       </div>
 
       <div className="relative my-auto max-w-xl py-16 lg:py-12">
@@ -25,7 +27,8 @@ const ProductStory = () => {
           Know where your money goes.
         </h1>
         <p className="mt-6 max-w-md text-[16px] leading-7 text-white/65">
-          Collect expenses and income, understand your habits, and see the full picture in one dashboard.
+          Collect expenses and income, understand your habits, and see the full picture in one
+          dashboard.
         </p>
 
         <div className="mt-10 max-w-lg overflow-hidden rounded-lg border border-white/15 bg-[#202020] shadow-[0_24px_70px_rgb(0_0_0/0.22)]">

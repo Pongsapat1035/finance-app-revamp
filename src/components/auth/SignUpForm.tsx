@@ -65,7 +65,10 @@ const SignUpForm = ({ onSubmit, isPending }: Props) => {
           )}
         </form.Field>
 
-        <form.Field name="email" validators={{ onBlur: ({ value }) => validateEmail(value) ?? null }}>
+        <form.Field
+          name="email"
+          validators={{ onBlur: ({ value }) => validateEmail(value) ?? null }}
+        >
           {(field) => (
             <InputField
               id="email"
@@ -82,7 +85,10 @@ const SignUpForm = ({ onSubmit, isPending }: Props) => {
           )}
         </form.Field>
 
-        <form.Field name="password" validators={{ onBlur: ({ value }) => validatePassword(value) ?? null }}>
+        <form.Field
+          name="password"
+          validators={{ onBlur: ({ value }) => validatePassword(value) ?? null }}
+        >
           {(field) => (
             <InputField
               id="password"
@@ -130,9 +136,7 @@ const SignUpForm = ({ onSubmit, isPending }: Props) => {
 
       <div className="mt-5 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
         <Check className="mt-0.5 shrink-0 text-success" size={14} strokeWidth={2} />
-        <p>
-          By creating an account, you agree to the Terms and acknowledge the Privacy Policy.
-        </p>
+        <p>By creating an account, you agree to the Terms and acknowledge the Privacy Policy.</p>
       </div>
     </>
   )

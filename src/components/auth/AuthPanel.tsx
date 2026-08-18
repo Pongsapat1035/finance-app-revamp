@@ -11,7 +11,10 @@ const AuthPanel = ({ children }: AuthPanelProps) => {
     <section className="flex min-h-dvh justify-center bg-background px-4 py-12 sm:px-8 lg:h-dvh lg:overflow-y-auto lg:px-12">
       <div className="w-full max-w-110">
         <div className="mb-9 lg:hidden">
-          <Link to="/" className="ds-focus-ring inline-flex items-center gap-3 text-foreground no-underline">
+          <Link
+            to="/"
+            className="ds-focus-ring inline-flex items-center gap-3 text-foreground no-underline"
+          >
             <LedgrIcon />
             <span className="text-sm font-medium">My finance</span>
           </Link>

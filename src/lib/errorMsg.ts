@@ -3,6 +3,4 @@ export const apiErrorMsg = {
   INCORRECT_CREDENTIAL: 'not match',
 } as const
 
-
-
 export type ApiErrorMsgKey = keyof typeof apiErrorMsg

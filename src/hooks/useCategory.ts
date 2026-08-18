@@ -1,12 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteCategory,
   getCategories,
   patchCategory,
   postCategory,
-} from "#/api/category/category.api"
-import type { PaginationParams } from "#/api/types"
-import type { CreateCategoryDto } from "#/api/category/category.type"
+} from '#/api/category/category.api'
+import type { PaginationParams } from '#/api/types'
+import type { CreateCategoryDto } from '#/api/category/category.type'
 
 export const useFetchCategory = (params?: PaginationParams) => {
   return useQuery({ queryKey: ['category', params], queryFn: () => getCategories(params) })

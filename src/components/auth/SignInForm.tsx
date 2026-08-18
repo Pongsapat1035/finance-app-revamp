@@ -43,7 +43,10 @@ const SignInForm = ({ onSubmit, isPending }: Props) => {
           form.handleSubmit()
         }}
       >
-        <form.Field name="email" validators={{ onBlur: ({ value }) => validateEmail(value) ?? null }}>
+        <form.Field
+          name="email"
+          validators={{ onBlur: ({ value }) => validateEmail(value) ?? null }}
+        >
           {(field) => (
             <InputField
               id="email"
@@ -60,7 +63,10 @@ const SignInForm = ({ onSubmit, isPending }: Props) => {
           )}
         </form.Field>
 
-        <form.Field name="password" validators={{ onBlur: ({ value }) => validatePassword(value) ?? null }}>
+        <form.Field
+          name="password"
+          validators={{ onBlur: ({ value }) => validatePassword(value) ?? null }}
+        >
           {(field) => (
             <InputField
               id="password"
