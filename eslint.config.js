@@ -6,14 +6,7 @@ import tanstackRouter from '@tanstack/eslint-plugin-router'
 
 export default tseslint.config(
   {
-    ignores: [
-      'dist',
-      '.output',
-      '.nitro',
-      '.tanstack',
-      '.vinxi',
-      'src/routeTree.gen.ts',
-    ],
+    ignores: ['dist', '.output', '.nitro', '.tanstack', '.vinxi', 'src/routeTree.gen.ts'],
   },
 
   js.configs.recommended,
