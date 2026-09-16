@@ -155,6 +155,20 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - Placeholder text is never the only label.
 - Error state uses text, icon, and border, not color alone.
 
+### Date picker
+
+- Use the date picker when choosing one calendar date is clearer than manual entry.
+- Its trigger follows the standard 40px field treatment: label above, helper or error below, 4px radius, and 1px input border.
+- `mode="date"` stores local calendar dates as `YYYY-MM-DD` and displays them as `DD/MM/YYYY`. `mode="month"` stores month values as `YYYY-MM` and displays them as `MMM YYYY`.
+- The popover uses the standard popover surface, 6px radius, one border, and floating shadow. It supports keyboard navigation and respects date bounds.
+- Use month mode for a reporting period or billing cycle. Use separate start and end fields for a simple bounded workflow. Add a range picker only when selecting a range is the primary task.
+
+### Checkbox
+
+- Use a checkbox for an independent boolean setting, never to select a mutually exclusive status.
+- Pair it with a literal label and concise explanation when the effect needs context.
+- The control is 20px with a 4px radius. The checked state uses the ink surface and a white check icon.
+
 ### Dropdown menus
 
 - Use dropdown menus for compact secondary actions, especially table rows and mobile overflow controls.
@@ -186,6 +200,12 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - If the action fails, keep the dialog open and show a recovery message inline above the actions.
 - The panel uses an 8px radius, the standard floating shadow, and a `#161616` overlay at 35 percent. Maximum width is 448px.
 - Focus is trapped inside the dialog and returns to the trigger after dismissal.
+
+### Modal layout
+
+- Compose longer dialogs from `BaseModalHeader`, `BaseModalBody`, and `BaseModalFooter`.
+- The header and footer remain fixed. Only `BaseModalBody` scrolls, and its scrollbar is visually hidden in Chrome and Safari while wheel, touch, and keyboard scrolling remain available.
+- Existing simple dialogs can keep `BaseModalContent`'s default whole-panel scrolling until they are migrated to this layout.
 
 ### Cards and panels
 

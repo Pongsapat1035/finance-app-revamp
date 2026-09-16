@@ -1,6 +1,6 @@
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp, CircleAlert } from 'lucide-react'
-import { useId, type ComponentProps, type ReactNode } from 'react'
+import { useId, useState, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '#/lib/utils'
 
 const Select = SelectPrimitive.Root
@@ -28,7 +28,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       aria-invalid={invalid || undefined}
       className={cn(
-        'ds-focus-ring ds-interactive flex w-full items-center justify-between gap-2 rounded-sm border bg-background px-3 text-sm',
+        'flex w-full items-center justify-between gap-2 rounded-sm border bg-background px-3 text-sm transition-[border-color,box-shadow] duration-150 ease-out focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none aria-[invalid=true]:focus-visible:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20 motion-reduce:transition-none',
         'hover:border-[#a9a9a5] disabled:pointer-events-none disabled:opacity-45',
         'data-placeholder:text-muted-foreground [&>span]:truncate',
         triggerHeights[size],
@@ -135,6 +135,7 @@ export interface SelectFieldProps {
   placeholder?: string
   helperText?: string
   error?: string
+  validate?: (value: string | undefined) => string | undefined
   disabled?: boolean
   required?: boolean
   name?: string
@@ -156,6 +157,7 @@ const SelectField = ({
   placeholder = 'Select an option',
   helperText,
   error,
+  validate,
   disabled,
   required,
   name,
@@ -164,7 +166,15 @@ const SelectField = ({
 }: SelectFieldProps) => {
   const generatedId = useId()
   const fieldId = id ?? generatedId
-  const descriptionId = error ? `${fieldId}-error` : helperText ? `${fieldId}-helper` : undefined
+  const [internalError, setInternalError] = useState<string>()
+  const [internalTouched, setInternalTouched] = useState(false)
+  const fieldError = error ?? internalError
+  const hasError = Boolean(error) || (internalTouched && Boolean(internalError))
+  const descriptionId = hasError ? `${fieldId}-error` : helperText ? `${fieldId}-helper` : undefined
+
+  const validateValue = (nextValue: string | undefined) => {
+    if (validate) setInternalError(validate(nextValue))
+  }
 
   return (
     <div className="grid gap-2">
@@ -181,12 +191,24 @@ const SelectField = ({
       <Select
         value={value}
         defaultValue={defaultValue}
-        onValueChange={onValueChange}
+        onValueChange={(nextValue) => {
+          validateValue(nextValue)
+          onValueChange?.(nextValue)
+        }}
         disabled={disabled}
         required={required}
         name={name}
       >
-        <SelectTrigger id={fieldId} size={size} invalid={!!error} aria-describedby={descriptionId}>
+        <SelectTrigger
+          id={fieldId}
+          size={size}
+          invalid={hasError}
+          aria-describedby={descriptionId}
+          onBlur={() => {
+            setInternalTouched(true)
+            validateValue(value)
+          }}
+        >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -197,13 +219,13 @@ const SelectField = ({
           ))}
         </SelectContent>
       </Select>
-      {error ? (
+      {hasError && fieldError ? (
         <span
           id={`${fieldId}-error`}
           className="flex items-center gap-1.5 text-[12px] text-destructive"
         >
           <CircleAlert size={13} strokeWidth={1.75} />
-          {error}
+          {fieldError}
         </span>
       ) : helperText ? (
         <span id={`${fieldId}-helper`} className="text-[12px] text-muted-foreground">

@@ -18,6 +18,18 @@ import {
   Trash2,
 } from 'lucide-react'
 import ConfirmModal from '#/components/ui/ConfirmModal'
+import BaseModal, {
+  BaseModalBody,
+  BaseModalClose,
+  BaseModalContent,
+  BaseModalDescription,
+  BaseModalFooter,
+  BaseModalHeader,
+  BaseModalTitle,
+} from '#/components/ui/BaseModal'
+import Checkbox from '#/components/ui/Checkbox'
+import DatePickerField from '#/components/ui/DatePicker'
+import InputField from '#/components/ui/InputField'
 import Toast, { type ToastTone } from '#/components/ui/Toast'
 import {
   DropdownMenu,
@@ -225,6 +237,146 @@ function ConfirmDialogDemo() {
         loading={pending}
         onConfirm={startPending}
       />
+    </article>
+  )
+}
+
+function BaseModalDemo() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <article className="rounded-lg border p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium">Modal layout</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Keep the header and actions fixed; only the body scrolls when its content is long.
+          </p>
+        </div>
+        <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
+          ui/BaseModal
+        </code>
+      </div>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="ds-focus-ring ds-interactive mt-6 inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium hover:bg-muted"
+      >
+        Open long form
+      </button>
+
+      <BaseModal open={open} onOpenChange={setOpen}>
+        <BaseModalContent showCloseButton={false} scrollable={false} className="sm:max-w-md">
+          <BaseModalHeader>
+            <BaseModalTitle className="text-lg font-medium tracking-[-0.02em]">
+              Review imported entries
+            </BaseModalTitle>
+            <BaseModalDescription className="mt-1 text-xs leading-5 text-muted-foreground">
+              The header and footer remain visible while the list scrolls.
+            </BaseModalDescription>
+          </BaseModalHeader>
+          <BaseModalBody className="grid max-h-52 gap-3">
+            {Array.from({ length: 10 }, (_, index) => (
+              <div key={index} className="rounded-sm border bg-muted px-3 py-2.5 text-sm">
+                Imported transaction {index + 1}
+              </div>
+            ))}
+          </BaseModalBody>
+          <BaseModalFooter>
+            <div className="flex justify-end gap-2">
+              <BaseModalClose asChild>
+                <button className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium hover:bg-muted">
+                  Cancel
+                </button>
+              </BaseModalClose>
+              <button className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm bg-accent px-4 text-sm font-semibold text-accent-foreground hover:bg-[#c7e600]">
+                Continue
+              </button>
+            </div>
+          </BaseModalFooter>
+        </BaseModalContent>
+      </BaseModal>
+    </article>
+  )
+}
+
+function DatePickerDemo() {
+  const [date, setDate] = useState('2026-09-16')
+  const [month, setMonth] = useState('2026-09')
+
+  return (
+    <article id="date-picker" className="rounded-lg border p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium">Date picker</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Use for an exact date when a calendar is quicker and clearer than manual entry.
+          </p>
+        </div>
+        <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
+          ui/DatePicker
+        </code>
+      </div>
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <DatePickerField
+          id="statement-date"
+          label="Statement date"
+          value={date}
+          onValueChange={setDate}
+          helperText="Uses your workspace timezone."
+        />
+        <DatePickerField
+          id="statement-month"
+          label="Statement month"
+          mode="month"
+          value={month}
+          onValueChange={setMonth}
+          helperText="Returns a month in YYYY-MM format."
+        />
+        <DatePickerField
+          id="close-date"
+          label="Close date"
+          value=""
+          onValueChange={() => undefined}
+          error="Select a close date to continue."
+        />
+      </div>
+    </article>
+  )
+}
+
+function CheckboxDemo() {
+  const [checked, setChecked] = useState(true)
+
+  return (
+    <article className="rounded-lg border p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium">Checkbox</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Use for an independent boolean setting with a clear label and consequence.
+          </p>
+        </div>
+        <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
+          ui/Checkbox
+        </code>
+      </div>
+      <div className="mt-6 flex items-start gap-3 rounded-md border bg-muted px-4 py-3.5">
+        <Checkbox
+          id="email-summary"
+          checked={checked}
+          onCheckedChange={(nextChecked) => setChecked(nextChecked === true)}
+          className="mt-0.5"
+        />
+        <div>
+          <label htmlFor="email-summary" className="text-sm font-medium">
+            Send monthly summary
+          </label>
+          <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+            Receive a spending and cash-flow summary at the start of each month.
+          </p>
+        </div>
+      </div>
     </article>
   )
 }
@@ -609,16 +761,12 @@ function DesignSystemPage() {
               <article className="rounded-lg border p-5 sm:p-7">
                 <h3 className="text-sm font-medium">Fields</h3>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <label className="grid gap-2 text-xs font-medium">
-                    Report name
-                    <input
-                      className="ds-focus-ring h-10 rounded-sm border border-input bg-background px-3 text-sm font-normal placeholder:text-muted-foreground"
-                      placeholder="Monthly finance review"
-                    />
-                    <span className="font-normal text-muted-foreground">
-                      Visible to report collaborators.
-                    </span>
-                  </label>
+                  <InputField
+                    id="report-name"
+                    label="Report name"
+                    placeholder="Monthly finance review"
+                    helperText="Visible to report collaborators."
+                  />
                   <SelectField
                     label="Period"
                     options={periodOptions}
@@ -690,6 +838,12 @@ function DesignSystemPage() {
                   </div>
                 </div>
               </article>
+
+              <DatePickerDemo />
+
+              <CheckboxDemo />
+
+              <BaseModalDemo />
 
               <ConfirmDialogDemo />
 
