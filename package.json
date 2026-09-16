@@ -1,6 +1,7 @@
 {
   "name": "finance-app",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "type": "module",
   "imports": {
     "#/*": "./src/*"
