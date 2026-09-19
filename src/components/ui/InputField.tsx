@@ -17,6 +17,7 @@ export interface InputFieldProps {
   helperText?: string
   inputClassName?: string
   required?: boolean
+  disabled?: boolean
 
   // Controlled mode — pass these from form.Field
   value?: string
@@ -45,6 +46,7 @@ const InputField = ({
   helperText,
   inputClassName,
   required,
+  disabled,
   value,
   onChange,
   onBlur,
@@ -88,6 +90,7 @@ const InputField = ({
         step={step}
         inputMode={inputMode}
         required={required}
+        disabled={disabled}
         placeholder={placeholder}
         value={value}
         onBlur={handleBlur}
@@ -96,13 +99,13 @@ const InputField = ({
         aria-invalid={hasError}
         aria-describedby={hasError ? `${id}-error` : undefined}
         className={cn(
-          'h-10 w-full rounded-sm border bg-background px-3 text-sm font-normal text-foreground transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-muted-foreground hover:border-[#a9a9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none aria-[invalid=true]:focus-visible:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20 motion-reduce:transition-none',
+          'h-10 w-full rounded-sm border bg-background px-3 text-sm font-normal text-foreground transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-muted-foreground hover:border-[#a9a9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-45 aria-[invalid=true]:focus-visible:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20 motion-reduce:transition-none',
           hasError ? 'border-destructive' : 'border-input',
           inputClassName,
         )}
       />
       {hasError && (
-        <span id={`${id}-error`} className="text-[12px] font-normal text-destructive">
+        <span id={`${id}-error`} className="text-[12px] font-normal text-destructive-text">
           {error}
         </span>
       )}
