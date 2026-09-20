@@ -7,7 +7,7 @@ export type ToastTone = 'success' | 'info' | 'error'
 const toneStyles = {
   success: {
     icon: CircleCheck,
-    iconClass: 'bg-success-soft text-success',
+    iconClass: 'bg-success-soft text-success-text',
   },
   info: {
     icon: Info,
@@ -15,7 +15,7 @@ const toneStyles = {
   },
   error: {
     icon: CircleAlert,
-    iconClass: 'bg-destructive/10 text-destructive',
+    iconClass: 'bg-destructive/10 text-destructive-text',
   },
 } satisfies Record<ToastTone, { icon: typeof CircleCheck; iconClass: string }>
 

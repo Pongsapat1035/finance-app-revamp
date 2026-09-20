@@ -1,12 +1,11 @@
 import { apiClient } from '../client'
-import type { PaginationParams } from '../types'
-import type { Category, CategoryResponse, CreateCategoryDto } from './category.type'
+import type { Category, CategoryQueryParams, CategoryResponse, CreateCategoryDto } from './category.type'
 
 export const postCategory = (payload: CreateCategoryDto) => {
   return apiClient.post<Category>('/category', payload)
 }
 
-export const getCategories = (params?: PaginationParams) => {
+export const getCategories = (params?: CategoryQueryParams) => {
   return apiClient.get<CategoryResponse>('/category', { params })
 }
 

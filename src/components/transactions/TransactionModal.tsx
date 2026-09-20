@@ -21,6 +21,10 @@ interface TransactionModalProps {
   open: boolean
   onClose: () => void
   categories?: ApiCategory[]
+  categoriesLoading?: boolean
+  categoriesError?: string
+  onSearchCategories?: (keyword: string) => void
+  onRetryCategories?: () => void
   transaction?: NormalizedTransaction | null
   onSuccess?: (mode: 'create' | 'edit') => void
 }
@@ -29,21 +33,20 @@ const TransactionModal = ({
   open,
   onClose,
   categories,
+  categoriesLoading = false,
+  categoriesError,
+  onSearchCategories,
+  onRetryCategories,
   transaction,
   onSuccess,
 }: TransactionModalProps) => {
   const [view, setView] = useState<ModalView>('transaction')
   const [type, setType] = useState<TransactionType>('expense')
-  const [manageCategories, setManageCategories] = useState<ApiCategory[]>(categories ?? [])
   const [submitError, setSubmitError] = useState<string>()
   const createTransaction = useCreateTransaction()
   const updateTransaction = useUpdateTransaction()
   const mode = transaction ? 'edit' : 'create'
   const isSubmitting = createTransaction.isPending || updateTransaction.isPending
-
-  useEffect(() => {
-    setManageCategories(categories ?? [])
-  }, [categories])
 
   useEffect(() => {
     if (!open) return
@@ -109,7 +112,10 @@ const TransactionModal = ({
             key={`${mode}-${transaction?.id ?? 'new'}`}
             type={type}
             setType={setType}
-            categories={manageCategories}
+            categories={categories ?? []}
+            categoriesLoading={categoriesLoading}
+            categoriesError={categoriesError}
+            onCategorySearch={onSearchCategories}
             onManageCategories={() => setView('categories')}
             onClose={handleClose}
             onSubmit={handleSubmit}
@@ -120,8 +126,10 @@ const TransactionModal = ({
           />
         ) : (
           <CategoryManager
-            categories={manageCategories}
-            setCategories={setManageCategories}
+            categories={categories ?? []}
+            isLoading={categoriesLoading}
+            error={categoriesError}
+            onRetry={onRetryCategories}
             transactionType={TYPE_TO_API_TYPE[type]}
             onBack={() => setView('transaction')}
             onClose={handleClose}

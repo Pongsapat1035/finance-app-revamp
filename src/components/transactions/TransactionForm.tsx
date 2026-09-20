@@ -29,6 +29,9 @@ interface TransactionFormProps {
   type: TransactionType
   setType: (value: TransactionType) => void
   categories: ApiCategory[]
+  categoriesLoading?: boolean
+  categoriesError?: string
+  onCategorySearch?: (keyword: string) => void
   onManageCategories: () => void
   onClose: () => void
   onSubmit: (value: TransactionFormValues) => Promise<void> | void
@@ -42,6 +45,9 @@ const TransactionForm = ({
   type,
   setType,
   categories,
+  categoriesLoading = false,
+  categoriesError,
+  onCategorySearch,
   onManageCategories,
   onClose,
   onSubmit,
@@ -115,15 +121,9 @@ const TransactionForm = ({
             return (
               <div className="grid gap-2">
                 <label className="text-[13px] font-medium" htmlFor="transaction-amount">
-                  Amount
+                  Amount (USD)
                 </label>
                 <span className="relative">
-                  <span
-                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xl text-muted-foreground"
-                    aria-hidden="true"
-                  >
-                    $
-                  </span>
                   <input
                     id="transaction-amount"
                     name={field.name}
@@ -138,13 +138,13 @@ const TransactionForm = ({
                       const nextValue = event.target.value
                       if (/^\d*(\.\d{0,2})?$/.test(nextValue)) field.handleChange(nextValue)
                     }}
-                    className="ds-focus-ring h-14 w-full rounded-sm border border-input bg-background pl-10 pr-4 font-mono text-2xl font-medium tracking-[-0.04em] placeholder:text-[#aaa9a5]"
+                    className="h-14 w-full rounded-sm border border-input bg-background px-4 font-mono text-2xl font-medium tracking-[-0.04em] transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-[#aaa9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none motion-reduce:transition-none"
                   />
                 </span>
                 {hasError ? (
                   <span
                     id="transaction-amount-error"
-                    className="text-[11px] font-normal text-destructive"
+                    className="text-[11px] font-normal text-destructive-text"
                   >
                     {field.state.meta.errors.join(', ')}
                   </span>
@@ -187,15 +187,26 @@ const TransactionForm = ({
                 id="transaction-category"
                 label=""
                 options={[{ label: 'Select a category', value: 'default' }, ...availableCategories]}
+                onSearch={onCategorySearch}
                 onValueChange={field.handleChange}
                 value={field.state.value}
                 required
+                disabled={categoriesLoading || Boolean(categoriesError)}
                 error={field.state.meta.isTouched ? field.state.meta.errors.join(', ') : undefined}
               />
 
-              <span className="text-[11px] text-muted-foreground">
-                Categories change based on transaction type.
-              </span>
+              {categoriesError ? (
+                <span className="flex items-center gap-1.5 text-[11px] text-destructive-text">
+                  <CircleAlert size={13} strokeWidth={1.75} />
+                  Categories are unavailable. Open Manage categories to retry.
+                </span>
+              ) : (
+                <span className="text-[11px] text-muted-foreground">
+                  {categoriesLoading
+                    ? 'Loading available categories.'
+                    : 'Categories change based on transaction type.'}
+                </span>
+              )}
             </div>
           )}
         </form.Field>
@@ -245,7 +256,7 @@ const TransactionForm = ({
         {submitError && (
           <div
             role="alert"
-            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
           >
             <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
             <span>{submitError}</span>

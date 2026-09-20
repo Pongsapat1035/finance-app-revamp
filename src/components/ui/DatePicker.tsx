@@ -232,7 +232,7 @@ function DatePickerField({
       {error ? (
         <span
           id={`${fieldId}-error`}
-          className="flex items-center gap-1.5 text-[12px] text-destructive"
+          className="flex items-center gap-1.5 text-[12px] text-destructive-text"
         >
           <CircleAlert size={13} strokeWidth={1.75} />
           {error}

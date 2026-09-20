@@ -1,5 +1,5 @@
 import type { TransactionType } from '#/enum/enum'
-import type { PaginatedResponse } from '../types'
+import type { PaginatedResponse, PaginationParams } from '../types'
 
 export interface Category extends CreateCategoryDto {
   id: number
@@ -9,6 +9,10 @@ export interface Category extends CreateCategoryDto {
 }
 
 export type CategoryResponse = PaginatedResponse<Category>
+
+export interface CategoryQueryParams extends PaginationParams {
+  keyword?: string
+}
 
 export interface CreateCategoryDto {
   title: string

@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import DatePickerField from './DatePicker'
+import DatePickerField from '../DatePicker'
 
 describe('DatePickerField', () => {
   it('shows the current value and returns a selected date in API format', () => {

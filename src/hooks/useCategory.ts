@@ -5,11 +5,14 @@ import {
   patchCategory,
   postCategory,
 } from '#/api/category/category.api'
-import type { PaginationParams } from '#/api/types'
-import type { CreateCategoryDto } from '#/api/category/category.type'
+import type { CategoryQueryParams, CreateCategoryDto } from '#/api/category/category.type'
 
-export const useFetchCategory = (params?: PaginationParams) => {
-  return useQuery({ queryKey: ['category', params], queryFn: () => getCategories(params) })
+export const useFetchCategory = (params?: CategoryQueryParams) => {
+  return useQuery({
+    queryKey: ['category', params],
+    queryFn: () => getCategories(params),
+    placeholderData: (previousData) => previousData,
+  })
 }
 
 export const useCreateCategory = () => {
@@ -17,9 +20,7 @@ export const useCreateCategory = () => {
 
   return useMutation({
     mutationFn: (payload: CreateCategoryDto) => postCategory(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['category'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
   })
 }
 
@@ -29,9 +30,7 @@ export const useUpdateCategory = () => {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: CreateCategoryDto }) =>
       patchCategory(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['category'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
   })
 }
 
@@ -40,8 +39,6 @@ export const useDeleteCategory = () => {
 
   return useMutation({
     mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['category'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
   })
 }
