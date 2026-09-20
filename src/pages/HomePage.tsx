@@ -25,8 +25,8 @@ const categoryBreakdown = [
   { name: 'Housing', percent: 55.9, amount: 760, color: 'var(--chart-plum)' },
   { name: 'Groceries', percent: 17.8, amount: 241.4, color: 'var(--chart-blue)' },
   { name: 'Dining', percent: 10.4, amount: 142, color: 'var(--chart-green)' },
-  { name: 'Transport', percent: 8.7, amount: 118.6, color: 'var(--warning)' },
-  { name: 'Other', percent: 7.2, amount: 96.99, color: '#9b9b97' },
+  { name: 'Transport', percent: 8.7, amount: 118.6, color: 'var(--chart-amber)' },
+  { name: 'Other', percent: 7.2, amount: 96.99, color: 'var(--chart-neutral)' },
 ]
 
 const stats = [
@@ -74,7 +74,7 @@ const HeroPreviewPanel = () => {
           <p className="text-[11px] font-medium text-muted-foreground">EXAMPLE MONTH</p>
           <p className="mt-1 text-sm font-medium">July 2026 overview</p>
         </div>
-        <span className="rounded-full bg-success-soft px-2 py-1 text-[10px] font-semibold text-success">
+        <span className="rounded-full bg-success-soft px-2 py-1 text-[10px] font-semibold text-success-text">
           On track
         </span>
       </div>
@@ -238,7 +238,7 @@ const TransactionsStory = () => {
                   className="flex items-center gap-3 px-5 py-3.5"
                 >
                   <span
-                    className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success' : 'bg-muted text-foreground'}`}
+                    className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success-text' : 'bg-muted text-foreground'}`}
                   >
                     {income ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
                   </span>
@@ -249,7 +249,7 @@ const TransactionsStory = () => {
                     </p>
                   </div>
                   <p
-                    className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success' : ''}`}
+                    className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success-text' : ''}`}
                   >
                     {income ? '+' : '-'}
                     {currency(Math.abs(transaction.amount))}
@@ -394,7 +394,7 @@ const Footer = () => {
   )
 }
 
-const HomePage = () => {
+function HomePage() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <Nav />
