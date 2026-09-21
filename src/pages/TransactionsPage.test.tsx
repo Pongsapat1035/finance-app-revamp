@@ -2,7 +2,7 @@
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { TransactionQueryParams } from '#/api/transaction/transaction.type'
 import { TransactionType } from '#/enum/enum'
@@ -94,11 +94,15 @@ vi.mock('#/hooks/useTransaction', () => ({
 const lastTransactionQuery = () =>
   mocks.fetchTransactions.mock.calls.at(-1)?.[0] as TransactionQueryParams
 
-const chooseRadixOption = async (label: RegExp, option: RegExp) => {
-  fireEvent.pointerDown(screen.getByRole('combobox', { name: label }), {
-    button: 0,
-    ctrlKey: false,
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: vi.fn(),
   })
+})
+
+const chooseRadixOption = async (label: RegExp, option: RegExp) => {
+  fireEvent.keyDown(screen.getByRole('combobox', { name: label }), { key: 'ArrowDown' })
   fireEvent.click(await screen.findByRole('option', { name: option }))
 }
 
@@ -171,14 +175,12 @@ describe('TransactionsPage filters', () => {
     render(<TransactionsPage />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
-    await waitFor(() => expect(lastTransactionQuery().page).toBe(2))
+    expect(lastTransactionQuery().page).toBe(2)
 
     fireEvent.click(screen.getByRole('button', { name: 'Filter by month' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'Select August 2026' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Select August 2026' }))
 
-    await waitFor(() => {
-      expect(lastTransactionQuery()).toMatchObject({ page: 1, month: '2026-08' })
-    })
+    expect(lastTransactionQuery()).toMatchObject({ page: 1, month: '2026-08' })
   })
 
   it('shows a stable loading state and retries a failed transaction request', () => {
@@ -215,7 +217,9 @@ describe('TransactionsPage filters', () => {
     render(<TransactionsPage />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Add transaction' }))
-    expect(screen.getByText('Categories are unavailable. Open Manage categories to retry.')).toBeTruthy()
+    expect(
+      screen.getByText('Categories are unavailable. Open Manage categories to retry.'),
+    ).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: 'Manage categories' }))
     expect(screen.getByText('Could not load categories')).toBeTruthy()

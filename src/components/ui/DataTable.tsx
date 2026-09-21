@@ -6,7 +6,14 @@ import EmptyState, { type EmptyStateProps } from '#/components/ui/EmptyState'
 import ErrorState, { type ErrorStateProps } from '#/components/ui/ErrorState'
 import Pagination, { type PaginationProps } from '#/components/ui/Pagination'
 import TableSkeleton from '#/components/ui/TableSkeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/Table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '#/components/ui/Table'
 import { cn } from '#/lib/utils'
 
 export interface DataTableColumn<Row> {

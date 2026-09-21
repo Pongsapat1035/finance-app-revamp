@@ -321,7 +321,6 @@ const CategoryManager = ({
             </div>
           )}
         </div>
-
       </BaseModalBody>
 
       <BaseModalFooter className="flex justify-end">

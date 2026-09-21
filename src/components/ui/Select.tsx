@@ -212,7 +212,8 @@ const SearchSelect = ({
 
   const focusAdjacentOption = (currentIndex: number, direction: 1 | -1) => {
     for (let offset = 1; offset <= filteredOptions.length; offset += 1) {
-      const nextIndex = (currentIndex + direction * offset + filteredOptions.length) % filteredOptions.length
+      const nextIndex =
+        (currentIndex + direction * offset + filteredOptions.length) % filteredOptions.length
       if (!filteredOptions[nextIndex]?.disabled) {
         optionRefs.current[nextIndex]?.focus()
         return
@@ -281,7 +282,12 @@ const SearchSelect = ({
               }
             }}
           />
-          <div id={optionsId} role="listbox" aria-label={ariaLabel} className="max-h-56 overflow-y-auto p-1">
+          <div
+            id={optionsId}
+            role="listbox"
+            aria-label={ariaLabel}
+            className="max-h-56 overflow-y-auto p-1"
+          >
             {filteredOptions.length ? (
               filteredOptions.map((option, index) => (
                 <button

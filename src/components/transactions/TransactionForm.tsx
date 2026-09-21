@@ -2,6 +2,7 @@ import { ArrowRight, CircleAlert, LoaderCircle, X } from 'lucide-react'
 import TypeSelector from '#/components/ui/TypeSelector'
 import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
+import { BaseModalBody, BaseModalFooter, BaseModalHeader } from '#/components/ui/BaseModal'
 import type { Category as ApiCategory } from '#/api/category/category.type'
 import { TransactionType as ApiTransactionType } from '#/enum/enum'
 import { SelectField } from '#/components/ui/Select'
@@ -76,7 +77,7 @@ const TransactionForm = ({
 
   return (
     <>
-      <div className="border-b px-5 py-4 sm:px-6">
+      <BaseModalHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="transaction-dialog-title" className="text-xl font-medium tracking-tight">
@@ -92,10 +93,10 @@ const TransactionForm = ({
             <X size={17} />
           </IconButton>
         </div>
-      </div>
+      </BaseModalHeader>
 
       <form
-        className="grid gap-6 p-5 sm:p-6"
+        className="flex min-h-0 flex-1 flex-col"
         aria-busy={isSubmitting}
         onSubmit={(event) => {
           event.preventDefault()
@@ -103,167 +104,175 @@ const TransactionForm = ({
           form.handleSubmit()
         }}
       >
-        <TypeSelector value={type} onChange={setType} />
+        <BaseModalBody className="grid gap-6">
+          <TypeSelector value={type} onChange={setType} />
 
-        <form.Field
-          name="amount"
-          validators={{
-            onChange: ({ value }) =>
-              !value || Number(value) <= 0 ? 'Enter an amount greater than 0' : undefined,
-          }}
-        >
-          {(field) => {
-            const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0
-            const descriptionId = hasError
-              ? 'transaction-amount-error'
-              : 'transaction-amount-helper'
+          <form.Field
+            name="amount"
+            validators={{
+              onChange: ({ value }) =>
+                !value || Number(value) <= 0 ? 'Enter an amount greater than 0' : undefined,
+            }}
+          >
+            {(field) => {
+              const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0
+              const descriptionId = hasError
+                ? 'transaction-amount-error'
+                : 'transaction-amount-helper'
 
-            return (
+              return (
+                <div className="grid gap-2">
+                  <label className="text-[13px] font-medium" htmlFor="transaction-amount">
+                    Amount
+                  </label>
+                  <span className="relative">
+                    <input
+                      id="transaction-amount"
+                      name={field.name}
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      required
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      aria-invalid={hasError || undefined}
+                      aria-describedby={descriptionId}
+                      onChange={(event) => {
+                        const nextValue = event.target.value
+                        if (/^\d*(\.\d{0,2})?$/.test(nextValue)) field.handleChange(nextValue)
+                      }}
+                      className="h-14 w-full rounded-sm border border-input bg-background px-4 font-mono text-2xl font-medium tracking-[-0.04em] transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-[#aaa9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none motion-reduce:transition-none"
+                    />
+                  </span>
+                  {hasError ? (
+                    <span
+                      id="transaction-amount-error"
+                      className="text-[11px] font-normal text-destructive-text"
+                    >
+                      {field.state.meta.errors.join(', ')}
+                    </span>
+                  ) : (
+                    <span
+                      id="transaction-amount-helper"
+                      className="text-[11px] font-normal text-muted-foreground"
+                    >
+                      Enter the transaction amount.
+                    </span>
+                  )}
+                </div>
+              )
+            }}
+          </form.Field>
+
+          <form.Field
+            name="categoryId"
+            validators={{
+              onChange: ({ value }) =>
+                !value || value === 'default' ? 'Category is required' : undefined,
+            }}
+          >
+            {(field) => (
               <div className="grid gap-2">
-                <label className="text-[13px] font-medium" htmlFor="transaction-amount">
-                  Amount (USD)
-                </label>
-                <span className="relative">
-                  <input
-                    id="transaction-amount"
-                    name={field.name}
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    required
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    aria-invalid={hasError || undefined}
-                    aria-describedby={descriptionId}
-                    onChange={(event) => {
-                      const nextValue = event.target.value
-                      if (/^\d*(\.\d{0,2})?$/.test(nextValue)) field.handleChange(nextValue)
-                    }}
-                    className="h-14 w-full rounded-sm border border-input bg-background px-4 font-mono text-2xl font-medium tracking-[-0.04em] transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-[#aaa9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none motion-reduce:transition-none"
-                  />
-                </span>
-                {hasError ? (
-                  <span
-                    id="transaction-amount-error"
-                    className="text-[11px] font-normal text-destructive-text"
+                <div className="flex items-center justify-between gap-4">
+                  <label htmlFor="transaction-category" className="text-[13px] font-medium">
+                    Category
+                  </label>
+                  <button
+                    type="button"
+                    onClick={onManageCategories}
+                    className="ds-focus-ring text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground"
                   >
-                    {field.state.meta.errors.join(', ')}
+                    Manage categories
+                  </button>
+                </div>
+
+                <SelectField
+                  id="transaction-category"
+                  label=""
+                  ariaLabel="Category"
+                  options={[
+                    { label: 'Select a category', value: 'default' },
+                    ...availableCategories,
+                  ]}
+                  onSearch={onCategorySearch}
+                  onValueChange={field.handleChange}
+                  value={field.state.value}
+                  required
+                  disabled={categoriesLoading || Boolean(categoriesError)}
+                  error={
+                    field.state.meta.isTouched ? field.state.meta.errors.join(', ') : undefined
+                  }
+                />
+
+                {categoriesError ? (
+                  <span className="flex items-center gap-1.5 text-[11px] text-destructive-text">
+                    <CircleAlert size={13} strokeWidth={1.75} />
+                    Categories are unavailable. Open Manage categories to retry.
                   </span>
                 ) : (
-                  <span
-                    id="transaction-amount-helper"
-                    className="text-[11px] font-normal text-muted-foreground"
-                  >
-                    Amount is recorded in USD.
+                  <span className="text-[11px] text-muted-foreground">
+                    {categoriesLoading
+                      ? 'Loading available categories.'
+                      : 'Categories change based on transaction type.'}
                   </span>
                 )}
               </div>
-            )
-          }}
-        </form.Field>
+            )}
+          </form.Field>
 
-        <form.Field
-          name="categoryId"
-          validators={{
-            onChange: ({ value }) =>
-              !value || value === 'default' ? 'Category is required' : undefined,
-          }}
-        >
-          {(field) => (
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between gap-4">
-                <label htmlFor="transaction-category" className="text-[13px] font-medium">
-                  Category
-                </label>
-                <button
-                  type="button"
-                  onClick={onManageCategories}
-                  className="ds-focus-ring text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground"
-                >
-                  Manage categories
-                </button>
-              </div>
-
-              <SelectField
-                id="transaction-category"
-                label=""
-                options={[{ label: 'Select a category', value: 'default' }, ...availableCategories]}
-                onSearch={onCategorySearch}
-                onValueChange={field.handleChange}
-                value={field.state.value}
-                required
-                disabled={categoriesLoading || Boolean(categoriesError)}
-                error={field.state.meta.isTouched ? field.state.meta.errors.join(', ') : undefined}
-              />
-
-              {categoriesError ? (
-                <span className="flex items-center gap-1.5 text-[11px] text-destructive-text">
-                  <CircleAlert size={13} strokeWidth={1.75} />
-                  Categories are unavailable. Open Manage categories to retry.
-                </span>
-              ) : (
-                <span className="text-[11px] text-muted-foreground">
-                  {categoriesLoading
-                    ? 'Loading available categories.'
-                    : 'Categories change based on transaction type.'}
-                </span>
-              )}
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field
-          name="date"
-          validators={{
-            onChange: ({ value }) => (!value ? 'Date is required' : undefined),
-          }}
-        >
-          {(field) => (
-            <div className="grid gap-2">
-              <InputField
-                id="transaction-date"
-                label="Transaction date"
-                type="date"
-                max={today}
-                required
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                error={field.state.meta.errors.join(', ')}
-                touched={field.state.meta.isTouched}
-              />
-              <span className="text-[11px] text-muted-foreground">
-                Select the date the transaction occurred.
-              </span>
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="description">
-          {(field) => (
-            <div className="grid gap-2">
-              <InputField
-                id="transaction-description"
-                label="Description (optional)"
-                placeholder="Add a note"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-              />
-            </div>
-          )}
-        </form.Field>
-
-        {submitError && (
-          <div
-            role="alert"
-            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
+          <form.Field
+            name="date"
+            validators={{
+              onChange: ({ value }) => (!value ? 'Date is required' : undefined),
+            }}
           >
-            <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
-            <span>{submitError}</span>
-          </div>
-        )}
+            {(field) => (
+              <div className="grid gap-2">
+                <InputField
+                  id="transaction-date"
+                  label="Transaction date"
+                  type="date"
+                  max={today}
+                  required
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  error={field.state.meta.errors.join(', ')}
+                  touched={field.state.meta.isTouched}
+                />
+                <span className="text-[11px] text-muted-foreground">
+                  Select the date the transaction occurred.
+                </span>
+              </div>
+            )}
+          </form.Field>
 
-        <div className="flex flex-col-reverse gap-2 border-t pt-5 sm:flex-row sm:justify-end">
+          <form.Field name="description">
+            {(field) => (
+              <div className="grid gap-2">
+                <InputField
+                  id="transaction-description"
+                  label="Description (optional)"
+                  placeholder="Add a note"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                />
+              </div>
+            )}
+          </form.Field>
+
+          {submitError && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
+            >
+              <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
+              <span>{submitError}</span>
+            </div>
+          )}
+        </BaseModalBody>
+
+        <BaseModalFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
@@ -299,7 +308,7 @@ const TransactionForm = ({
           >
             {isSubmitting ? 'Saving' : mode === 'edit' ? 'Save changes' : 'Add transaction'}
           </Button>
-        </div>
+        </BaseModalFooter>
       </form>
     </>
   )

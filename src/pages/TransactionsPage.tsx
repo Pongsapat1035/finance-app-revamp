@@ -85,10 +85,12 @@ const TransactionFilters = ({
         onSearch={onCategorySearch}
         options={[
           { value: 'all', label: 'All categories' },
-          ...filteredCategories.map((category) => ({ value: String(category.id), label: category.title })),
+          ...filteredCategories.map((category) => ({
+            value: String(category.id),
+            label: category.title,
+          })),
         ]}
       />
-
     </div>
   )
 }
@@ -128,7 +130,9 @@ const TransactionMobileRow = ({
           {isIncome ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
           {isIncome ? 'Income' : 'Expense'}
         </span>
-        <span className={`font-mono font-medium tabular-nums ${isIncome ? 'text-success-text' : ''}`}>
+        <span
+          className={`font-mono font-medium tabular-nums ${isIncome ? 'text-success-text' : ''}`}
+        >
           {isIncome ? '+' : '-'}
           {formatCurrency(transaction.amount)}
         </span>
@@ -215,7 +219,9 @@ export default function TransactionsPage() {
     {
       id: 'category',
       header: 'Category',
-      cell: (transaction) => <span className="text-muted-foreground">{transaction.categoryTitle}</span>,
+      cell: (transaction) => (
+        <span className="text-muted-foreground">{transaction.categoryTitle}</span>
+      ),
     },
     {
       id: 'type',
@@ -236,7 +242,9 @@ export default function TransactionsPage() {
       id: 'date',
       header: 'Date',
       cell: (transaction) => (
-        <span className="text-muted-foreground">{dayjs(transaction.date).format('MMM D, YYYY')}</span>
+        <span className="text-muted-foreground">
+          {dayjs(transaction.date).format('MMM D, YYYY')}
+        </span>
       ),
     },
     {
@@ -403,7 +411,8 @@ export default function TransactionsPage() {
               errorState={
                 transactionsFailed
                   ? {
-                      description: 'Could not load transactions. Check your connection and try again.',
+                      description:
+                        'Could not load transactions. Check your connection and try again.',
                       onRetry: () => void refetchTransactions(),
                     }
                   : undefined

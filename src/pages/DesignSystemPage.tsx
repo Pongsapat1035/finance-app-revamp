@@ -113,7 +113,7 @@ const periodOptions = [
 ]
 
 const currencyOptions = [
-  { value: 'usd', label: 'USD - US dollar' },
+  { value: 'usd', label: 'US dollar' },
   { value: 'eur', label: 'EUR - Euro' },
   { value: 'thb', label: 'THB - Thai baht' },
 ]
@@ -214,7 +214,7 @@ function ConfirmDialogDemo() {
         details={
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted-foreground">Green Market, example data</span>
-            <span className="font-mono font-medium tabular-nums">USD 2,418.63</span>
+            <span className="font-mono font-medium tabular-nums">2,418.63</span>
           </div>
         }
         confirmLabel="Send payment"
@@ -394,7 +394,8 @@ function SearchInputDemo() {
         <div>
           <h3 className="text-sm font-medium">Search input</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            A controlled dense field for table filters. It returns the query without owning search results.
+            A controlled dense field for table filters. It returns the query without owning search
+            results.
           </p>
         </div>
         <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
@@ -485,7 +486,8 @@ const PaginationDemo = () => {
         <div>
           <h3 className="text-sm font-medium">Pagination</h3>
           <p className="mt-1 max-w-xl text-xs text-muted-foreground">
-            Table and collection footer navigation with range summary, icon buttons, and page indicator.
+            Table and collection footer navigation with range summary, icon buttons, and page
+            indicator.
           </p>
         </div>
         <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
@@ -699,7 +701,9 @@ export default function DesignSystemPage() {
                     >
                       <span className={`size-3 rounded-[1px] ${color.className}`} />
                       <span className="text-[11px] font-medium">{color.name}</span>
-                      <code className="font-mono text-[10px] text-muted-foreground">{color.value}</code>
+                      <code className="font-mono text-[10px] text-muted-foreground">
+                        {color.value}
+                      </code>
                     </div>
                   ))}
                 </div>
@@ -751,7 +755,7 @@ export default function DesignSystemPage() {
                   'Review spending, approvals, and account activity in one place.',
                 ],
                 ['Label', '12 / 16', '600', 'AVAILABLE BALANCE'],
-                ['Data', '24 / 30', '500', 'USD 48,820.14'],
+                ['Data', '24 / 30', '500', '48,820.14'],
               ].map(([name, size, weight, sample], index) => (
                 <div
                   key={name}
@@ -1040,9 +1044,9 @@ export default function DesignSystemPage() {
                       <p className="text-xs text-muted-foreground">Available balance</p>
                       <div className="mt-2 flex items-end justify-between gap-4">
                         <p className="font-mono text-3xl font-medium tracking-[-0.04em]">
-                          USD 48,820.14
+                          48,820.14
                         </p>
-                      <span className="text-xs font-medium text-success-text">+8.4%</span>
+                        <span className="text-xs font-medium text-success-text">+8.4%</span>
                       </div>
                       <div
                         className="mt-8 flex h-16 items-end gap-1"
@@ -1093,9 +1097,9 @@ export default function DesignSystemPage() {
                   </thead>
                   <tbody className="text-sm">
                     {[
-                      ['Figma', 'Mina Park', 'Approved', 'Jul 12, 2026', 'USD 144.00'],
-                      ['AWS', 'Eli Navarro', 'Review', 'Jul 11, 2026', 'USD 2,418.63'],
-                      ['Notion', 'Sora Kim', 'Approved', 'Jul 10, 2026', 'USD 80.00'],
+                      ['Figma', 'Mina Park', 'Approved', 'Jul 12, 2026', '144.00'],
+                      ['AWS', 'Eli Navarro', 'Review', 'Jul 11, 2026', '2,418.63'],
+                      ['Notion', 'Sora Kim', 'Approved', 'Jul 10, 2026', '80.00'],
                     ].map(([merchant, owner, status, date, amount]) => (
                       <tr key={merchant} className="border-b last:border-b-0 hover:bg-muted/70">
                         <td className="px-4 py-3.5 font-medium">{merchant}</td>

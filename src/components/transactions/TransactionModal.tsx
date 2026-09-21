@@ -106,7 +106,11 @@ const TransactionModal = ({
         if (!next) handleClose()
       }}
     >
-      <BaseModalContent showCloseButton={false} aria-labelledby="transaction-dialog-title">
+      <BaseModalContent
+        scrollable={false}
+        showCloseButton={false}
+        aria-labelledby="transaction-dialog-title"
+      >
         {view === 'transaction' ? (
           <TransactionForm
             key={`${mode}-${transaction?.id ?? 'new'}`}

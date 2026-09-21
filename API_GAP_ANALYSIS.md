@@ -4,26 +4,26 @@
 
 ## Current API coverage
 
-| Area | Implemented client calls | Coverage |
-| --- | --- | --- |
-| Authentication | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/verify`, `POST /otp/resent-otp` | Partial |
-| Categories | Create, paginated list, update, delete under `/category` | CRUD present |
-| Transactions | Create, paginated list, update, delete under `/transaction` | CRUD present |
-| Dashboard, budgets, reports, profile, settings, connected accounts | None | Missing |
+| Area                                                               | Implemented client calls                                                              | Coverage     |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ------------ |
+| Authentication                                                     | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/verify`, `POST /otp/resent-otp` | Partial      |
+| Categories                                                         | Create, paginated list, update, delete under `/category`                              | CRUD present |
+| Transactions                                                       | Create, paginated list, update, delete under `/transaction`                           | CRUD present |
+| Dashboard, budgets, reports, profile, settings, connected accounts | None                                                                                  | Missing      |
 
 The transaction and category APIs are real integrations: their React Query hooks are used by the Transactions page and its modal. Every other authenticated page is driven by constants or local React state.
 
 ## Evidence of mock or non-persistent UI
 
-| Product area | Evidence | Resulting gap |
-| --- | --- | --- |
-| Dashboard | `periodData`, `recentTransactions`, and `recurringPayments` in `src/routes/_authenticated/dashboard.tsx` | Summary, charts, category breakdown, recent activity, and recurring payments are not user data. |
-| Transactions | `TransactionSummary` contains static July values; filter controls in `TransactionTable` have no state or query integration. | Summary and server-side filtering/search are missing. |
-| Budgets | `budgetItems` and upcoming costs are constants; the create dialog only closes on submit. | The whole budget feature lacks persistence and derived spend data. |
-| Reports | `sixMonthReport`, `reportRanges`, spending mix, and “What changed” content are constants. Export button has no handler. | Reporting, comparison, and export APIs are missing. |
-| Profile | Starts as Mina Park / `mina@example.com`; save only sets a local `saved` flag. | Profile, avatar, security, sessions, and deletion APIs are missing. |
-| Settings | Defaults and notification toggles live in component state; connected accounts are hard-coded. | Preference and financial-account APIs are missing. |
-| Password recovery and OAuth | Forgot-password and OTP forms prevent default only; Google button has a TODO. | Recovery/reset and Google OAuth flows are missing or unwired. |
+| Product area                | Evidence                                                                                                                    | Resulting gap                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Dashboard                   | `periodData`, `recentTransactions`, and `recurringPayments` in `src/routes/_authenticated/dashboard.tsx`                    | Summary, charts, category breakdown, recent activity, and recurring payments are not user data. |
+| Transactions                | `TransactionSummary` contains static July values; filter controls in `TransactionTable` have no state or query integration. | Summary and server-side filtering/search are missing.                                           |
+| Budgets                     | `budgetItems` and upcoming costs are constants; the create dialog only closes on submit.                                    | The whole budget feature lacks persistence and derived spend data.                              |
+| Reports                     | `sixMonthReport`, `reportRanges`, spending mix, and “What changed” content are constants. Export button has no handler.     | Reporting, comparison, and export APIs are missing.                                             |
+| Profile                     | Starts as Mina Park / `mina@example.com`; save only sets a local `saved` flag.                                              | Profile, avatar, security, sessions, and deletion APIs are missing.                             |
+| Settings                    | Defaults and notification toggles live in component state; connected accounts are hard-coded.                               | Preference and financial-account APIs are missing.                                              |
+| Password recovery and OAuth | Forgot-password and OTP forms prevent default only; Google button has a TODO.                                               | Recovery/reset and Google OAuth flows are missing or unwired.                                   |
 
 ## Recommended API backlog
 
@@ -31,24 +31,24 @@ The transaction and category APIs are real integrations: their React Query hooks
 
 #### 1. Current user and session
 
-| Need | Suggested operation | Used by |
-| --- | --- | --- |
-| Load current identity | `GET /me` | Sidebar name/initials, Profile, app bootstrap |
-| Update personal details | `PATCH /me` with `name`, `bio`, and optionally an email-change request | Profile save |
-| End a session | `POST /auth/logout` | Sign out (not currently exposed in UI, but required once sessions are server-managed) |
-| Renew an expired access token | `POST /auth/refresh` or an httpOnly-cookie session strategy | Axios 401 recovery |
+| Need                          | Suggested operation                                                    | Used by                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Load current identity         | `GET /me`                                                              | Sidebar name/initials, Profile, app bootstrap                                         |
+| Update personal details       | `PATCH /me` with `name`, `bio`, and optionally an email-change request | Profile save                                                                          |
+| End a session                 | `POST /auth/logout`                                                    | Sign out (not currently exposed in UI, but required once sessions are server-managed) |
+| Renew an expired access token | `POST /auth/refresh` or an httpOnly-cookie session strategy            | Axios 401 recovery                                                                    |
 
 **Contract decision:** email should usually be changed through a separate verified flow, e.g. `POST /me/email-change/request` and `POST /me/email-change/confirm`, rather than a direct `PATCH /me`.
 
 #### 2. Dashboard and transaction summaries
 
-| Need | Suggested operation | Minimum response fields |
-| --- | --- | --- |
-| Header metrics | `GET /dashboard/summary?period=month&date=2026-07-01` | range, balance, income, expenses, net, savingsRate, transactionCount, averageSpend |
-| Cash-flow chart | `GET /analytics/cash-flow?from=...&to=...&interval=day` | `[{ period, income, expense }]` |
-| Expense categories | `GET /analytics/spending-by-category?from=...&to=...` | category id/name/color, amount, percent |
-| Latest activity | Extend `GET /transaction` with `sort=-date&limit=5` | current transaction response is sufficient once sorting is supported |
-| Transaction-page summary | `GET /transactions/summary?from=...&to=...` | income, expenses, net, counts by type |
+| Need                     | Suggested operation                                     | Minimum response fields                                                            |
+| ------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Header metrics           | `GET /dashboard/summary?period=month&date=2026-07-01`   | range, balance, income, expenses, net, savingsRate, transactionCount, averageSpend |
+| Cash-flow chart          | `GET /analytics/cash-flow?from=...&to=...&interval=day` | `[{ period, income, expense }]`                                                    |
+| Expense categories       | `GET /analytics/spending-by-category?from=...&to=...`   | category id/name/color, amount, percent                                            |
+| Latest activity          | Extend `GET /transaction` with `sort=-date&limit=5`     | current transaction response is sufficient once sorting is supported               |
+| Transaction-page summary | `GET /transactions/summary?from=...&to=...`             | income, expenses, net, counts by type                                              |
 
 The dashboard’s monthly/yearly switch and date picker should submit explicit range parameters. Do not make the server infer the client’s current month or timezone.
 
@@ -80,13 +80,13 @@ Also document deletion behavior when a category already has transactions: reject
 
 #### 5. Budgets
 
-| Need | Suggested operation | Notes |
-| --- | --- | --- |
-| List a month’s budgets and calculated spend | `GET /budgets?month=2026-07` | Return budget limit, category, spent amount, remaining, and status in one response. |
-| Create a category budget | `POST /budgets` | Payload: `categoryId`, `month`, `amount`. Enforce one active budget per category/month. |
-| Edit a limit | `PATCH /budgets/:id` | Supports the “Edit limits” interaction. |
-| Delete/stop a budget | `DELETE /budgets/:id` | Must specify whether historical records remain. |
-| Budget health/alerts | Include in list response or expose `GET /budgets/summary?month=...` | Returns totals, over-limit categories, and the threshold used for alerts. |
+| Need                                        | Suggested operation                                                 | Notes                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| List a month’s budgets and calculated spend | `GET /budgets?month=2026-07`                                        | Return budget limit, category, spent amount, remaining, and status in one response.     |
+| Create a category budget                    | `POST /budgets`                                                     | Payload: `categoryId`, `month`, `amount`. Enforce one active budget per category/month. |
+| Edit a limit                                | `PATCH /budgets/:id`                                                | Supports the “Edit limits” interaction.                                                 |
+| Delete/stop a budget                        | `DELETE /budgets/:id`                                               | Must specify whether historical records remain.                                         |
+| Budget health/alerts                        | Include in list response or expose `GET /budgets/summary?month=...` | Returns totals, over-limit categories, and the threshold used for alerts.               |
 
 The next/previous-month controls must change the `month` request parameter. “Move money” needs a product decision: if it reallocates limits, model it as `POST /budgets/reallocations` with source budget, destination budget, amount, and month; otherwise remove the control.
 
@@ -94,22 +94,22 @@ The next/previous-month controls must change the `month` request parameter. “M
 
 Recurring payments appear on Dashboard and Budgets but have no data model. Add:
 
-| Need | Suggested operation |
-| --- | --- |
-| Manage recurring rules | `GET/POST /recurring-transactions`, `PATCH/DELETE /recurring-transactions/:id` |
-| Show imminent occurrences | `GET /recurring-transactions/upcoming?from=...&to=...` |
+| Need                             | Suggested operation                                                                                                         |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Manage recurring rules           | `GET/POST /recurring-transactions`, `PATCH/DELETE /recurring-transactions/:id`                                              |
+| Show imminent occurrences        | `GET /recurring-transactions/upcoming?from=...&to=...`                                                                      |
 | Generate or record an occurrence | Product choice: server-generated transactions, or `POST /recurring-transactions/:id/occurrences` when confirmed by the user |
 
 A rule should include category, type, amount, description, start date, cadence, next run date, and active state. Avoid representing upcoming costs as normal transactions before they actually occur.
 
 #### 7. Reports and export
 
-| Need | Suggested operation | Notes |
-| --- | --- | --- |
-| Cash-flow report | `GET /reports/cash-flow?from=...&to=...&interval=month` | Supplies chart, totals, net amount, and comparable prior-period values. |
-| Spending mix | `GET /reports/spending-by-category?from=...&to=...` | Supplies categories, totals, percentage, colors. |
+| Need                        | Suggested operation                                                  | Notes                                                                                                    |
+| --------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Cash-flow report            | `GET /reports/cash-flow?from=...&to=...&interval=month`              | Supplies chart, totals, net amount, and comparable prior-period values.                                  |
+| Spending mix                | `GET /reports/spending-by-category?from=...&to=...`                  | Supplies categories, totals, percentage, colors.                                                         |
 | Period-over-period insights | `GET /reports/changes?from=...&to=...&compareFrom=...&compareTo=...` | Enables “What changed”; client-side computation is acceptable for a small ledger, but it needs raw data. |
-| Download | `GET /reports/export?format=csv|pdf&from=...&to=...` or `POST /reports/exports` for an asynchronous job | Set content type, filename, and authorization behavior explicitly. |
+| Download                    | `GET /reports/export?format=csv                                      | pdf&from=...&to=...`or`POST /reports/exports` for an asynchronous job                                    | Set content type, filename, and authorization behavior explicitly. |
 
 For all report endpoints, accept explicit `from`, `to`, client timezone, and currency. The app currently formats in USD while Settings allows THB and EUR, so the API must state whether it returns source amounts, converted amounts, and/or exchange rates.
 
@@ -117,35 +117,35 @@ For all report endpoints, accept explicit `from`, `to`, client timezone, and cur
 
 #### 8. Preferences and notification settings
 
-| Need | Suggested operation | Fields |
-| --- | --- | --- |
-| Load preferences | `GET /preferences` | currency, timezone, monthStart, numberFormat, notification preferences |
-| Save preferences | `PATCH /preferences` | Same fields; partial updates allowed |
-| Notification delivery state | Include in `/preferences` or `GET/PATCH /notification-preferences` | weeklySummary, budgetAlerts, productUpdates, alert threshold |
+| Need                        | Suggested operation                                                | Fields                                                                 |
+| --------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Load preferences            | `GET /preferences`                                                 | currency, timezone, monthStart, numberFormat, notification preferences |
+| Save preferences            | `PATCH /preferences`                                               | Same fields; partial updates allowed                                   |
+| Notification delivery state | Include in `/preferences` or `GET/PATCH /notification-preferences` | weeklySummary, budgetAlerts, productUpdates, alert threshold           |
 
 The preference values should use durable identifiers (`USD`, `THB`, IANA timezone, enum for month start), not display strings from the select controls.
 
 #### 9. Avatar, password, MFA, and active sessions
 
-| Need | Suggested operation |
-| --- | --- |
-| Avatar upload | `POST /me/avatar/upload-url` then storage upload, followed by `PATCH /me` with the asset id; or a multipart `PUT /me/avatar` |
-| Remove avatar | `DELETE /me/avatar` |
-| Change password | `POST /auth/change-password` |
-| Set up/verify/disable MFA | `POST /auth/mfa/setup`, `POST /auth/mfa/verify`, `DELETE /auth/mfa` |
-| Review/revoke sessions | `GET /auth/sessions`, `DELETE /auth/sessions/:id`, and `DELETE /auth/sessions` for all other sessions |
-| Delete account | `DELETE /me`, ideally protected by recent-password/MFA confirmation |
+| Need                      | Suggested operation                                                                                                          |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Avatar upload             | `POST /me/avatar/upload-url` then storage upload, followed by `PATCH /me` with the asset id; or a multipart `PUT /me/avatar` |
+| Remove avatar             | `DELETE /me/avatar`                                                                                                          |
+| Change password           | `POST /auth/change-password`                                                                                                 |
+| Set up/verify/disable MFA | `POST /auth/mfa/setup`, `POST /auth/mfa/verify`, `DELETE /auth/mfa`                                                          |
+| Review/revoke sessions    | `GET /auth/sessions`, `DELETE /auth/sessions/:id`, and `DELETE /auth/sessions` for all other sessions                        |
+| Delete account            | `DELETE /me`, ideally protected by recent-password/MFA confirmation                                                          |
 
 #### 10. Connected financial accounts
 
 The Settings page displays checking, savings, card, balance, and last-refresh time as hard-coded data. At minimum, create an internal account model before adding any third-party aggregator:
 
-| Need | Suggested operation |
-| --- | --- |
-| List accounts and balances | `GET /financial-accounts` |
-| Add manual account | `POST /financial-accounts` |
-| Edit/archive an account | `PATCH/DELETE /financial-accounts/:id` |
-| Retrieve account-specific activity | `GET /transaction?accountId=...` |
+| Need                               | Suggested operation                    |
+| ---------------------------------- | -------------------------------------- |
+| List accounts and balances         | `GET /financial-accounts`              |
+| Add manual account                 | `POST /financial-accounts`             |
+| Edit/archive an account            | `PATCH/DELETE /financial-accounts/:id` |
+| Retrieve account-specific activity | `GET /transaction?accountId=...`       |
 
 If “Connect account” means bank aggregation, add an integration flow such as `POST /financial-account-connections/link-token`, `POST /financial-account-connections/exchange`, status/error retrieval, and a server-side sync job. Never accept bank credentials in this app’s API directly.
 

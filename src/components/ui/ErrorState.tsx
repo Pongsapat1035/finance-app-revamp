@@ -34,9 +34,7 @@ const ErrorState = ({
       </span>
       <h3 className="mt-4 text-base font-medium">{title}</h3>
       {description && (
-        <p className="mt-2 max-w-sm text-xs leading-5 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-2 max-w-sm text-xs leading-5 text-muted-foreground">{description}</p>
       )}
       {action ? (
         <div className="mt-5">{action}</div>

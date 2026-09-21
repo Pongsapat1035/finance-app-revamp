@@ -25,7 +25,7 @@ When the screenshots and this document disagree, this document is the implementa
 
 ## Principles
 
-1. Make money legible. Financial values, statuses, units, and time periods must be unambiguous. When a dollar symbol is omitted, use the `USD` ISO currency code with the value.
+1. Make money legible. Financial values, statuses, units, and time periods must be unambiguous.
 2. Use density with intent. Product workflows are compact. Marketing content has more air.
 3. Reserve the signal. Chartreuse is for the primary action, active signal, or brief emphasis only.
 4. Prefer structure over decoration. Use alignment, spacing, typography, and thin dividers before shadows or cards.
@@ -37,28 +37,28 @@ Tokens live in `src/styles.css` as CSS variables and are exposed to Tailwind v4 
 
 ### Color
 
-| Role         | Token                | Value     | Use                                               |
-| ------------ | -------------------- | --------- | ------------------------------------------------- |
-| Canvas       | `--background`       | `#FFFFFF` | Main page and panel background                    |
-| Ink          | `--foreground`       | `#161616` | Primary text, dark buttons, dark utility surfaces |
-| Card         | `--card`             | `#FFFFFF` | Elevated or bounded content                       |
-| Soft surface | `--muted`            | `#F6F6F4` | Secondary panels, table headers, media wells      |
-| Muted text   | `--muted-foreground` | `#686866` | Supporting copy and metadata                      |
-| Divider      | `--border`           | `#DEDEDB` | Hairlines and component boundaries                |
-| Input border | `--input`            | `#C9C9C5` | Interactive field boundary                        |
-| Signal       | `--accent`           | `#D7F500` | Primary CTA and rare active signal                |
-| Success      | `--success`          | `#00B852` | Approved, positive, complete                      |
-| Success text | `--success-text`     | `#007A37` | Accessible labels and icons on success surfaces   |
-| Warning      | `--warning`          | `#F5A000` | Needs review, caution                             |
-| Warning text | `--warning-text`     | `#854900` | Accessible labels and icons on warning surfaces   |
-| Danger       | `--destructive`      | `#F04438` | Destructive or failed action                      |
-| Danger text  | `--destructive-text` | `#B42318` | Accessible labels and icons on danger surfaces    |
-| Information  | `--info`             | `#3567B7` | Informational states and selected data            |
-| Chart blue   | `--chart-blue`       | `#3B82F6` | Primary comparison series                         |
-| Chart green  | `--chart-green`      | `#00B852` | Positive or cash series                           |
-| Chart berry  | `--chart-plum`       | `#C2467D` | Secondary comparison series                       |
-| Chart amber  | `--chart-amber`      | `#F5A000` | Additional category series                        |
-| Chart neutral| `--chart-neutral`    | `#858581` | Lower-priority category series                    |
+| Role          | Token                | Value     | Use                                               |
+| ------------- | -------------------- | --------- | ------------------------------------------------- |
+| Canvas        | `--background`       | `#FFFFFF` | Main page and panel background                    |
+| Ink           | `--foreground`       | `#161616` | Primary text, dark buttons, dark utility surfaces |
+| Card          | `--card`             | `#FFFFFF` | Elevated or bounded content                       |
+| Soft surface  | `--muted`            | `#F6F6F4` | Secondary panels, table headers, media wells      |
+| Muted text    | `--muted-foreground` | `#686866` | Supporting copy and metadata                      |
+| Divider       | `--border`           | `#DEDEDB` | Hairlines and component boundaries                |
+| Input border  | `--input`            | `#C9C9C5` | Interactive field boundary                        |
+| Signal        | `--accent`           | `#D7F500` | Primary CTA and rare active signal                |
+| Success       | `--success`          | `#00B852` | Approved, positive, complete                      |
+| Success text  | `--success-text`     | `#007A37` | Accessible labels and icons on success surfaces   |
+| Warning       | `--warning`          | `#F5A000` | Needs review, caution                             |
+| Warning text  | `--warning-text`     | `#854900` | Accessible labels and icons on warning surfaces   |
+| Danger        | `--destructive`      | `#F04438` | Destructive or failed action                      |
+| Danger text   | `--destructive-text` | `#B42318` | Accessible labels and icons on danger surfaces    |
+| Information   | `--info`             | `#3567B7` | Informational states and selected data            |
+| Chart blue    | `--chart-blue`       | `#3B82F6` | Primary comparison series                         |
+| Chart green   | `--chart-green`      | `#00B852` | Positive or cash series                           |
+| Chart berry   | `--chart-plum`       | `#C2467D` | Secondary comparison series                       |
+| Chart amber   | `--chart-amber`      | `#F5A000` | Additional category series                        |
+| Chart neutral | `--chart-neutral`    | `#858581` | Lower-priority category series                    |
 
 Color rules:
 

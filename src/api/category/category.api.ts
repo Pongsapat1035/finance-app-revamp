@@ -1,5 +1,10 @@
 import { apiClient } from '../client'
-import type { Category, CategoryQueryParams, CategoryResponse, CreateCategoryDto } from './category.type'
+import type {
+  Category,
+  CategoryQueryParams,
+  CategoryResponse,
+  CreateCategoryDto,
+} from './category.type'
 
 export const postCategory = (payload: CreateCategoryDto) => {
   return apiClient.post<Category>('/category', payload)

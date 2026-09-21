@@ -36,16 +36,22 @@ const MetricCard = ({
       : value === undefined
         ? undefined
         : value > 0
-        ? 'text-success-text'
-        : value < 0
-          ? 'text-destructive-text'
-          : undefined
+          ? 'text-success-text'
+          : value < 0
+            ? 'text-destructive-text'
+            : undefined
 
   return (
     <article className={cn('bg-background p-5', className)}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">{label}</p>
-        {Icon && <Icon size={iconSize} strokeWidth={1.75} className={valueTone ?? 'text-muted-foreground'} />}
+        {Icon && (
+          <Icon
+            size={iconSize}
+            strokeWidth={1.75}
+            className={valueTone ?? 'text-muted-foreground'}
+          />
+        )}
       </div>
       <p
         className={cn(
