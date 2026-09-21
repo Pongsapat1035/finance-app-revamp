@@ -4,6 +4,7 @@ import SegmentedTab from '#/components/ui/SegmentedTab'
 import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
 import InputField from '#/components/ui/InputField'
+import { BaseModalBody, BaseModalFooter, BaseModalHeader } from '#/components/ui/BaseModal'
 import type { Category } from '#/api/category/category.type'
 import { TransactionType } from '#/enum/enum'
 import { useCreateCategory, useDeleteCategory, useUpdateCategory } from '#/hooks/useCategory'
@@ -17,6 +18,7 @@ const CATEGORY_TABS = [
 const TYPE_LABEL: Record<TransactionType, string> = {
   [TransactionType.EXPEND]: 'expense',
   [TransactionType.INCOME]: 'income',
+  [TransactionType.INVESTMENT]: 'investment',
 }
 
 const DEFAULT_COLOR = '#94a3b8'
@@ -107,7 +109,7 @@ const CategoryManager = ({
 
   return (
     <>
-      <div className="border-b px-5 py-4 sm:px-6">
+      <BaseModalHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <IconButton onClick={onBack} className="-mt-1" aria-label="Back to transaction">
@@ -126,9 +128,9 @@ const CategoryManager = ({
             <X size={17} />
           </IconButton>
         </div>
-      </div>
+      </BaseModalHeader>
 
-      <div className="p-5 sm:p-6">
+      <BaseModalBody>
         <SegmentedTab
           tabs={CATEGORY_TABS}
           active={activeType}
@@ -320,12 +322,13 @@ const CategoryManager = ({
           )}
         </div>
 
-        <div className="mt-5 flex justify-end border-t pt-5">
-          <Button variant="dark" height="h-10" fullWidth={false} onClick={onBack}>
-            Done
-          </Button>
-        </div>
-      </div>
+      </BaseModalBody>
+
+      <BaseModalFooter className="flex justify-end">
+        <Button variant="dark" height="h-10" fullWidth={false} onClick={onBack}>
+          Done
+        </Button>
+      </BaseModalFooter>
     </>
   )
 }

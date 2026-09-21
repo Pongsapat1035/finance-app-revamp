@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import Toast from './Toast'
+import Toast from '../Toast'
 
 describe('Toast', () => {
   it('announces success feedback and supports manual dismissal', () => {
