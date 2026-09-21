@@ -11,7 +11,32 @@ import TransactionsPage from './TransactionsPage'
 const mocks = vi.hoisted(() => ({
   fetchTransactions: vi.fn(),
   fetchCategories: vi.fn(),
+  refetchTransactions: vi.fn(),
+  refetchCategories: vi.fn(),
+  transactionState: { isPending: false, isError: false },
+  categoryState: { isPending: false, isError: false },
 }))
+
+const categories = [
+  {
+    id: 1,
+    userId: 1,
+    title: 'Salary',
+    type: TransactionType.INCOME,
+    color: '#16a34a',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  },
+  ...Array.from({ length: 10 }, (_, index) => ({
+    id: index + 2,
+    userId: 1,
+    title: index === 0 ? 'Groceries' : `Category ${index + 2}`,
+    type: TransactionType.EXPEND,
+    color: '#dc2626',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  })),
+]
 
 vi.mock('#/components/app-shell', () => ({
   AppSidebar: () => <aside />,
@@ -24,31 +49,12 @@ vi.mock('#/hooks/useCategory', () => ({
 
     return {
       data: {
-        data: [
-          {
-            id: 1,
-            userId: 1,
-            title: 'Salary',
-            type: TransactionType.INCOME,
-            color: '#16a34a',
-            createdAt: '2026-09-01T00:00:00.000Z',
-            updatedAt: '2026-09-01T00:00:00.000Z',
-          },
-          {
-            id: 2,
-            userId: 1,
-            title: 'Groceries',
-            type: TransactionType.EXPEND,
-            color: '#dc2626',
-            createdAt: '2026-09-01T00:00:00.000Z',
-            updatedAt: '2026-09-01T00:00:00.000Z',
-          },
-        ],
-        meta: { page: 1, limit: 100, total: 2, totalPages: 1 },
+        data: categories,
+        meta: { page: 1, limit: 100, total: categories.length, totalPages: 1 },
       },
-      isPending: false,
-      isError: false,
-      refetch: vi.fn(),
+      isPending: mocks.categoryState.isPending,
+      isError: mocks.categoryState.isError,
+      refetch: mocks.refetchCategories,
     }
   },
   useCreateCategory: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -75,9 +81,9 @@ vi.mock('#/hooks/useTransaction', () => ({
         ],
         meta: { page: params.page ?? 1, limit: 20, total: 40, totalPages: 2 },
       },
-      isPending: false,
-      isError: false,
-      refetch: vi.fn(),
+      isPending: mocks.transactionState.isPending,
+      isError: mocks.transactionState.isError,
+      refetch: mocks.refetchTransactions,
     }
   },
   useDeleteTransaction: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -100,6 +106,10 @@ afterEach(() => {
   cleanup()
   mocks.fetchTransactions.mockClear()
   mocks.fetchCategories.mockClear()
+  mocks.refetchTransactions.mockClear()
+  mocks.refetchCategories.mockClear()
+  Object.assign(mocks.transactionState, { isPending: false, isError: false })
+  Object.assign(mocks.categoryState, { isPending: false, isError: false })
   vi.useRealTimers()
 })
 
@@ -169,5 +179,48 @@ describe('TransactionsPage filters', () => {
     await waitFor(() => {
       expect(lastTransactionQuery()).toMatchObject({ page: 1, month: '2026-08' })
     })
+  })
+
+  it('shows a stable loading state and retries a failed transaction request', () => {
+    mocks.transactionState.isPending = true
+    const { rerender } = render(<TransactionsPage />)
+
+    expect(screen.getByLabelText('Loading data')).toBeTruthy()
+
+    mocks.transactionState.isPending = false
+    mocks.transactionState.isError = true
+    rerender(<TransactionsPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(mocks.refetchTransactions).toHaveBeenCalledOnce()
+  })
+
+  it('lets people search and select categories beyond the first ten options', async () => {
+    render(<TransactionsPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add transaction' }))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Category' }))
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search category options' }), {
+      target: { value: 'Category 11' },
+    })
+
+    expect(mocks.fetchCategories.mock.calls.at(-1)?.[0]).toMatchObject({ keyword: 'Category 11' })
+
+    fireEvent.click(await screen.findByRole('option', { name: 'Category 11' }))
+    expect(screen.getByRole('combobox', { name: 'Category' }).textContent).toContain('Category 11')
+  })
+
+  it('shows category recovery in the create flow and retries the failed request', () => {
+    mocks.categoryState.isError = true
+    render(<TransactionsPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add transaction' }))
+    expect(screen.getByText('Categories are unavailable. Open Manage categories to retry.')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Manage categories' }))
+    expect(screen.getByText('Could not load categories')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(mocks.refetchCategories).toHaveBeenCalledOnce()
   })
 })
