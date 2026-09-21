@@ -153,11 +153,13 @@ export function AppTopBar({
   searchLabel,
   periodLabel,
   periodClassName = 'hidden text-xs text-muted-foreground lg:block',
+  periodControl,
 }: {
   activeItem: NavigationItem
   searchLabel: string
-  periodLabel: string
+  periodLabel?: string
   periodClassName?: string
+  periodControl?: ReactNode
 }) {
   const [navigationOpen, setNavigationOpen] = useState(false)
 
@@ -183,7 +185,11 @@ export function AppTopBar({
           </kbd>
         </div>
         <div className="flex items-center gap-3">
-          <p className={periodClassName}>{periodLabel}</p>
+          {periodControl ? (
+            <div className="hidden lg:block">{periodControl}</div>
+          ) : (
+            periodLabel && <p className={periodClassName}>{periodLabel}</p>
+          )}
           <Link
             to="/profile"
             className="ds-focus-ring grid size-9 place-items-center rounded-full bg-muted text-xs font-semibold no-underline lg:hidden"

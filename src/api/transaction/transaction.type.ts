@@ -34,7 +34,7 @@ export interface TransactionQueryParams extends PaginationParams {
   keyword?: string
   type?: TransactionType
   categoryId?: number
-  dateFilter?: string
+  month?: string
   from?: string
   to?: string
 }

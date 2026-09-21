@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, Plus, ReceiptText } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Plus, ReceiptText } from 'lucide-react'
 
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
 import TransactionActionsMenu from '#/components/transactions/TransactionActionsMenu'
 import TransactionModal from '#/components/transactions/TransactionModal'
 import TransactionSummary from '#/components/transactions/TransactionSummary'
 import { useFetchCategory } from '#/hooks/useCategory'
+import useDebounce from '#/hooks/useDebounce'
 import Button from '#/components/ui/Button'
 import DataTable, { type DataTableColumn } from '#/components/ui/DataTable'
+import DatePickerField from '#/components/ui/DatePicker'
 import SearchInput from '#/components/ui/SearchInput'
 import {
   Select,
@@ -35,8 +37,6 @@ interface TransactionFiltersProps {
   categoryFilter: string
   onCategoryFilterChange: (value: string) => void
   onCategorySearch: (keyword: string) => void
-  dateFilter: string
-  onDateFilterChange: (value: string) => void
   categories: Category[]
 }
 
@@ -48,8 +48,6 @@ const TransactionFilters = ({
   categoryFilter,
   onCategoryFilterChange,
   onCategorySearch,
-  dateFilter,
-  onDateFilterChange,
   categories,
 }: TransactionFiltersProps) => {
   const filteredCategories = useMemo(() => {
@@ -58,7 +56,7 @@ const TransactionFilters = ({
   }, [categories, typeFilter])
 
   return (
-    <div className="grid gap-3 border-b bg-muted/45 p-3 sm:grid-cols-2 lg:grid-cols-[minmax(200px,1fr)_160px_180px_160px]">
+    <div className="grid gap-3 border-b bg-muted/45 p-3 sm:grid-cols-2 lg:grid-cols-[minmax(200px,1fr)_160px_180px]">
       <SearchInput
         value={keyword}
         onValueChange={onKeywordChange}
@@ -91,20 +89,6 @@ const TransactionFilters = ({
         ]}
       />
 
-      <Select value={dateFilter} onValueChange={onDateFilterChange}>
-        <SelectTrigger size="dense" aria-label="Filter by date">
-          <span className="flex items-center gap-1.5 truncate">
-            <CalendarDays size={14} strokeWidth={1.75} className="shrink-0 text-muted-foreground" />
-            <SelectValue placeholder="All time" />
-          </span>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All time</SelectItem>
-          <SelectItem value="this_month">This month</SelectItem>
-          <SelectItem value="last_month">Last month</SelectItem>
-          <SelectItem value="this_year">This year</SelectItem>
-        </SelectContent>
-      </Select>
     </div>
   )
 }
@@ -154,11 +138,13 @@ const TransactionMobileRow = ({
 }
 
 export default function TransactionsPage() {
+  const currentMonth = dayjs().format('YYYY-MM')
   const [keyword, setKeyword] = useState('')
+  const debouncedKeyword = useDebounce(keyword)
   const [typeFilter, setTypeFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [categoryKeyword, setCategoryKeyword] = useState('')
-  const [dateFilter, setDateFilter] = useState('all')
+  const [month, setMonth] = useState(currentMonth)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<NormalizedTransaction | null>(null)
   const [transactionToDelete, setTransactionToDelete] = useState<NormalizedTransaction | null>(null)
@@ -197,7 +183,7 @@ export default function TransactionsPage() {
     setTypeFilter('all')
     setCategoryFilter('all')
     setCategoryKeyword('')
-    setDateFilter('all')
+    setMonth(currentMonth)
     setPage(1)
   }
 
@@ -208,16 +194,16 @@ export default function TransactionsPage() {
     refetch: refetchTransactions,
   } = useFetchTransaction({
     page,
-    limit: 10,
-    keyword: keyword.trim() || undefined,
+    limit: 20,
+    keyword: debouncedKeyword.trim() || undefined,
     type: typeFilter === 'all' ? undefined : (typeFilter as TransactionType),
     categoryId: categoryFilter === 'all' ? undefined : Number(categoryFilter),
-    dateFilter,
+    month,
   })
   const deleteTransaction = useDeleteTransaction()
   const visibleTransactions = transactions?.data ?? []
   const hasActiveFilters = Boolean(
-    keyword || typeFilter !== 'all' || categoryFilter !== 'all' || dateFilter !== 'all',
+    keyword || typeFilter !== 'all' || categoryFilter !== 'all' || month !== currentMonth,
   )
   const showFilters = visibleTransactions.length > 0 || hasActiveFilters
   const columns: DataTableColumn<NormalizedTransaction>[] = [
@@ -333,7 +319,19 @@ export default function TransactionsPage() {
       <AppTopBar
         activeItem="Transactions"
         searchLabel="Search transactions"
-        periodLabel="July 2026"
+        periodControl={
+          <DatePickerField
+            label="Filter by month"
+            mode="month"
+            value={month}
+            onValueChange={(value) => {
+              setMonth(value)
+              setPage(1)
+            }}
+            max={currentMonth}
+            className="w-40 gap-0 [&>label]:sr-only [&>button]:h-9 [&>button]:text-xs"
+          />
+        }
       />
 
       <main className="lg:ml-56">
@@ -397,11 +395,6 @@ export default function TransactionsPage() {
                       setPage(1)
                     }}
                     onCategorySearch={setCategoryKeyword}
-                    dateFilter={dateFilter}
-                    onDateFilterChange={(value) => {
-                      setDateFilter(value)
-                      setPage(1)
-                    }}
                     categories={categoriesList}
                   />
                 ) : undefined

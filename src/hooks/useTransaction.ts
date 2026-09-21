@@ -14,22 +14,9 @@ import type {
 } from '#/api/transaction/transaction.type'
 
 export const useFetchTransaction = (params?: TransactionQueryParams) => {
-  const { dateFilter, ...requestParams } = params ?? {}
-
-  if (dateFilter === 'this_month') {
-    requestParams.from = dayjs().startOf('month').format('YYYY-MM-DD')
-    requestParams.to = dayjs().endOf('month').format('YYYY-MM-DD')
-  } else if (dateFilter === 'last_month') {
-    requestParams.from = dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
-    requestParams.to = dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
-  } else if (dateFilter === 'this_year') {
-    requestParams.from = dayjs().startOf('year').format('YYYY-MM-DD')
-    requestParams.to = dayjs().endOf('year').format('YYYY-MM-DD')
-  }
-
   return useQuery({
-    queryKey: ['transaction', requestParams],
-    queryFn: () => getTransactions(requestParams),
+    queryKey: ['transaction', params],
+    queryFn: () => getTransactions(params),
     select: (data): PaginatedResponse<NormalizedTransaction> => ({
       data: data.data.map((transaction) => ({
         id: transaction.id,
