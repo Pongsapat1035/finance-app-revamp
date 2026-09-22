@@ -21,12 +21,14 @@ function BaseModalOverlay({ className, ...props }: ComponentProps<typeof DialogP
 
 interface BaseModalContentProps extends ComponentProps<typeof DialogPrimitive.Content> {
   showCloseButton?: boolean
+  scrollable?: boolean
 }
 
 function BaseModalContent({
   className,
   children,
   showCloseButton = true,
+  scrollable = true,
   ...props
 }: BaseModalContentProps) {
   return (
@@ -34,7 +36,8 @@ function BaseModalContent({
       <BaseModalOverlay />
       <DialogPrimitive.Content
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 grid max-h-[92dvh] w-full overflow-y-auto rounded-t-xl bg-background shadow-[0_24px_80px_rgb(0_0_0/0.25)] outline-none',
+          'fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] min-h-0 w-full flex-col rounded-t-xl bg-background shadow-[0_24px_80px_rgb(0_0_0/0.25)] outline-none',
+          scrollable ? 'overflow-y-auto' : 'overflow-hidden',
           'sm:inset-0 sm:m-auto sm:h-fit sm:max-w-130 sm:rounded-lg',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none',
           className,
@@ -54,6 +57,26 @@ function BaseModalContent({
   )
 }
 
+function BaseModalHeader({ className, ...props }: ComponentProps<'div'>) {
+  return <div className={cn('shrink-0 border-b px-5 py-4 sm:px-6', className)} {...props} />
+}
+
+function BaseModalBody({ className, ...props }: ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn(
+        'min-h-0 flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function BaseModalFooter({ className, ...props }: ComponentProps<'div'>) {
+  return <div className={cn('shrink-0 border-t px-5 py-4 sm:px-6', className)} {...props} />
+}
+
 const BaseModalTrigger = DialogPrimitive.Trigger
 const BaseModalClose = DialogPrimitive.Close
 const BaseModalTitle = DialogPrimitive.Title
@@ -62,8 +85,11 @@ const BaseModalDescription = DialogPrimitive.Description
 export default BaseModal
 export {
   BaseModalClose,
+  BaseModalBody,
   BaseModalContent,
   BaseModalDescription,
+  BaseModalFooter,
+  BaseModalHeader,
   BaseModalOverlay,
   BaseModalTitle,
   BaseModalTrigger,

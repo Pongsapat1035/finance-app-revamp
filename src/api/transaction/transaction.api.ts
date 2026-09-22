@@ -1,12 +1,16 @@
 import { apiClient } from '../client'
-import type { PaginationParams } from '../types'
-import type { CreateTransactionDto, Transaction, TransactionResponse } from './transaction.type'
+import type {
+  CreateTransactionDto,
+  Transaction,
+  TransactionQueryParams,
+  TransactionResponse,
+} from './transaction.type'
 
 export const postTransaction = (payload: CreateTransactionDto) => {
   return apiClient.post<Transaction>('/transaction', payload)
 }
 
-export const getTransactions = (params?: PaginationParams) => {
+export const getTransactions = (params?: TransactionQueryParams) => {
   return apiClient.get<TransactionResponse>('/transaction', { params })
 }
 

@@ -50,7 +50,7 @@ const TransactionActionsMenu = ({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={onDelete}
-          className="text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
+          className="text-destructive-text data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive-text"
         >
           <Trash2 size={15} strokeWidth={1.75} aria-hidden="true" />
           Delete transaction

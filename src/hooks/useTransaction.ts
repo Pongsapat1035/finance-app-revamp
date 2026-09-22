@@ -6,13 +6,14 @@ import {
   putTransaction,
   postTransaction,
 } from '#/api/transaction/transaction.api'
-import type { PaginationParams, PaginatedResponse } from '#/api/types'
+import type { PaginatedResponse } from '#/api/types'
 import type {
   CreateTransactionDto,
   NormalizedTransaction,
+  TransactionQueryParams,
 } from '#/api/transaction/transaction.type'
 
-export const useFetchTransaction = (params?: PaginationParams) => {
+export const useFetchTransaction = (params?: TransactionQueryParams) => {
   return useQuery({
     queryKey: ['transaction', params],
     queryFn: () => getTransactions(params),

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { CircleDollarSign, ShieldCheck, TrendingDown, TrendingUp } from 'lucide-react'
+import { ShieldCheck, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
 import GridOverlay from '#/components/GridOverlay'
 import LedgrIcon from './icons/LedgrIcon'
 
@@ -47,21 +47,21 @@ const ProductStory = () => {
                 <TrendingUp size={14} strokeWidth={1.75} />
                 <span className="text-[11px]">Income</span>
               </div>
-              <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">$4,840</p>
+              <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">USD 4,840</p>
             </div>
             <div className="bg-[#202020] p-5">
               <div className="flex items-center gap-2 text-white/45">
                 <TrendingDown size={14} strokeWidth={1.75} />
                 <span className="text-[11px]">Expenses</span>
               </div>
-              <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">$2,965</p>
+              <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">USD 2,965</p>
             </div>
           </div>
           <div className="p-5">
             <div className="flex items-end justify-between gap-6">
               <div>
                 <p className="text-[11px] text-white/45">Available after expenses</p>
-                <p className="mt-2 font-mono text-[28px] font-medium tracking-tighter">$1,875</p>
+                <p className="mt-2 font-mono text-[28px] font-medium tracking-tighter">USD 1,875</p>
               </div>
               <div className="flex h-14 w-36 items-end gap-1" aria-label="Example spending trend">
                 {[42, 56, 38, 66, 48, 74, 62, 86, 72, 100].map((height, index) => (
@@ -82,7 +82,7 @@ const ProductStory = () => {
           <ShieldCheck size={14} strokeWidth={1.75} /> Private by design
         </span>
         <span className="inline-flex items-center gap-2">
-          <CircleDollarSign size={14} strokeWidth={1.75} /> Built for daily tracking
+          <WalletCards size={14} strokeWidth={1.75} /> Built for daily tracking
         </span>
       </div>
     </section>

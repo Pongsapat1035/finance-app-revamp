@@ -37,29 +37,35 @@ Tokens live in `src/styles.css` as CSS variables and are exposed to Tailwind v4 
 
 ### Color
 
-| Role         | Token                | Value     | Use                                               |
-| ------------ | -------------------- | --------- | ------------------------------------------------- |
-| Canvas       | `--background`       | `#FFFFFF` | Main page and panel background                    |
-| Ink          | `--foreground`       | `#161616` | Primary text, dark buttons, dark utility surfaces |
-| Card         | `--card`             | `#FFFFFF` | Elevated or bounded content                       |
-| Soft surface | `--muted`            | `#F6F6F4` | Secondary panels, table headers, media wells      |
-| Muted text   | `--muted-foreground` | `#686866` | Supporting copy and metadata                      |
-| Divider      | `--border`           | `#DEDEDB` | Hairlines and component boundaries                |
-| Input border | `--input`            | `#C9C9C5` | Interactive field boundary                        |
-| Signal       | `--accent`           | `#D7F500` | Primary CTA and rare active signal                |
-| Success      | `--success`          | `#168747` | Approved, positive, complete                      |
-| Warning      | `--warning`          | `#A46714` | Needs review, caution                             |
-| Danger       | `--destructive`      | `#C83D35` | Destructive or failed action                      |
-| Information  | `--info`             | `#3567B7` | Informational states and selected data            |
-| Chart blue   | `--chart-blue`       | `#5F86C9` | Primary comparison series                         |
-| Chart green  | `--chart-green`      | `#2F9C58` | Positive or cash series                           |
-| Chart plum   | `--chart-plum`       | `#704366` | Secondary comparison series                       |
+| Role          | Token                | Value     | Use                                               |
+| ------------- | -------------------- | --------- | ------------------------------------------------- |
+| Canvas        | `--background`       | `#FFFFFF` | Main page and panel background                    |
+| Ink           | `--foreground`       | `#161616` | Primary text, dark buttons, dark utility surfaces |
+| Card          | `--card`             | `#FFFFFF` | Elevated or bounded content                       |
+| Soft surface  | `--muted`            | `#F6F6F4` | Secondary panels, table headers, media wells      |
+| Muted text    | `--muted-foreground` | `#686866` | Supporting copy and metadata                      |
+| Divider       | `--border`           | `#DEDEDB` | Hairlines and component boundaries                |
+| Input border  | `--input`            | `#C9C9C5` | Interactive field boundary                        |
+| Signal        | `--accent`           | `#D7F500` | Primary CTA and rare active signal                |
+| Success       | `--success`          | `#00B852` | Approved, positive, complete                      |
+| Success text  | `--success-text`     | `#007A37` | Accessible labels and icons on success surfaces   |
+| Warning       | `--warning`          | `#F5A000` | Needs review, caution                             |
+| Warning text  | `--warning-text`     | `#854900` | Accessible labels and icons on warning surfaces   |
+| Danger        | `--destructive`      | `#F04438` | Destructive or failed action                      |
+| Danger text   | `--destructive-text` | `#B42318` | Accessible labels and icons on danger surfaces    |
+| Information   | `--info`             | `#3567B7` | Informational states and selected data            |
+| Chart blue    | `--chart-blue`       | `#3B82F6` | Primary comparison series                         |
+| Chart green   | `--chart-green`      | `#00B852` | Positive or cash series                           |
+| Chart berry   | `--chart-plum`       | `#C2467D` | Secondary comparison series                       |
+| Chart amber   | `--chart-amber`      | `#F5A000` | Additional category series                        |
+| Chart neutral | `--chart-neutral`    | `#858581` | Lower-priority category series                    |
 
 Color rules:
 
 - Use warm-neutral grays. Do not mix with blue-gray or purple-gray surfaces.
 - Do not use gradients as decoration.
 - Do not use chartreuse for body text, large surfaces, or multiple competing controls.
+- Use the chart palette for categories and comparisons. Reserve success, warning, and danger for values with their actual semantic meaning.
 - Never communicate status by color alone. Include a label or icon.
 - All text and controls must meet WCAG AA. Body text should target AAA where practical.
 
@@ -155,6 +161,26 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - Placeholder text is never the only label.
 - Error state uses text, icon, and border, not color alone.
 
+### Search input
+
+- Use `SearchInput` for controlled, dense collection and table filtering.
+- It uses a leading search icon and requires an accessible label; the placeholder describes the searchable content but is not the label.
+- Return the query through `onValueChange`. The owning feature manages pagination reset, debouncing, and data fetching.
+
+### Date picker
+
+- Use the date picker when choosing one calendar date is clearer than manual entry.
+- Its trigger follows the standard 40px field treatment: label above, helper or error below, 4px radius, and 1px input border.
+- `mode="date"` stores local calendar dates as `YYYY-MM-DD` and displays them as `DD/MM/YYYY`. `mode="month"` stores month values as `YYYY-MM` and displays them as `MMM YYYY`.
+- The popover uses the standard popover surface, 6px radius, one border, and floating shadow. It supports keyboard navigation and respects date bounds.
+- Use month mode for a reporting period or billing cycle. Use separate start and end fields for a simple bounded workflow. Add a range picker only when selecting a range is the primary task.
+
+### Checkbox
+
+- Use a checkbox for an independent boolean setting, never to select a mutually exclusive status.
+- Pair it with a literal label and concise explanation when the effect needs context.
+- The control is 20px with a 4px radius. The checked state uses the ink surface and a white check icon.
+
 ### Dropdown menus
 
 - Use dropdown menus for compact secondary actions, especially table rows and mobile overflow controls.
@@ -172,7 +198,7 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - The list uses the popover surface, a 6px radius, and the standard floating shadow. The selected item shows a check on the right.
 - Group related options with a group label and a separator when the list mixes categories.
 - Support arrow keys, Home, End, typeahead, Enter, Space, Escape, and outside-click dismissal. Return focus to the trigger after dismissal.
-- Over roughly 10 options, prefer a searchable control instead.
+- `SelectField` automatically uses `SearchSelect` when it receives more than 9 options. Focus remains on the select trigger when opened; users can choose to search. `onSearch` returns the keyword to the owning feature, which is responsible for querying the API and supplying updated options.
 
 ### Confirm dialog
 
@@ -186,6 +212,12 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - If the action fails, keep the dialog open and show a recovery message inline above the actions.
 - The panel uses an 8px radius, the standard floating shadow, and a `#161616` overlay at 35 percent. Maximum width is 448px.
 - Focus is trapped inside the dialog and returns to the trigger after dismissal.
+
+### Modal layout
+
+- Compose longer dialogs from `BaseModalHeader`, `BaseModalBody`, and `BaseModalFooter`.
+- The header and footer remain fixed. Only `BaseModalBody` scrolls, and its scrollbar is visually hidden in Chrome and Safari while wheel, touch, and keyboard scrolling remain available.
+- Existing simple dialogs can keep `BaseModalContent`'s default whole-panel scrolling until they are migrated to this layout.
 
 ### Cards and panels
 
@@ -201,6 +233,25 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - Text aligns left. Numeric values align right with tabular numerals.
 - Keep units in headers or values. Never make the user infer currency or time range.
 - Horizontal overflow is explicit on small screens. Freeze the identifying column when useful.
+
+### Pagination
+
+- Use pagination at the bottom of data tables to navigate multi-page collections.
+- Displays the currently visible item range and total count on the left (e.g., `Showing 1-10 of 42 transactions`).
+- Controls sit on the right with icon buttons for previous and next page navigation, with `Page X of Y` indicator in between.
+- Navigation buttons use 32px (`size-8`) squares with `4px` radius, 1px input border, and semantic hover/focus ring.
+- Disabled buttons use 40% opacity and ignore pointer events when on the first or last page.
+- Stacks vertically on small screens (`flex-col sm:flex-row`).
+
+### Empty and error states
+
+- Use empty states when a table or collection has no records or when search/filter criteria match nothing.
+- Use error states when an API request fails, offering a clear recovery action (e.g. `Retry`).
+- Container uses 288px minimum height (`min-h-72`), centered text, and 48px vertical padding.
+- Icons sit inside a 44px (`size-11`) rounded square with 4px radius (`rounded-sm bg-muted` for empty, `rounded-sm bg-destructive/10` for error).
+- Title uses 16px medium text. Description uses 12px muted text with a 384px maximum width (`max-w-sm`).
+- Actions sit 20px below description (`mt-5`).
+- `DataTable` owns empty-state action markup. Pages provide an `actions` array with each label, callback, and optional button presentation.
 
 ### Navigation
 

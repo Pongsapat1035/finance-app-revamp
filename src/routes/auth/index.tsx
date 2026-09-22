@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AuthForm from '#/components/auth/AuthForm'
-import AuthPageLayout from '#/components/auth/AuthPageLayout'
-import AuthPanel from '#/components/auth/AuthPanel'
+
+import AuthPage from '#/pages/auth/AuthPage'
 
 export const Route = createFileRoute('/auth/')({
   component: AuthPage,
@@ -15,13 +14,3 @@ export const Route = createFileRoute('/auth/')({
     ],
   }),
 })
-
-function AuthPage() {
-  return (
-    <AuthPageLayout>
-      <AuthPanel>
-        <AuthForm />
-      </AuthPanel>
-    </AuthPageLayout>
-  )
-}

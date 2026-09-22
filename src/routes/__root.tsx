@@ -5,16 +5,17 @@ import {
   useNavigate,
   useRouterState,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import { lazy, Suspense, useEffect } from 'react'
 
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import RouteErrorPage, { NotFoundPage } from '#/components/RouteFailurePage'
 import { useHasHydrated, useIsAuthenticated } from '#/store/authStore'
-import { useEffect } from 'react'
+
+const DevelopmentTools = import.meta.env.DEV
+  ? lazy(() => import('#/components/DevelopmentTools'))
+  : null
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -42,6 +43,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  errorComponent: RouteErrorPage,
+  notFoundComponent: NotFoundPage,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -63,18 +66,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
+        {DevelopmentTools ? (
+          <Suspense fallback={null}>
+            <DevelopmentTools />
+          </Suspense>
+        ) : null}
         <Scripts />
       </body>
     </html>

@@ -7,9 +7,15 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-const config = defineConfig({
+const config = defineConfig(({ command }) => ({
   resolve: { tsconfigPaths: true },
-  plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact(), nitro()],
-})
+  plugins: [
+    ...(command === 'serve' ? [devtools()] : []),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+    nitro(),
+  ],
+}))
 
 export default config

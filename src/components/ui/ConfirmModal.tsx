@@ -67,8 +67,8 @@ const toneStyles: Record<
   },
   destructive: {
     icon: TriangleAlert,
-    iconClass: 'bg-[#f9e9e8] text-destructive',
-    confirmClass: 'bg-destructive text-destructive-foreground hover:bg-[#b3352e]',
+    iconClass: 'bg-[#fee4e2] text-destructive-text',
+    confirmClass: 'bg-destructive text-destructive-foreground hover:bg-[#dd3b32]',
   },
 }
 
@@ -136,7 +136,7 @@ const ConfirmModal = ({
         {error && (
           <div
             role="alert"
-            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive"
+            className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
           >
             <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
             <span>{error}</span>

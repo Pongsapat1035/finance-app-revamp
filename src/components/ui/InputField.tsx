@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
+
+import { cn } from '#/lib/utils'
 
 export interface InputFieldProps {
   id: string
@@ -7,8 +9,15 @@ export interface InputFieldProps {
   type?: string
   placeholder?: string
   autoComplete?: string
+  autoFocus?: boolean
+  min?: string
   max?: string
+  step?: string
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
+  helperText?: string
+  inputClassName?: string
   required?: boolean
+  disabled?: boolean
 
   // Controlled mode — pass these from form.Field
   value?: string
@@ -18,7 +27,7 @@ export interface InputFieldProps {
   error?: string
   touched?: boolean
 
-  // Uncontrolled mode — for standalone use without a form library
+  // Per-field validation runs on blur and on changes after the field is blurred.
   validate?: (value: string) => string | undefined
 }
 
@@ -29,8 +38,15 @@ const InputField = ({
   type = 'text',
   placeholder,
   autoComplete,
+  autoFocus,
+  min,
   max,
+  step,
+  inputMode,
+  helperText,
+  inputClassName,
   required,
+  disabled,
   value,
   onChange,
   onBlur,
@@ -42,20 +58,17 @@ const InputField = ({
   const [internalError, setInternalError] = useState<string | undefined>(undefined)
   const [internalTouched, setInternalTouched] = useState(false)
 
-  const isControlled = value !== undefined
-  const error = isControlled ? controlledError : internalError
-  const touched = isControlled ? (controlledTouched ?? false) : internalTouched
+  const error = controlledError ?? internalError
+  const touched = controlledTouched ?? internalTouched
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (!isControlled) {
-      setInternalTouched(true)
-      if (validate) setInternalError(validate(e.target.value))
-    }
+    setInternalTouched(true)
+    if (validate) setInternalError(validate(e.target.value))
     onBlur?.(e)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isControlled && internalTouched && validate) {
+    if (internalTouched && validate) {
       setInternalError(validate(e.target.value))
     }
     onChange?.(e)
@@ -71,8 +84,13 @@ const InputField = ({
         name={id}
         type={type}
         autoComplete={autoComplete}
+        autoFocus={autoFocus}
+        min={min}
         max={max}
+        step={step}
+        inputMode={inputMode}
         required={required}
+        disabled={disabled}
         placeholder={placeholder}
         value={value}
         onBlur={handleBlur}
@@ -80,14 +98,19 @@ const InputField = ({
         onKeyDown={onKeyDown}
         aria-invalid={hasError}
         aria-describedby={hasError ? `${id}-error` : undefined}
-        className={`ds-focus-ring h-11 w-full rounded-sm border bg-background px-3.5 text-[14px] font-normal text-foreground placeholder:text-[#8a8a86] hover:border-[#a9a9a5] ${
-          hasError ? 'border-destructive' : 'border-input'
-        }`}
+        className={cn(
+          'h-10 w-full rounded-sm border bg-background px-3 text-sm font-normal text-foreground transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-muted-foreground hover:border-[#a9a9a5] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-45 aria-[invalid=true]:focus-visible:border-destructive aria-[invalid=true]:focus-visible:ring-destructive/20 motion-reduce:transition-none',
+          hasError ? 'border-destructive' : 'border-input',
+          inputClassName,
+        )}
       />
       {hasError && (
-        <span id={`${id}-error`} className="text-[12px] font-normal text-destructive">
+        <span id={`${id}-error`} className="text-[12px] font-normal text-destructive-text">
           {error}
         </span>
+      )}
+      {!hasError && helperText && (
+        <span className="text-[12px] font-normal text-muted-foreground">{helperText}</span>
       )}
     </label>
   )

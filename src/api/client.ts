@@ -28,6 +28,17 @@ class ApiClient {
       },
       (error) => Promise.reject(error),
     )
+
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          useAuthStore.getState().clearToken()
+        }
+
+        return Promise.reject(error)
+      },
+    )
   }
 
   async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
