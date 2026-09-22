@@ -21,6 +21,12 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
+const GOOGLE_CALLBACK_PATH = '/auth/google/callback'
+
+function isGuestOnlyPath(pathname: string) {
+  return pathname === '/' || (pathname.startsWith('/auth') && pathname !== GOOGLE_CALLBACK_PATH)
+}
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -54,8 +60,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
 
   useEffect(() => {
-    if (hasHydrated && isAuthenticated && pathname.startsWith('/auth')) {
-      navigate({ to: '/dashboard' })
+    if (hasHydrated && isAuthenticated && isGuestOnlyPath(pathname)) {
+      void navigate({ to: '/dashboard', replace: true })
     }
   }, [hasHydrated, isAuthenticated, navigate, pathname])
 

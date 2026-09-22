@@ -30,3 +30,15 @@ export interface SignUpResponse {
 export interface SignInResponse {
   token: string
 }
+
+export interface GoogleAuthorizationLinkResponse {
+  authorizationUrl: string
+}
+
+export interface GoogleAuthorizationExchangePayload {
+  code: string
+}
+
+export interface GoogleAuthorizationExchangeResponse {
+  token: string
+}

@@ -36,7 +36,7 @@ function getPostSignInDestination(): AuthenticatedPath {
   }
 }
 
-export const useSignup = () => {
+export const useSignup = (onError?: (errMsg: HandledError) => void) => {
   const navigate = useNavigate()
 
   return useMutation<SignUpResponse, Error, CreateUser>({
@@ -53,7 +53,7 @@ export const useSignup = () => {
       )
       navigate({ to: '/auth/otp' })
     },
-    onError: (err) => console.log(err),
+    onError: (err) => onError?.(handleAxiosError(err)),
   })
 }
 
