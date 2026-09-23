@@ -11,6 +11,7 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import RouteErrorPage, { NotFoundPage } from '#/components/RouteFailurePage'
+import ToastProvider from '#/components/ui/ToastProvider'
 import { useHasHydrated, useIsAuthenticated } from '#/store/authStore'
 
 const DevelopmentTools = import.meta.env.DEV
@@ -71,7 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ToastProvider>{children}</ToastProvider>
         {DevelopmentTools ? (
           <Suspense fallback={null}>
             <DevelopmentTools />

@@ -34,7 +34,8 @@ import ErrorState from '#/components/ui/ErrorState'
 import InputField from '#/components/ui/InputField'
 import Pagination from '#/components/ui/Pagination'
 import SearchInput from '#/components/ui/SearchInput'
-import Toast, { type ToastTone } from '#/components/ui/Toast'
+import type { ToastTone } from '#/components/ui/Toast'
+import { useToast } from '#/hooks/useToast'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -414,22 +415,17 @@ function SearchInputDemo() {
 }
 
 function ToastDemo() {
-  const [toast, setToast] = useState<{
-    id: number
-    tone: ToastTone
-    title: string
-    description: string
-  } | null>(null)
+  const { showToast } = useToast()
 
-  const showToast = (tone: ToastTone) => {
-    setToast({
-      id: Date.now(),
+  const showDemoToast = (tone: ToastTone) => {
+    showToast({
       tone,
       title: tone === 'success' ? 'Transaction updated' : 'Could not update transaction',
       description:
         tone === 'success'
           ? 'Your changes are reflected in the activity list.'
           : 'Check your connection and try again.',
+      duration: 0,
     })
   }
 
@@ -450,29 +446,19 @@ function ToastDemo() {
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => showToast('success')}
+          onClick={() => showDemoToast('success')}
           className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[#30302f]"
         >
           Show success toast
         </button>
         <button
           type="button"
-          onClick={() => showToast('error')}
+          onClick={() => showDemoToast('error')}
           className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium text-destructive-text hover:bg-destructive/10"
         >
           Show error toast
         </button>
       </div>
-      {toast && (
-        <Toast
-          key={toast.id}
-          tone={toast.tone}
-          title={toast.title}
-          description={toast.description}
-          duration={0}
-          onClose={() => setToast(null)}
-        />
-      )}
     </article>
   )
 }

@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { TransactionQueryParams } from '#/api/transaction/transaction.type'
+import ToastProvider from '#/components/ui/ToastProvider'
 import { TransactionType } from '#/enum/enum'
 import TransactionsPage from './TransactionsPage'
 
@@ -94,6 +95,13 @@ vi.mock('#/hooks/useTransaction', () => ({
 const lastTransactionQuery = () =>
   mocks.fetchTransactions.mock.calls.at(-1)?.[0] as TransactionQueryParams
 
+const renderTransactionsPage = () =>
+  render(
+    <ToastProvider>
+      <TransactionsPage />
+    </ToastProvider>,
+  )
+
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
     configurable: true,
@@ -121,7 +129,7 @@ describe('TransactionsPage filters', () => {
   it('debounces keyword search before sending the complete query to the API', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-09-21T12:00:00.000Z'))
-    render(<TransactionsPage />)
+    renderTransactionsPage()
 
     expect(lastTransactionQuery()).toEqual({
       page: 1,
@@ -146,7 +154,7 @@ describe('TransactionsPage filters', () => {
   })
 
   it('combines selected filters and resets pagination when a filter changes', async () => {
-    render(<TransactionsPage />)
+    renderTransactionsPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
     await waitFor(() => expect(lastTransactionQuery().page).toBe(2))
@@ -172,7 +180,7 @@ describe('TransactionsPage filters', () => {
   it('sends the selected month as YYYY-MM and resets pagination', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-09-21T12:00:00.000Z'))
-    render(<TransactionsPage />)
+    renderTransactionsPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
     expect(lastTransactionQuery().page).toBe(2)
@@ -185,20 +193,24 @@ describe('TransactionsPage filters', () => {
 
   it('shows a stable loading state and retries a failed transaction request', () => {
     mocks.transactionState.isPending = true
-    const { rerender } = render(<TransactionsPage />)
+    const { rerender } = renderTransactionsPage()
 
     expect(screen.getByLabelText('Loading data')).toBeTruthy()
 
     mocks.transactionState.isPending = false
     mocks.transactionState.isError = true
-    rerender(<TransactionsPage />)
+    rerender(
+      <ToastProvider>
+        <TransactionsPage />
+      </ToastProvider>,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(mocks.refetchTransactions).toHaveBeenCalledOnce()
   })
 
   it('lets people search and select categories beyond the first ten options', async () => {
-    render(<TransactionsPage />)
+    renderTransactionsPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Add transaction' }))
     fireEvent.click(screen.getByRole('combobox', { name: 'Category' }))
@@ -214,7 +226,7 @@ describe('TransactionsPage filters', () => {
 
   it('shows category recovery in the create flow and retries the failed request', () => {
     mocks.categoryState.isError = true
-    render(<TransactionsPage />)
+    renderTransactionsPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Add transaction' }))
     expect(
