@@ -1,15 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Bell, Check, CircleAlert, CircleCheck, LockKeyhole, ShieldCheck } from 'lucide-react'
 
 import { AppPageShell } from '#/components/app-shell'
 import InputField from '#/components/ui/InputField'
+import { useCurrentUser } from '#/hooks/useCurrentUser'
 
 import type { ReactNode } from 'react'
 
 export default function ProfilePage() {
-  const [name, setName] = useState('Mina Park')
-  const [email, setEmail] = useState('mina@example.com')
+  const { data: user, isError } = useCurrentUser()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [saved, setSaved] = useState(false)
+  useEffect(() => {
+    if (!user) return
+    setName(user.name ?? '')
+    setEmail(user.email)
+  }, [user])
   const initials = useMemo(
     () =>
       name
@@ -37,6 +44,12 @@ export default function ProfilePage() {
         </p>
       </div>
 
+      {isError && (
+        <p className="mt-6 text-sm text-destructive-text" role="alert">
+          Could not load your account details. Please try again.
+        </p>
+      )}
+
       {saved && (
         <div
           className="mt-6 flex items-center gap-2 rounded-sm bg-success-soft px-4 py-3 text-xs font-medium text-success-text"
@@ -60,7 +73,7 @@ export default function ProfilePage() {
           >
             <div className="flex flex-col gap-5 border-b pb-5 sm:flex-row sm:items-center">
               <span className="grid size-16 shrink-0 place-items-center rounded-full bg-[#ded0d2] text-lg font-semibold">
-                {initials || 'MP'}
+                {initials || '?'}
               </span>
               <div>
                 <p className="text-sm font-medium">Profile photo</p>
