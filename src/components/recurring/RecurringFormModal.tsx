@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
-import { CalendarClock, CircleAlert, Plus, Save, X } from 'lucide-react'
+import { CalendarClock, CircleAlert, LoaderCircle, Plus, Save, X } from 'lucide-react'
 
 import type { RecurringTransaction } from '#/api/recurring-transaction/recurring-transaction.type'
 import BaseModal, {
@@ -18,6 +18,7 @@ import IconButton from '#/components/ui/IconButton'
 import InputField from '#/components/ui/InputField'
 import { SelectField } from '#/components/ui/Select'
 import { TransactionType } from '#/enum/enum'
+import { handleAxiosError } from '#/lib/handleAxiosError'
 
 export interface RecurringFormValues {
   title: string
@@ -40,8 +41,12 @@ interface RecurringFormModalProps {
   open: boolean
   transaction: RecurringTransaction | null
   categories: RecurringCategoryOption[]
+  categoriesLoading?: boolean
+  categoriesError?: string
+  onCategorySearch?: (keyword: string) => void
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: RecurringFormValues) => void
+  onSubmit: (values: RecurringFormValues) => Promise<void>
+  isSubmitting?: boolean
 }
 
 interface FormState {
@@ -95,8 +100,12 @@ const RecurringFormModal = ({
   open,
   transaction,
   categories,
+  categoriesLoading = false,
+  categoriesError,
+  onCategorySearch,
   onOpenChange,
   onSubmit,
+  isSubmitting = false,
 }: RecurringFormModalProps) => {
   const [form, setForm] = useState<FormState>(() => getInitialState(transaction))
   const [error, setError] = useState<string>()
@@ -112,7 +121,11 @@ const RecurringFormModal = ({
     setForm((current) => ({ ...current, [key]: value }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!form.categoryId) {
+      setError('Select a category.')
+      return
+    }
     if (!form.startDate) {
       setError('Select a start date.')
       return
@@ -122,16 +135,25 @@ const RecurringFormModal = ({
       return
     }
 
-    onSubmit({
-      title: form.title.trim(),
-      description: form.description.trim(),
-      amount: Number(form.amount),
-      categoryId: Number(form.categoryId),
-      dayOfMonth: Number(form.dayOfMonth),
-      startDate: dayjs(form.startDate).startOf('day').toISOString(),
-      endDate: form.endDate ? dayjs(form.endDate).endOf('day').toISOString() : null,
-      isActive: form.isActive,
-    })
+    try {
+      await onSubmit({
+        title: form.title.trim(),
+        description: form.description.trim(),
+        amount: Number(form.amount),
+        categoryId: Number(form.categoryId),
+        dayOfMonth: Number(form.dayOfMonth),
+        startDate: dayjs(form.startDate).startOf('day').toISOString(),
+        endDate: form.endDate ? dayjs(form.endDate).endOf('day').toISOString() : null,
+        isActive: form.isActive,
+      })
+    } catch (submitError) {
+      const { message, statusCode } = handleAxiosError(submitError)
+      setError(
+        statusCode === null
+          ? 'Could not save the recurring transaction. Check your connection and try again.'
+          : `${message}. Review the details and try again.`,
+      )
+    }
   }
 
   return (
@@ -159,11 +181,15 @@ const RecurringFormModal = ({
                   {editing ? 'Edit recurring transaction' : 'Create recurring transaction'}
                 </BaseModalTitle>
                 <BaseModalDescription className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Set the amount and monthly billing day. No transaction is created from this demo.
+                  Set the amount and monthly billing day for this schedule.
                 </BaseModalDescription>
               </div>
             </div>
-            <IconButton aria-label="Close dialog" onClick={() => onOpenChange(false)}>
+            <IconButton
+              aria-label="Close dialog"
+              disabled={isSubmitting}
+              onClick={() => onOpenChange(false)}
+            >
               <X size={17} strokeWidth={1.75} />
             </IconButton>
           </BaseModalHeader>
@@ -187,15 +213,15 @@ const RecurringFormModal = ({
               <div>
                 <InputField
                   id="recurring-amount"
-                  label="Amount (USD)"
+                  label="Amount"
                   type="number"
                   min="0.01"
                   step="0.01"
                   inputMode="decimal"
                   value={form.amount}
                   onChange={(event) => update('amount', event.target.value)}
-                  placeholder="0.00"
-                  helperText="Shown in USD."
+                  placeholder="0"
+                  helperText="Enter the recurring amount."
                   inputClassName="font-mono"
                   required
                   validate={(value) =>
@@ -215,9 +241,19 @@ const RecurringFormModal = ({
                 }))}
                 value={form.categoryId || undefined}
                 onValueChange={(value) => update('categoryId', value)}
+                onSearch={onCategorySearch}
                 placeholder="Select a category"
-                helperText="Used for reporting and budgets."
+                helperText={
+                  categoriesError
+                    ? 'Categories are unavailable. Close the dialog and retry.'
+                    : categoriesLoading
+                      ? 'Loading available categories.'
+                      : categories.length === 0
+                        ? 'No categories are available for this schedule.'
+                        : 'Used for reporting and budgets.'
+                }
                 required
+                disabled={categoriesLoading || Boolean(categoriesError) || categories.length === 0}
                 validate={(value) => (value ? undefined : 'Select a category.')}
               />
 
@@ -293,7 +329,7 @@ const RecurringFormModal = ({
             {error && (
               <div
                 role="alert"
-                className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-xs leading-5 text-destructive"
+                className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-xs leading-5 text-destructive-text"
               >
                 <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
                 {error}
@@ -308,6 +344,7 @@ const RecurringFormModal = ({
                 variant="outline"
                 height="h-10"
                 fullWidth={false}
+                disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
@@ -316,9 +353,23 @@ const RecurringFormModal = ({
                 type="submit"
                 height="h-10"
                 fullWidth={false}
-                prefixIcon={editing ? <Save size={15} /> : <Plus size={15} />}
+                disabled={
+                  isSubmitting ||
+                  categoriesLoading ||
+                  Boolean(categoriesError) ||
+                  categories.length === 0
+                }
+                prefixIcon={
+                  isSubmitting ? (
+                    <LoaderCircle size={15} className="animate-spin motion-reduce:animate-none" />
+                  ) : editing ? (
+                    <Save size={15} />
+                  ) : (
+                    <Plus size={15} />
+                  )
+                }
               >
-                {editing ? 'Save changes' : 'Create recurring'}
+                {isSubmitting ? 'Saving' : editing ? 'Save changes' : 'Create recurring'}
               </Button>
             </div>
           </BaseModalFooter>

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated')({
   component: () => <AuthenticatedLayout />,
 })
 
-const AuthenticatedLayout = () => {
+export const AuthenticatedLayout = () => {
   const navigate = useNavigate()
   const isAuthenticated = useIsAuthenticated()
   const hasHydrated = useHasHydrated()

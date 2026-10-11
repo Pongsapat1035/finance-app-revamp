@@ -21,12 +21,12 @@ import {
 } from '#/components/ui/Select'
 import { useDeleteTransaction, useFetchTransaction } from '#/hooks/useTransaction'
 import ConfirmModal from '#/components/ui/ConfirmModal'
-import Toast, { type ToastTone } from '#/components/ui/Toast'
 import type { NormalizedTransaction } from '#/api/transaction/transaction.type'
 import type { Category } from '#/api/category/category.type'
 import { TransactionType } from '#/enum/enum'
 import { formatCurrency } from '#/lib/format'
 import { handleAxiosError } from '#/lib/handleAxiosError'
+import { useToast } from '#/hooks/useToast'
 import dayjs from 'dayjs'
 
 interface TransactionFiltersProps {
@@ -153,12 +153,7 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<NormalizedTransaction | null>(null)
   const [transactionToDelete, setTransactionToDelete] = useState<NormalizedTransaction | null>(null)
   const [deleteError, setDeleteError] = useState<string>()
-  const [toast, setToast] = useState<{
-    id: number
-    title: string
-    description: string
-    tone: ToastTone
-  } | null>(null)
+  const { showToast } = useToast()
   const [page, setPage] = useState(1)
   const {
     data: categories,
@@ -281,7 +276,7 @@ export default function TransactionsPage() {
   ]
 
   const showSuccessToast = (title: string, description: string) => {
-    setToast({ id: Date.now(), title, description, tone: 'success' })
+    showToast({ title, description })
   }
 
   const openCreateModal = () => {
@@ -517,16 +512,6 @@ export default function TransactionsPage() {
         error={deleteError}
         onConfirm={handleDelete}
       />
-
-      {toast && (
-        <Toast
-          key={toast.id}
-          title={toast.title}
-          description={toast.description}
-          tone={toast.tone}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   )
 }

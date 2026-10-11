@@ -39,6 +39,7 @@ export const useCreateTransaction = () => {
     mutationFn: (payload: CreateTransactionDto) => postTransaction(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transaction'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })
 }
@@ -51,6 +52,7 @@ export const useUpdateTransaction = () => {
       putTransaction(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transaction'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })
 }
@@ -62,6 +64,7 @@ export const useDeleteTransaction = () => {
     mutationFn: (id: number) => deleteTransaction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transaction'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })
 }

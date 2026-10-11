@@ -1,6 +1,9 @@
 import { apiClient } from '../client'
 import type {
   CreateUser,
+  GoogleAuthorizationExchangePayload,
+  GoogleAuthorizationExchangeResponse,
+  GoogleAuthorizationLinkResponse,
   LoginUser,
   ResendOtp,
   SignInResponse,
@@ -14,6 +17,14 @@ export const postSignUp = (payload: CreateUser) => {
 
 export const postSignIn = (payload: LoginUser) => {
   return apiClient.post<SignInResponse>('/auth/signin', payload)
+}
+
+export const getGoogleAuthorizationLink = () => {
+  return apiClient.get<GoogleAuthorizationLinkResponse>('/auth/google/link')
+}
+
+export const postGoogleAuthorizationExchange = (payload: GoogleAuthorizationExchangePayload) => {
+  return apiClient.post<GoogleAuthorizationExchangeResponse>('/auth/google/exchange', payload)
 }
 
 export const postVerifyOtp = (payload: VerifyUser) => {

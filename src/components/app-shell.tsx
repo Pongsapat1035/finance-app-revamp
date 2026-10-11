@@ -1,39 +1,45 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  BarChart3,
+  CalendarClock,
   Ellipsis,
   LayoutDashboard,
+  LogOut,
   Menu,
   ReceiptText,
   Search,
-  Settings,
+  UserRound,
   WalletCards,
 } from 'lucide-react'
 
 import IconButton from '#/components/ui/IconButton'
+import LedgrIcon from '#/components/icons/LedgrIcon'
 import BaseModal, {
   BaseModalContent,
   BaseModalDescription,
   BaseModalTitle,
 } from '#/components/ui/BaseModal'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '#/components/ui/DropdownMenu'
+import useAuthStore from '#/store/authStore'
+import { useCurrentUser } from '#/hooks/useCurrentUser'
 
-export type NavigationItem =
-  'Overview' | 'Transactions' | 'Budgets' | 'Reports' | 'Settings' | 'Profile'
+export type NavigationItem = 'Overview' | 'Transactions' | 'Budgets' | 'Recurring' | 'Profile'
 
 const navigation = [
   { label: 'Overview' as const, icon: LayoutDashboard, href: '/dashboard' as const },
   { label: 'Transactions' as const, icon: ReceiptText, href: '/transactions' as const },
   { label: 'Budgets' as const, icon: WalletCards, href: '/budgets' as const },
-  { label: 'Reports' as const, icon: BarChart3, href: '/reports' as const },
+  { label: 'Recurring' as const, icon: CalendarClock, href: '/recurring' as const },
 ]
 
 export function BrandMark() {
-  return (
-    <span className="grid size-8 place-items-center rounded-sm bg-foreground text-xs font-bold tracking-[-0.08em] text-background">
-      F/
-    </span>
-  )
+  return <LedgrIcon size={32} className="shrink-0" aria-hidden="true" />
 }
 
 function NavigationContent({
@@ -43,6 +49,15 @@ function NavigationContent({
   activeItem: NavigationItem
   onNavigate?: () => void
 }) {
+  const clearToken = useAuthStore((state) => state.clearToken)
+  const currentUser = useCurrentUser()
+  const accountName = currentUser.data?.name?.trim() || 'Name not provided'
+
+  const handleLogOut = () => {
+    clearToken()
+    onNavigate?.()
+  }
+
   return (
     <>
       <div className="flex h-16 items-center gap-3 border-b px-4">
@@ -82,37 +97,61 @@ function NavigationContent({
       </nav>
 
       <div className="border-t p-3">
-        <Link
-          to="/settings"
-          onClick={onNavigate}
-          aria-current={activeItem === 'Settings' ? 'page' : undefined}
-          className={`ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-[13px] no-underline ${
-            activeItem === 'Settings'
-              ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
-              : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
+        <div
+          className={`flex items-center gap-1 rounded-sm ${
+            activeItem === 'Profile' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
           }`}
         >
-          <Settings size={17} strokeWidth={1.75} /> Settings
-        </Link>
-        <Link
-          to="/profile"
-          onClick={onNavigate}
-          aria-current={activeItem === 'Profile' ? 'page' : undefined}
-          className={`ds-focus-ring ds-interactive mt-2 flex items-center gap-3 rounded-sm px-2.5 py-3 no-underline ${
-            activeItem === 'Profile'
-              ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-              : 'hover:bg-sidebar-accent'
-          }`}
-        >
-          <span className="grid size-8 place-items-center rounded-full bg-muted text-xs font-semibold">
-            MP
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium">Mina Park</p>
-            <p className="truncate text-[11px] text-muted-foreground">mina@example.com</p>
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-3">
+            <span className="grid size-8 place-items-center rounded-full bg-muted">
+              <UserRound size={17} strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium">
+                {currentUser.data
+                  ? accountName
+                  : currentUser.isError
+                    ? 'Account unavailable'
+                    : 'Loading account'}
+              </p>
+              {currentUser.data ? (
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {currentUser.data.email}
+                </p>
+              ) : null}
+            </div>
           </div>
-          <Ellipsis size={16} className="text-muted-foreground" />
-        </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton
+                size="size-8"
+                className="mr-1 data-[state=open]:bg-muted data-[state=open]:text-foreground"
+                aria-label="Open profile menu"
+              >
+                <Ellipsis size={16} strokeWidth={1.75} aria-hidden="true" />
+              </IconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" collisionPadding={12}>
+              <DropdownMenuItem asChild>
+                <Link to="/profile" onClick={onNavigate}>
+                  <UserRound size={15} strokeWidth={1.75} aria-hidden="true" />
+                  View profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                asChild
+                className="text-destructive-text data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive-text"
+              >
+                <Link to="/auth" onClick={handleLogOut}>
+                  <LogOut size={15} strokeWidth={1.75} aria-hidden="true" />
+                  Log out
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </>
   )
@@ -166,7 +205,7 @@ export function AppTopBar({
   return (
     <>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6 lg:ml-56 lg:px-8">
-        <div className="flex items-center gap-3 lg:hidden">
+        <div className="flex items-center lg:hidden">
           <IconButton
             variant="outline"
             aria-label="Open navigation"
@@ -175,27 +214,26 @@ export function AppTopBar({
           >
             <Menu size={17} strokeWidth={1.75} />
           </IconButton>
-          <BrandMark />
         </div>
-        <div className="hidden h-9 w-full max-w-md items-center gap-2 rounded-sm border bg-muted px-3 text-xs text-muted-foreground md:flex">
+        <div className="hidden h-9 min-w-0 w-full max-w-md flex-1 items-center gap-2 rounded-sm border bg-muted px-3 text-xs text-muted-foreground md:flex">
           <Search size={15} strokeWidth={1.75} />
-          <span>{searchLabel}</span>
-          <kbd className="ml-auto rounded-sm border bg-background px-1.5 py-0.5 font-mono text-[10px]">
+          <span className="truncate">{searchLabel}</span>
+          <kbd className="ml-auto shrink-0 rounded-sm border bg-background px-1.5 py-0.5 font-mono text-[10px]">
             ⌘ K
           </kbd>
         </div>
         <div className="flex items-center gap-3">
           {periodControl ? (
-            <div className="hidden lg:block">{periodControl}</div>
+            <div className="shrink-0">{periodControl}</div>
           ) : (
             periodLabel && <p className={periodClassName}>{periodLabel}</p>
           )}
           <Link
             to="/profile"
-            className="ds-focus-ring grid size-9 place-items-center rounded-full bg-muted text-xs font-semibold no-underline lg:hidden"
+            className="ds-focus-ring grid size-9 place-items-center rounded-full bg-muted no-underline lg:hidden"
             aria-label="Open profile settings"
           >
-            MP
+            <UserRound size={18} strokeWidth={1.75} aria-hidden="true" />
           </Link>
         </div>
       </header>
@@ -213,12 +251,14 @@ export function AppPageShell({
   activeItem,
   searchLabel,
   periodLabel,
+  periodControl,
   periodClassName,
   children,
 }: {
   activeItem: NavigationItem
   searchLabel: string
-  periodLabel: string
+  periodLabel?: string
+  periodControl?: ReactNode
   periodClassName?: string
   children: ReactNode
 }) {
@@ -229,6 +269,7 @@ export function AppPageShell({
         activeItem={activeItem}
         searchLabel={searchLabel}
         periodLabel={periodLabel}
+        periodControl={periodControl}
         periodClassName={periodClassName}
       />
       <main className="lg:ml-56">

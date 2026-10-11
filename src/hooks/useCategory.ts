@@ -20,7 +20,10 @@ export const useCreateCategory = () => {
 
   return useMutation({
     mutationFn: (payload: CreateCategoryDto) => postCategory(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
+    },
   })
 }
 
@@ -30,7 +33,10 @@ export const useUpdateCategory = () => {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: CreateCategoryDto }) =>
       patchCategory(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
+    },
   })
 }
 
@@ -39,6 +45,9 @@ export const useDeleteCategory = () => {
 
   return useMutation({
     mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({ queryKey: ['budget'] })
+    },
   })
 }

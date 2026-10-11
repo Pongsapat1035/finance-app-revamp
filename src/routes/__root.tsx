@@ -11,6 +11,7 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import RouteErrorPage, { NotFoundPage } from '#/components/RouteFailurePage'
+import ToastProvider from '#/components/ui/ToastProvider'
 import { useHasHydrated, useIsAuthenticated } from '#/store/authStore'
 
 const DevelopmentTools = import.meta.env.DEV
@@ -19,6 +20,12 @@ const DevelopmentTools = import.meta.env.DEV
 
 interface MyRouterContext {
   queryClient: QueryClient
+}
+
+const GOOGLE_CALLBACK_PATH = '/auth/google/callback'
+
+function isGuestOnlyPath(pathname: string) {
+  return pathname === '/' || (pathname.startsWith('/auth') && pathname !== GOOGLE_CALLBACK_PATH)
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -54,8 +61,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
 
   useEffect(() => {
-    if (hasHydrated && isAuthenticated && pathname.startsWith('/auth')) {
-      navigate({ to: '/dashboard' })
+    if (hasHydrated && isAuthenticated && isGuestOnlyPath(pathname)) {
+      void navigate({ to: '/dashboard', replace: true })
     }
   }, [hasHydrated, isAuthenticated, navigate, pathname])
 
@@ -65,7 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ToastProvider>{children}</ToastProvider>
         {DevelopmentTools ? (
           <Suspense fallback={null}>
             <DevelopmentTools />
