@@ -9,8 +9,7 @@ const authenticatedPaths = [
   '/dashboard',
   '/transactions',
   '/budgets',
-  '/reports',
-  '/settings',
+  '/recurring',
   '/profile',
 ] as const
 
