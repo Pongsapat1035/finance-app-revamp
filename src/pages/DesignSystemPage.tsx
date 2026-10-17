@@ -1083,9 +1083,9 @@ export default function DesignSystemPage() {
                   </thead>
                   <tbody className="text-sm">
                     {[
-                      ['Figma', 'Mina Park', 'Approved', 'Jul 12, 2026', '144.00'],
+                      ['Figma', 'Mina Park', 'Approved', 'Jul 12, 2026', '144'],
                       ['AWS', 'Eli Navarro', 'Review', 'Jul 11, 2026', '2,418.63'],
-                      ['Notion', 'Sora Kim', 'Approved', 'Jul 10, 2026', '80.00'],
+                      ['Notion', 'Sora Kim', 'Approved', 'Jul 10, 2026', '80'],
                     ].map(([merchant, owner, status, date, amount]) => (
                       <tr key={merchant} className="border-b last:border-b-0 hover:bg-muted/70">
                         <td className="px-4 py-3.5 font-medium">{merchant}</td>

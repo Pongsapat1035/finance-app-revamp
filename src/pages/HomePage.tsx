@@ -12,7 +12,7 @@ import {
 
 import GridOverlay from '#/components/GridOverlay'
 import LedgrIcon from '#/components/icons/LedgrIcon'
-import { formatCurrency as currency } from '#/lib/format'
+import { formatNumber } from '#/lib/format'
 
 const heroTransactions = [
   { name: 'Green Market', category: 'Groceries', date: 'Jul 12', amount: -82.4 },
@@ -32,7 +32,7 @@ const categoryBreakdown = [
 const stats = [
   { label: 'Savings rate', value: '67.3%' },
   { label: 'Transactions tracked', value: '24' },
-  { label: 'Average daily spend', value: currency(43.84) },
+  { label: 'Average daily spend', value: formatNumber(43.84) },
   { label: 'Categories organized', value: '5' },
 ]
 
@@ -85,7 +85,7 @@ const HeroPreviewPanel = () => {
             <span className="text-[11px]">Income</span>
           </div>
           <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
-            {currency(4150)}
+            {formatNumber(4150)}
           </p>
         </div>
         <div className="bg-background p-5">
@@ -94,7 +94,7 @@ const HeroPreviewPanel = () => {
             <span className="text-[11px]">Expenses</span>
           </div>
           <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
-            {currency(1358.99)}
+            {formatNumber(1358.99)}
           </p>
         </div>
       </div>
@@ -103,7 +103,7 @@ const HeroPreviewPanel = () => {
           <div>
             <p className="text-[11px] text-muted-foreground">Available after expenses</p>
             <p className="mt-2 font-mono text-[28px] font-medium tracking-[-0.045em]">
-              {currency(2791.01)}
+              {formatNumber(2791.01)}
             </p>
           </div>
           <div
@@ -252,7 +252,7 @@ const TransactionsStory = () => {
                     className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success-text' : ''}`}
                   >
                     {income ? '+' : '-'}
-                    {currency(Math.abs(transaction.amount))}
+                    {formatNumber(Math.abs(transaction.amount))}
                   </p>
                 </div>
               )
@@ -280,7 +280,7 @@ const CategoryStory = () => {
               <span
                 key={category.name}
                 style={{ width: `${category.percent}%`, backgroundColor: category.color }}
-                title={`${category.name} ${category.percent}%`}
+                title={`${category.name} ${formatNumber(category.percent)}%`}
               />
             ))}
           </div>
@@ -297,7 +297,7 @@ const CategoryStory = () => {
                 />
                 <p className="truncate text-sm font-medium">{category.name}</p>
                 <p className="font-mono text-xs font-medium tabular-nums text-muted-foreground">
-                  {currency(category.amount)}
+                  {formatNumber(category.amount)}
                 </p>
               </div>
             ))}

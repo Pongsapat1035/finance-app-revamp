@@ -24,7 +24,7 @@ import ConfirmModal from '#/components/ui/ConfirmModal'
 import type { NormalizedTransaction } from '#/api/transaction/transaction.type'
 import type { Category } from '#/api/category/category.type'
 import { TransactionType } from '#/enum/enum'
-import { formatCurrency } from '#/lib/format'
+import { formatNumber } from '#/lib/format'
 import { handleAxiosError } from '#/lib/handleAxiosError'
 import { useToast } from '#/hooks/useToast'
 import dayjs from 'dayjs'
@@ -134,7 +134,7 @@ const TransactionMobileRow = ({
           className={`font-mono font-medium tabular-nums ${isIncome ? 'text-success-text' : ''}`}
         >
           {isIncome ? '+' : '-'}
-          {formatCurrency(transaction.amount)}
+          {formatNumber(transaction.amount)}
         </span>
       </div>
     </article>
@@ -252,7 +252,7 @@ export default function TransactionsPage() {
         return (
           <span className={isIncome ? 'text-success-text' : undefined}>
             {isIncome ? '+' : '-'}
-            {formatCurrency(transaction.amount)}
+            {formatNumber(transaction.amount)}
           </span>
         )
       },
@@ -501,7 +501,7 @@ export default function TransactionsPage() {
                 </p>
               </div>
               <span className="shrink-0 font-mono font-medium tabular-nums">
-                {formatCurrency(transactionToDelete.amount)}
+                {formatNumber(transactionToDelete.amount)}
               </span>
             </div>
           ) : null

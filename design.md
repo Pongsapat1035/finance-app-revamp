@@ -312,6 +312,7 @@ Default motion intensity is low.
 - Use plain language: `Review expenses`, not `Unlock financial clarity`.
 - Use realistic names and sample data. Label examples when values are not real.
 - Use currency codes when currencies can differ. Use locale-aware formatting in production.
+- Group thousands in displayed amounts and show decimal digits only when the value has them.
 - Show the time period near every metric and chart.
 - Avoid fake precision and unexplained percentages.
 - Do not use em dashes or en dashes as separators. Use a hyphen, line break, or separate columns.

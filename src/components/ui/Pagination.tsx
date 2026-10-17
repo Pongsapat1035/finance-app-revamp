@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import IconButton from '#/components/ui/IconButton'
 import { cn } from '#/lib/utils'
+import { formatNumber } from '#/lib/format'
 
 export interface PaginationProps {
   page: number
@@ -25,7 +26,12 @@ const Pagination = ({
   const safePage = Math.max(1, Math.min(page, safeTotalPages))
   const from = total === 0 ? 0 : (safePage - 1) * pageSize + 1
   const to = total === 0 ? 0 : Math.min(safePage * pageSize, total)
-  const rangeText = total === 0 ? '0' : from === to ? `${from}` : `${from}-${to}`
+  const rangeText =
+    total === 0
+      ? '0'
+      : from === to
+        ? formatNumber(from)
+        : `${formatNumber(from)}-${formatNumber(to)}`
 
   return (
     <nav
@@ -36,7 +42,7 @@ const Pagination = ({
       )}
     >
       <p>
-        Showing {rangeText} of {total}
+        Showing {rangeText} of {formatNumber(total)}
         {itemName ? ` ${itemName}` : ''}
       </p>
       <div className="flex items-center gap-2">
@@ -50,7 +56,7 @@ const Pagination = ({
           <ChevronLeft size={15} strokeWidth={1.75} />
         </IconButton>
         <span className="min-w-20 text-center">
-          Page {safePage} of {safeTotalPages}
+          Page {formatNumber(safePage)} of {formatNumber(safeTotalPages)}
         </span>
         <IconButton
           variant="outline"
