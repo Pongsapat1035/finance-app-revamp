@@ -4,18 +4,14 @@ import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
 import { BaseModalBody, BaseModalFooter, BaseModalHeader } from '#/components/ui/BaseModal'
 import type { Category as ApiCategory } from '#/api/category/category.type'
-import { TransactionType as ApiTransactionType } from '#/enum/enum'
+import { TransactionType } from '#/enum/enum'
 import { SelectField } from '#/components/ui/Select'
 import InputField from '#/components/ui/InputField'
 import { useForm } from '@tanstack/react-form'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 
-type TransactionType = 'expense' | 'income'
-
-const TYPE_TO_API_TYPE: Record<TransactionType, ApiTransactionType> = {
-  expense: ApiTransactionType.EXPEND,
-  income: ApiTransactionType.INCOME,
-}
+type SelectedCategory = Pick<ApiCategory, 'id' | 'title' | 'type'>
 
 interface TransactionFormValues {
   amount: string
@@ -38,6 +34,7 @@ interface TransactionFormProps {
   onSubmit: (value: TransactionFormValues) => Promise<void> | void
   mode?: TransactionFormMode
   initialValues?: TransactionFormValues
+  initialCategory?: SelectedCategory
   isSubmitting?: boolean
   submitError?: string
 }
@@ -54,12 +51,25 @@ const TransactionForm = ({
   onSubmit,
   mode = 'create',
   initialValues,
+  initialCategory,
   isSubmitting = false,
   submitError,
 }: TransactionFormProps) => {
-  const availableCategories = categories
-    .filter((category) => category.type === TYPE_TO_API_TYPE[type])
-    .map((el) => ({ label: el.title, value: String(el.id) }))
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory)
+  const matchingCategories: SelectedCategory[] = categories.filter(
+    (category) => category.type === type,
+  )
+  // Search and pagination can omit the selected category; retain its display label.
+  if (
+    selectedCategory?.type === type &&
+    !matchingCategories.some((category) => category.id === selectedCategory.id)
+  ) {
+    matchingCategories.push(selectedCategory)
+  }
+  const availableCategories = matchingCategories.map((category) => ({
+    label: category.title,
+    value: String(category.id),
+  }))
 
   const today = dayjs().format('YYYY-MM-DD')
 
@@ -105,13 +115,26 @@ const TransactionForm = ({
         }}
       >
         <BaseModalBody className="grid gap-6">
-          <TypeSelector value={type} onChange={setType} />
+          <TypeSelector
+            value={type}
+            onChange={(nextType) => {
+              if (nextType === type) return
+              form.setFieldValue('categoryId', 'default')
+              setSelectedCategory(undefined)
+              onCategorySearch?.('')
+              setType(nextType)
+            }}
+          />
 
           <form.Field
             name="amount"
             validators={{
               onChange: ({ value }) =>
-                !value || Number(value) <= 0 ? 'Enter an amount greater than 0' : undefined,
+                !value || Number(value) <= 0
+                  ? 'Enter an amount greater than 0'
+                  : Number(value) > 21_474_836.47
+                    ? 'Enter an amount no greater than 21,474,836.47'
+                    : undefined,
             }}
           >
             {(field) => {
@@ -130,7 +153,7 @@ const TransactionForm = ({
                       id="transaction-amount"
                       name={field.name}
                       inputMode="decimal"
-                      placeholder="0.00"
+                      placeholder="0"
                       required
                       value={field.state.value}
                       onBlur={field.handleBlur}
@@ -194,7 +217,12 @@ const TransactionForm = ({
                     ...availableCategories,
                   ]}
                   onSearch={onCategorySearch}
-                  onValueChange={field.handleChange}
+                  onValueChange={(value) => {
+                    field.handleChange(value)
+                    setSelectedCategory(
+                      matchingCategories.find((category) => String(category.id) === value),
+                    )
+                  }}
                   value={field.state.value}
                   required
                   disabled={categoriesLoading || Boolean(categoriesError)}
@@ -212,7 +240,9 @@ const TransactionForm = ({
                   <span className="text-[11px] text-muted-foreground">
                     {categoriesLoading
                       ? 'Loading available categories.'
-                      : 'Categories change based on transaction type.'}
+                      : availableCategories.length === 0
+                        ? 'No matching categories. Open Manage categories to create one.'
+                        : 'Categories change based on transaction type.'}
                   </span>
                 )}
               </div>
@@ -246,16 +276,24 @@ const TransactionForm = ({
             )}
           </form.Field>
 
-          <form.Field name="description">
+          <form.Field
+            name="description"
+            validators={{
+              onChange: ({ value }) => (!value.trim() ? 'Description is required' : undefined),
+            }}
+          >
             {(field) => (
               <div className="grid gap-2">
                 <InputField
                   id="transaction-description"
-                  label="Description (optional)"
+                  label="Description"
                   placeholder="Add a note"
+                  required
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) => field.handleChange(event.target.value)}
+                  error={field.state.meta.errors.join(', ')}
+                  touched={field.state.meta.isTouched}
                 />
               </div>
             )}
@@ -314,10 +352,5 @@ const TransactionForm = ({
   )
 }
 
-export {
-  type TransactionType,
-  type TransactionFormValues,
-  type TransactionFormMode,
-  TYPE_TO_API_TYPE,
-}
+export { type TransactionFormValues, type TransactionFormMode }
 export default TransactionForm

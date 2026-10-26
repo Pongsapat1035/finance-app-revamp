@@ -11,8 +11,9 @@ import { useCreateCategory, useDeleteCategory, useUpdateCategory } from '#/hooks
 import { handleAxiosError } from '#/lib/handleAxiosError'
 
 const CATEGORY_TABS = [
-  { label: 'Expense categories', value: TransactionType.EXPEND },
-  { label: 'Income categories', value: TransactionType.INCOME },
+  { label: 'Expense', value: TransactionType.EXPEND },
+  { label: 'Income', value: TransactionType.INCOME },
+  { label: 'Investment', value: TransactionType.INVESTMENT },
 ]
 
 const TYPE_LABEL: Record<TransactionType, string> = {
@@ -21,14 +22,13 @@ const TYPE_LABEL: Record<TransactionType, string> = {
   [TransactionType.INVESTMENT]: 'investment',
 }
 
-const DEFAULT_COLOR = '#94a3b8'
-
 interface CategoryManagerProps {
   categories: Category[]
   isLoading?: boolean
   error?: string
   onRetry?: () => void
   transactionType: TransactionType
+  onTypeChange?: (type: TransactionType) => void
   onBack: () => void
   onClose: () => void
 }
@@ -39,6 +39,7 @@ const CategoryManager = ({
   error,
   onRetry,
   transactionType,
+  onTypeChange,
   onBack,
   onClose,
 }: CategoryManagerProps) => {
@@ -73,7 +74,7 @@ const CategoryManager = ({
     setActionError(undefined)
 
     try {
-      await createCategory({ title, type: activeType, color: DEFAULT_COLOR })
+      await createCategory({ title, type: activeType })
       setNewCategory('')
     } catch (createError) {
       setActionError(getActionError('create', createError))
@@ -88,7 +89,7 @@ const CategoryManager = ({
     setActionError(undefined)
 
     try {
-      await updateCategory({ id, payload: { title, type: category.type, color: category.color } })
+      await updateCategory({ id, payload: { title, type: category.type } })
       setEditingId(null)
       setEditingName('')
     } catch (updateError) {
@@ -116,7 +117,7 @@ const CategoryManager = ({
               <ArrowLeft size={17} />
             </IconButton>
             <div>
-              <h2 id="transaction-dialog-title" className="text-xl font-medium tracking-tight">
+              <h2 id="category-dialog-title" className="text-xl font-medium tracking-tight">
                 Manage categories
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -136,6 +137,7 @@ const CategoryManager = ({
           active={activeType}
           onChange={(type) => {
             setActiveType(type)
+            onTypeChange?.(type)
             setEditingId(null)
             setDeletingId(null)
             setActionError(undefined)

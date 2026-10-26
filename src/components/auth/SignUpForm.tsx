@@ -135,7 +135,7 @@ const SignUpForm = ({ onSubmit, isPending }: Props) => {
       </form>
 
       <div className="mt-5 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-        <Check className="mt-0.5 shrink-0 text-success" size={14} strokeWidth={2} />
+        <Check className="mt-0.5 shrink-0 text-success-text" size={14} strokeWidth={2} />
         <p>By creating an account, you agree to the Terms and acknowledge the Privacy Policy.</p>
       </div>
     </>

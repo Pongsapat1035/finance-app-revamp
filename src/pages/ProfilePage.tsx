@@ -29,11 +29,7 @@ export default function ProfilePage() {
   )
 
   return (
-    <AppPageShell
-      activeItem="Profile"
-      searchLabel="Search profile settings"
-      periodLabel="Profile settings"
-    >
+    <AppPageShell activeItem="Profile" periodLabel="Profile settings">
       <div>
         <p className="text-xs font-medium text-muted-foreground">Personal account</p>
         <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">

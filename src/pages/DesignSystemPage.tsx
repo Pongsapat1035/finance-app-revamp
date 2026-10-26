@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
   ArrowRight,
+  CalendarDays,
   Check,
   CircleAlert,
   CircleCheck,
@@ -16,8 +17,10 @@ import {
   Settings2,
   Sparkles,
   Trash2,
+  UserRound,
 } from 'lucide-react'
 import ConfirmModal from '#/components/ui/ConfirmModal'
+import LedgrIcon from '#/components/icons/LedgrIcon'
 import BaseModal, {
   BaseModalBody,
   BaseModalClose,
@@ -31,7 +34,9 @@ import Checkbox from '#/components/ui/Checkbox'
 import DatePickerField from '#/components/ui/DatePicker'
 import EmptyState from '#/components/ui/EmptyState'
 import ErrorState from '#/components/ui/ErrorState'
+import IconPicker from '#/components/ui/IconPicker'
 import InputField from '#/components/ui/InputField'
+import { MenuSearch } from '#/components/app-shell'
 import Pagination from '#/components/ui/Pagination'
 import SearchInput from '#/components/ui/SearchInput'
 import type { ToastTone } from '#/components/ui/Toast'
@@ -127,6 +132,37 @@ function SectionHeading({ title, description }: { title: string; description: st
       </h2>
       <p className="mt-2 text-[15px] leading-6 text-muted-foreground">{description}</p>
     </div>
+  )
+}
+
+function IconPickerDemo() {
+  const [iconName, setIconName] = useState('ShoppingCart')
+
+  return (
+    <article className="rounded-lg border p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-medium">Icon picker</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Search Lucide icons and return a stable name for storage.
+          </p>
+        </div>
+        <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
+          ui/IconPicker
+        </code>
+      </div>
+      <div className="mt-6 max-w-sm">
+        <IconPicker
+          label="Category icon"
+          value={iconName}
+          onValueChange={setIconName}
+          helperText="The icon name can be saved with the category."
+        />
+        <p className="mt-4 text-xs text-muted-foreground">
+          Stored value: <code className="font-mono text-foreground">{iconName}</code>
+        </p>
+      </div>
+    </article>
   )
 }
 
@@ -545,10 +581,10 @@ export default function DesignSystemPage() {
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="ds-focus-ring ds-interactive grid size-8 place-items-center rounded-sm bg-foreground text-background"
+              className="ds-focus-ring ds-interactive grid size-8 place-items-center rounded-sm"
               aria-label="Home"
             >
-              <span className="text-sm font-bold tracking-[-0.08em]">F/</span>
+              <LedgrIcon size={32} aria-hidden="true" />
             </Link>
             <div className="hidden h-5 w-px bg-border sm:block" />
             <span className="text-sm font-medium">Design system</span>
@@ -972,11 +1008,24 @@ export default function DesignSystemPage() {
                 </div>
               </article>
 
+              <IconPickerDemo />
+
               <DatePickerDemo />
 
               <CheckboxDemo />
 
               <SearchInputDemo />
+
+              <article id="menu-search" className="rounded-lg border p-5 sm:p-7">
+                <h3 className="text-sm font-medium">Menu search</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Find the four workspace menus locally. Open with Command+K or Control+K, then use
+                  arrow keys and Enter to navigate.
+                </p>
+                <div className="mt-6 flex">
+                  <MenuSearch />
+                </div>
+              </article>
 
               <BaseModalDemo />
 
@@ -993,7 +1042,7 @@ export default function DesignSystemPage() {
                   <div>
                     <h3 className="text-sm font-medium">Navigation shell</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Compact, stable, and task oriented.
+                      The compact bar uses a menu control and keeps month filters within reach.
                     </p>
                   </div>
                   <span className="rounded-full bg-accent px-2 py-1 text-[11px] font-semibold">
@@ -1008,7 +1057,15 @@ export default function DesignSystemPage() {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Search size={16} />
-                      <Settings2 size={16} />
+                      <span className="inline-flex h-7 items-center gap-2 rounded-sm border border-input bg-background px-2 text-[11px] text-foreground">
+                        Sep 2026 <CalendarDays size={13} strokeWidth={1.75} />
+                      </span>
+                      <span
+                        className="grid size-8 place-items-center rounded-full bg-muted text-foreground"
+                        aria-label="Account avatar placeholder"
+                      >
+                        <UserRound size={17} strokeWidth={1.75} aria-hidden="true" />
+                      </span>
                     </div>
                   </div>
                   <div className="grid min-h-52 sm:grid-cols-[176px_1fr]">

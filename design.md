@@ -200,6 +200,13 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - Support arrow keys, Home, End, typeahead, Enter, Space, Escape, and outside-click dismissal. Return focus to the trigger after dismissal.
 - `SelectField` automatically uses `SearchSelect` when it receives more than 9 options. Focus remains on the select trigger when opened; users can choose to search. `onSearch` returns the keyword to the owning feature, which is responsible for querying the API and supplying updated options.
 
+### Icon picker
+
+- Use `IconPicker` when a user assigns a pictogram to a category or other named item.
+- Show a selected icon and its readable name in a standard 40px field. The popover offers a searchable grid of curated Lucide icons.
+- Return the Lucide export name through `onValueChange` so the owning form can store the string. The picker does not save data itself.
+- Keep every icon option keyboard reachable and named for assistive technology. Show an empty message when search has no matches.
+
 ### Confirm dialog
 
 - Use a confirm dialog only for actions that are hard to undo, move money, or affect other people. Reversible actions get an inline undo instead.
@@ -255,6 +262,12 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 ### Navigation
 
+- The shared top bar searches the four workspace menus locally using the same entries as the sidebar: Overview, Transactions, Budgets, and Recurring.
+- Open menu search from its button or with Command+K (Control+K is also supported). Use a search icon on compact screens while keeping page period controls visible.
+- The search dialog uses the existing modal and search input. Focus the input on open, support arrow keys and Enter for navigation, Escape to close, and a readable no-results state. Return focus to the trigger when dismissed.
+- Use the shared `LedgrIcon` at 32px for workspace and design-system navigation branding.
+- Use a Lucide `UserRound` icon in a neutral circular placeholder when no account photo is available.
+- In compact app bars, show the navigation menu without a second brand mark. Keep the month picker visible when a page provides one.
 - Desktop product sidebar: 216-240px.
 - Top command bar: 56-64px.
 - Active nav item uses a stronger neutral fill. Accent color is reserved for notification counts or primary actions.

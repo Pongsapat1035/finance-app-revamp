@@ -291,11 +291,7 @@ export default function RecurringPage() {
   ]
 
   return (
-    <AppPageShell
-      activeItem="Recurring"
-      searchLabel="Search recurring transactions"
-      periodLabel="Monthly schedules"
-    >
+    <AppPageShell activeItem="Recurring" periodLabel="Monthly schedules">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-medium text-muted-foreground">Scheduled money activity</p>
