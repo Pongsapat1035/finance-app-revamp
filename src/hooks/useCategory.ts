@@ -7,11 +7,13 @@ import {
 } from '#/api/category/category.api'
 import type { CategoryQueryParams, CreateCategoryDto } from '#/api/category/category.type'
 
-export const useFetchCategory = (params?: CategoryQueryParams) => {
+export const useFetchCategory = (params?: CategoryQueryParams, enabled = true) => {
   return useQuery({
-    queryKey: ['category', params],
+    queryKey: ['category', params] as const,
     queryFn: () => getCategories(params),
-    placeholderData: (previousData) => previousData,
+    enabled,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1]?.type === params?.type ? previousData : undefined,
   })
 }
 
@@ -22,6 +24,9 @@ export const useCreateCategory = () => {
     mutationFn: (payload: CreateCategoryDto) => postCategory(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({
+        queryKey: ['transaction', 'summary', 'expenses-by-category'],
+      })
       queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })
@@ -35,6 +40,7 @@ export const useUpdateCategory = () => {
       patchCategory(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({ queryKey: ['transaction'] })
       queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })
@@ -47,6 +53,9 @@ export const useDeleteCategory = () => {
     mutationFn: (id: number) => deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['category'] })
+      queryClient.invalidateQueries({
+        queryKey: ['transaction', 'summary', 'expenses-by-category'],
+      })
       queryClient.invalidateQueries({ queryKey: ['budget'] })
     },
   })

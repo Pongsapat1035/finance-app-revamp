@@ -52,9 +52,7 @@ describe('TransactionModal', () => {
     expect(screen.getByRole('heading', { name: 'Edit transaction' })).toBeTruthy()
     expect((screen.getByLabelText('Amount') as HTMLInputElement).value).toBe('42.5')
     expect((screen.getByLabelText('Transaction date') as HTMLInputElement).value).toBe('2026-08-05')
-    expect((screen.getByLabelText('Description (optional)') as HTMLInputElement).value).toBe(
-      'Train ticket',
-    )
+    expect((screen.getByLabelText('Description') as HTMLInputElement).value).toBe('Train ticket')
     expect(screen.getByRole('combobox', { name: 'Category' }).textContent).toContain(
       'Transportation',
     )

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/design-system')({
   component: DesignSystemPage,
   head: () => ({
     meta: [
-      { title: 'Finance Design System' },
+      { title: 'Design system | Ledgr' },
       {
         name: 'description',
         content: 'The visual language and interface tokens for the finance product.',

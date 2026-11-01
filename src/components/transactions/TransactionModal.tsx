@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import TransactionForm, {
   type TransactionFormValues,
-  type TransactionType,
-  TYPE_TO_API_TYPE,
 } from '#/components/transactions/TransactionForm'
 import CategoryManager from '#/components/transactions/CategoryManager'
 import BaseModal, { BaseModalContent } from '#/components/ui/BaseModal'
@@ -11,7 +9,7 @@ import type {
   CreateTransactionDto,
   NormalizedTransaction,
 } from '#/api/transaction/transaction.type'
-import { TransactionType as ApiTransactionType } from '#/enum/enum'
+import { TransactionType } from '#/enum/enum'
 import { useCreateTransaction, useUpdateTransaction } from '#/hooks/useTransaction'
 import { handleAxiosError } from '#/lib/handleAxiosError'
 
@@ -24,6 +22,7 @@ interface TransactionModalProps {
   categoriesLoading?: boolean
   categoriesError?: string
   onSearchCategories?: (keyword: string) => void
+  onCategoryTypeChange?: (type: TransactionType) => void
   onRetryCategories?: () => void
   transaction?: NormalizedTransaction | null
   onSuccess?: (mode: 'create' | 'edit') => void
@@ -36,12 +35,13 @@ const TransactionModal = ({
   categoriesLoading = false,
   categoriesError,
   onSearchCategories,
+  onCategoryTypeChange,
   onRetryCategories,
   transaction,
   onSuccess,
 }: TransactionModalProps) => {
   const [view, setView] = useState<ModalView>('transaction')
-  const [type, setType] = useState<TransactionType>('expense')
+  const [type, setType] = useState<TransactionType>(transaction?.type ?? TransactionType.EXPEND)
   const [submitError, setSubmitError] = useState<string>()
   const createTransaction = useCreateTransaction()
   const updateTransaction = useUpdateTransaction()
@@ -52,7 +52,7 @@ const TransactionModal = ({
     if (!open) return
 
     setView('transaction')
-    setType(transaction?.type === ApiTransactionType.INCOME ? 'income' : 'expense')
+    setType(transaction?.type ?? TransactionType.EXPEND)
     setSubmitError(undefined)
   }, [open, transaction])
 
@@ -63,9 +63,9 @@ const TransactionModal = ({
   const handleSubmit = async (value: TransactionFormValues) => {
     const payload: CreateTransactionDto = {
       categoryId: Number(value.categoryId),
-      type: TYPE_TO_API_TYPE[type],
+      type,
       amount: Number(value.amount),
-      description: value.description,
+      description: value.description.trim(),
       date: value.date,
     }
 
@@ -109,33 +109,58 @@ const TransactionModal = ({
       <BaseModalContent
         scrollable={false}
         showCloseButton={false}
-        aria-labelledby="transaction-dialog-title"
+        className={
+          view === 'categories' ? 'h-[min(36rem,92dvh)] sm:h-[min(36rem,92dvh)]' : undefined
+        }
+        aria-labelledby={
+          view === 'transaction' ? 'transaction-dialog-title' : 'category-dialog-title'
+        }
       >
-        {view === 'transaction' ? (
+        <div className={view === 'transaction' ? 'contents' : 'hidden'}>
           <TransactionForm
             key={`${mode}-${transaction?.id ?? 'new'}`}
             type={type}
-            setType={setType}
+            setType={(nextType) => {
+              setType(nextType)
+              onCategoryTypeChange?.(nextType)
+            }}
             categories={categories ?? []}
             categoriesLoading={categoriesLoading}
             categoriesError={categoriesError}
             onCategorySearch={onSearchCategories}
-            onManageCategories={() => setView('categories')}
+            onManageCategories={() => {
+              onSearchCategories?.('')
+              setView('categories')
+            }}
             onClose={handleClose}
             onSubmit={handleSubmit}
             mode={mode}
             initialValues={initialValues}
+            initialCategory={
+              transaction
+                ? {
+                    id: transaction.categoryId,
+                    title: transaction.categoryTitle,
+                    type: transaction.type,
+                  }
+                : undefined
+            }
             isSubmitting={isSubmitting}
             submitError={submitError}
           />
-        ) : (
+        </div>
+        {view === 'categories' && (
           <CategoryManager
             categories={categories ?? []}
             isLoading={categoriesLoading}
             error={categoriesError}
             onRetry={onRetryCategories}
-            transactionType={TYPE_TO_API_TYPE[type]}
-            onBack={() => setView('transaction')}
+            transactionType={type}
+            onTypeChange={onCategoryTypeChange}
+            onBack={() => {
+              onCategoryTypeChange?.(type)
+              setView('transaction')
+            }}
             onClose={handleClose}
           />
         )}

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/auth/otp')({
   component: OtpPage,
   head: () => ({
     meta: [
-      { title: 'Verify your code | Finance App' },
+      { title: 'Verify your code | Ledgr' },
       {
         name: 'description',
         content: 'Enter the verification code sent to your email address.',

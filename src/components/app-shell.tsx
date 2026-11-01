@@ -1,33 +1,31 @@
-import { useState, type ReactNode } from 'react'
-import { Link } from '@tanstack/react-router'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   CalendarClock,
-  Ellipsis,
   LayoutDashboard,
   LogOut,
   Menu,
   ReceiptText,
   Search,
+  Settings,
   UserRound,
   WalletCards,
 } from 'lucide-react'
 
 import IconButton from '#/components/ui/IconButton'
 import LedgrIcon from '#/components/icons/LedgrIcon'
+import ConfirmModal from '#/components/ui/ConfirmModal'
 import BaseModal, {
   BaseModalContent,
+  BaseModalBody,
   BaseModalDescription,
+  BaseModalFooter,
+  BaseModalHeader,
   BaseModalTitle,
+  BaseModalTrigger,
 } from '#/components/ui/BaseModal'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '#/components/ui/DropdownMenu'
+import SearchInput from '#/components/ui/SearchInput'
 import useAuthStore from '#/store/authStore'
-import { useCurrentUser } from '#/hooks/useCurrentUser'
 
 export type NavigationItem = 'Overview' | 'Transactions' | 'Budgets' | 'Recurring' | 'Profile'
 
@@ -50,12 +48,14 @@ function NavigationContent({
   onNavigate?: () => void
 }) {
   const clearToken = useAuthStore((state) => state.clearToken)
-  const currentUser = useCurrentUser()
-  const accountName = currentUser.data?.name?.trim() || 'Name not provided'
+  const navigate = useNavigate()
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   const handleLogOut = () => {
     clearToken()
+    setLogoutOpen(false)
     onNavigate?.()
+    void navigate({ to: '/auth' })
   }
 
   return (
@@ -84,7 +84,7 @@ function NavigationContent({
                 aria-current={active ? 'page' : undefined}
                 className={`ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-[13px] no-underline ${
                   active
-                    ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                     : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
                 }`}
               >
@@ -97,62 +97,38 @@ function NavigationContent({
       </nav>
 
       <div className="border-t p-3">
-        <div
-          className={`flex items-center gap-1 rounded-sm ${
-            activeItem === 'Profile' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
-          }`}
-        >
-          <div className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-3">
-            <span className="grid size-8 place-items-center rounded-full bg-muted">
-              <UserRound size={17} strokeWidth={1.75} aria-hidden="true" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium">
-                {currentUser.data
-                  ? accountName
-                  : currentUser.isError
-                    ? 'Account unavailable'
-                    : 'Loading account'}
-              </p>
-              {currentUser.data ? (
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {currentUser.data.email}
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <IconButton
-                size="size-8"
-                className="mr-1 data-[state=open]:bg-muted data-[state=open]:text-foreground"
-                aria-label="Open profile menu"
-              >
-                <Ellipsis size={16} strokeWidth={1.75} aria-hidden="true" />
-              </IconButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" collisionPadding={12}>
-              <DropdownMenuItem asChild>
-                <Link to="/profile" onClick={onNavigate}>
-                  <UserRound size={15} strokeWidth={1.75} aria-hidden="true" />
-                  View profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                asChild
-                className="text-destructive-text data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive-text"
-              >
-                <Link to="/auth" onClick={handleLogOut}>
-                  <LogOut size={15} strokeWidth={1.75} aria-hidden="true" />
-                  Log out
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="grid gap-1">
+          <Link
+            to="/profile"
+            onClick={onNavigate}
+            aria-current={activeItem === 'Profile' ? 'page' : undefined}
+            className={`ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-[13px] no-underline ${
+              activeItem === 'Profile'
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
+            }`}
+          >
+            <Settings size={17} strokeWidth={1.75} aria-hidden="true" />
+            Settings
+          </Link>
+          <button
+            type="button"
+            onClick={() => setLogoutOpen(true)}
+            className="ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-left text-[13px] text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <LogOut size={17} strokeWidth={1.75} aria-hidden="true" />
+            Log out
+          </button>
         </div>
       </div>
+      <ConfirmModal
+        open={logoutOpen}
+        onOpenChange={setLogoutOpen}
+        title="Log out?"
+        description="You will need to sign in again to access your account."
+        confirmLabel="Log out"
+        onConfirm={handleLogOut}
+      />
     </>
   )
 }
@@ -187,15 +163,145 @@ function MobileNavigation({
   )
 }
 
+export function MenuSearch({ activeItem }: { activeItem?: NavigationItem }) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const resultRefs = useRef<Array<HTMLAnchorElement | null>>([])
+  const keyword = query.trim().toLowerCase()
+  const results = navigation.filter((item) =>
+    `${item.label} ${item.href}`.toLowerCase().includes(keyword),
+  )
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    setQuery('')
+  }
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.altKey ||
+        !(event.metaKey || event.ctrlKey) ||
+        event.key.toLowerCase() !== 'k'
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      setQuery('')
+      setOpen((current) => !current)
+    }
+
+    document.addEventListener('keydown', handleShortcut)
+    return () => document.removeEventListener('keydown', handleShortcut)
+  }, [])
+
+  return (
+    <BaseModal open={open} onOpenChange={handleOpenChange}>
+      <BaseModalTrigger asChild>
+        <button
+          type="button"
+          aria-label="Search menus"
+          aria-keyshortcuts="Meta+K Control+K"
+          className="ds-focus-ring flex h-9 min-w-0 shrink-0 items-center gap-2 rounded-sm border bg-muted px-3 text-xs text-muted-foreground hover:text-foreground md:w-full md:max-w-md md:flex-1"
+        >
+          <Search size={15} strokeWidth={1.75} aria-hidden="true" />
+          <span className="hidden truncate md:block">Search menus</span>
+          <kbd className="ml-auto hidden shrink-0 rounded-sm border bg-background px-1.5 py-0.5 font-mono text-[10px] md:block">
+            ⌘ K
+          </kbd>
+        </button>
+      </BaseModalTrigger>
+      <BaseModalContent
+        scrollable={false}
+        className="h-[min(26rem,92dvh)] sm:h-[min(26rem,92dvh)]"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          inputRef.current?.focus()
+        }}
+      >
+        <BaseModalHeader>
+          <BaseModalTitle className="text-base font-medium">Search menus</BaseModalTitle>
+          <BaseModalDescription className="mt-1 text-xs text-muted-foreground">
+            Find a page in your workspace.
+          </BaseModalDescription>
+        </BaseModalHeader>
+        <BaseModalBody>
+          <SearchInput
+            value={query}
+            onValueChange={setQuery}
+            ariaLabel="Find a menu"
+            placeholder="Search menu name"
+            inputRef={inputRef}
+            className="block"
+            onKeyDown={(event) => {
+              if (event.nativeEvent.isComposing) return
+              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault()
+                resultRefs.current[event.key === 'ArrowDown' ? 0 : results.length - 1]?.focus()
+              } else if (event.key === 'Enter') {
+                event.preventDefault()
+                resultRefs.current[0]?.click()
+              }
+            }}
+          />
+          <nav aria-label="Menu search results" className="mt-3 grid gap-1">
+            {results.map(({ label, href, icon: Icon }, index) => (
+              <Link
+                key={href}
+                ref={(node) => {
+                  resultRefs.current[index] = node
+                }}
+                to={href}
+                aria-current={activeItem === label ? 'page' : undefined}
+                onClick={() => handleOpenChange(false)}
+                onKeyDown={(event) => {
+                  let nextIndex: number
+                  if (event.key === 'ArrowDown') nextIndex = (index + 1) % results.length
+                  else if (event.key === 'ArrowUp')
+                    nextIndex = (index - 1 + results.length) % results.length
+                  else if (event.key === 'Home') nextIndex = 0
+                  else if (event.key === 'End') nextIndex = results.length - 1
+                  else return
+
+                  event.preventDefault()
+                  resultRefs.current[nextIndex]?.focus()
+                }}
+                className="ds-focus-ring flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm no-underline hover:bg-muted focus-visible:bg-muted"
+              >
+                <Icon size={17} strokeWidth={1.75} aria-hidden="true" />
+                {label}
+                {activeItem === label && (
+                  <span className="ml-auto text-[11px] text-muted-foreground">Current page</span>
+                )}
+              </Link>
+            ))}
+          </nav>
+          {results.length === 0 && (
+            <p role="status" className="py-8 text-center text-xs text-muted-foreground">
+              No menus found. Try another name.
+            </p>
+          )}
+        </BaseModalBody>
+        <BaseModalFooter className="text-[11px] text-muted-foreground">
+          ↑ ↓ to move, Enter to open, Esc to close.
+        </BaseModalFooter>
+      </BaseModalContent>
+    </BaseModal>
+  )
+}
+
 export function AppTopBar({
   activeItem,
-  searchLabel,
   periodLabel,
   periodClassName = 'hidden text-xs text-muted-foreground lg:block',
   periodControl,
 }: {
   activeItem: NavigationItem
-  searchLabel: string
   periodLabel?: string
   periodClassName?: string
   periodControl?: ReactNode
@@ -204,7 +310,7 @@ export function AppTopBar({
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6 lg:ml-56 lg:px-8">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b bg-background px-4 sm:px-6 lg:ml-56 lg:px-8">
         <div className="flex items-center lg:hidden">
           <IconButton
             variant="outline"
@@ -215,13 +321,7 @@ export function AppTopBar({
             <Menu size={17} strokeWidth={1.75} />
           </IconButton>
         </div>
-        <div className="hidden h-9 min-w-0 w-full max-w-md flex-1 items-center gap-2 rounded-sm border bg-muted px-3 text-xs text-muted-foreground md:flex">
-          <Search size={15} strokeWidth={1.75} />
-          <span className="truncate">{searchLabel}</span>
-          <kbd className="ml-auto shrink-0 rounded-sm border bg-background px-1.5 py-0.5 font-mono text-[10px]">
-            ⌘ K
-          </kbd>
-        </div>
+        <MenuSearch activeItem={activeItem} />
         <div className="flex items-center gap-3">
           {periodControl ? (
             <div className="shrink-0">{periodControl}</div>
@@ -249,14 +349,12 @@ export function AppTopBar({
 
 export function AppPageShell({
   activeItem,
-  searchLabel,
   periodLabel,
   periodControl,
   periodClassName,
   children,
 }: {
   activeItem: NavigationItem
-  searchLabel: string
   periodLabel?: string
   periodControl?: ReactNode
   periodClassName?: string
@@ -267,7 +365,6 @@ export function AppPageShell({
       <AppSidebar activeItem={activeItem} />
       <AppTopBar
         activeItem={activeItem}
-        searchLabel={searchLabel}
         periodLabel={periodLabel}
         periodControl={periodControl}
         periodClassName={periodClassName}

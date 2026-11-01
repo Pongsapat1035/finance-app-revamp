@@ -15,7 +15,7 @@ export const getCategories = (params?: CategoryQueryParams) => {
 }
 
 export const patchCategory = (id: number, payload: CreateCategoryDto) => {
-  return apiClient.patch<Category>(`/category/${id}`, payload)
+  return apiClient.patch<{ message: string }>(`/category/${id}`, payload)
 }
 
 export const deleteCategory = (id: number) => {

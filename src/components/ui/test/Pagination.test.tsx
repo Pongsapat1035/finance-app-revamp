@@ -79,4 +79,20 @@ describe('Pagination', () => {
     expect(screen.getByText('Showing 0 of 0 items')).toBeTruthy()
     expect(screen.getByText('Page 1 of 1')).toBeTruthy()
   })
+
+  it('groups large item ranges and page counts', () => {
+    render(
+      <Pagination
+        page={1001}
+        totalPages={2000}
+        total={20000}
+        pageSize={10}
+        itemName="transactions"
+        onPageChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Showing 10,001-10,010 of 20,000 transactions')).toBeTruthy()
+    expect(screen.getByText('Page 1,001 of 2,000')).toBeTruthy()
+  })
 })

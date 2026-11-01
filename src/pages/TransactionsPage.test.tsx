@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type { TransactionQueryParams } from '#/api/transaction/transaction.type'
+import type { TransactionSummaryQueryParams } from '#/api/summary/summary.type'
 import ToastProvider from '#/components/ui/ToastProvider'
 import { TransactionType } from '#/enum/enum'
 import TransactionsPage from './TransactionsPage'
@@ -14,6 +15,19 @@ const mocks = vi.hoisted(() => ({
   fetchCategories: vi.fn(),
   refetchTransactions: vi.fn(),
   refetchCategories: vi.fn(),
+  fetchSummary: vi.fn(),
+  refetchSummary: vi.fn(),
+  summaryState: { isPending: false, isError: false },
+  summaryData: {
+    income: 1234.5,
+    expenses: 345.67,
+    investment: 88.9,
+    net: 888.83,
+    incomeTransactionCount: 1,
+    expenseTransactionCount: 3,
+    investmentTransactionCount: 2,
+    transactionCount: 6,
+  },
   transactionState: { isPending: false, isError: false },
   categoryState: { isPending: false, isError: false },
 }))
@@ -64,6 +78,18 @@ vi.mock('#/hooks/useCategory', () => ({
 }))
 
 vi.mock('#/hooks/useTransaction', () => ({
+  useFetchTransactionSummary: (params: TransactionSummaryQueryParams) => {
+    mocks.fetchSummary(params)
+
+    return {
+      data: mocks.summaryState.isPending
+        ? undefined
+        : { month: params.month, ...mocks.summaryData },
+      isPending: mocks.summaryState.isPending,
+      isError: mocks.summaryState.isError,
+      refetch: mocks.refetchSummary,
+    }
+  },
   useFetchTransaction: (params: TransactionQueryParams) => {
     mocks.fetchTransactions(params)
 
@@ -120,6 +146,19 @@ afterEach(() => {
   mocks.fetchCategories.mockClear()
   mocks.refetchTransactions.mockClear()
   mocks.refetchCategories.mockClear()
+  mocks.fetchSummary.mockClear()
+  mocks.refetchSummary.mockClear()
+  Object.assign(mocks.summaryState, { isPending: false, isError: false })
+  Object.assign(mocks.summaryData, {
+    income: 1234.5,
+    expenses: 345.67,
+    investment: 88.9,
+    net: 888.83,
+    incomeTransactionCount: 1,
+    expenseTransactionCount: 3,
+    investmentTransactionCount: 2,
+    transactionCount: 6,
+  })
   Object.assign(mocks.transactionState, { isPending: false, isError: false })
   Object.assign(mocks.categoryState, { isPending: false, isError: false })
   vi.useRealTimers()
@@ -189,6 +228,8 @@ describe('TransactionsPage filters', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Select August 2026' }))
 
     expect(lastTransactionQuery()).toMatchObject({ page: 1, month: '2026-08' })
+    expect(mocks.fetchSummary.mock.calls.at(-1)?.[0]).toEqual({ month: '2026-08' })
+    expect(screen.getByRole('region', { name: 'August 2026 transaction summary' })).toBeTruthy()
   })
 
   it('shows a stable loading state and retries a failed transaction request', () => {
@@ -238,5 +279,108 @@ describe('TransactionsPage filters', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(mocks.refetchCategories).toHaveBeenCalledOnce()
+  })
+})
+
+describe('TransactionsPage monthly summary', () => {
+  it('shows API totals in baht, separate counts, and the selected period', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-21T12:00:00.000Z'))
+    renderTransactionsPage()
+
+    const summary = within(
+      screen.getByRole('region', { name: 'September 2026 transaction summary' }),
+    )
+    expect(summary.getByText('888.83')).toBeTruthy()
+    expect(summary.getByText('1,234.5')).toBeTruthy()
+    expect(summary.getByText('345.67')).toBeTruthy()
+    expect(summary.getByText('1 transaction')).toBeTruthy()
+    expect(summary.getByText('3 transactions')).toBeTruthy()
+    expect(summary.getByText('September 2026')).toBeTruthy()
+    expect(
+      screen.getByText('September 2026 totals (THB). Includes all transactions for the month.'),
+    ).toBeTruthy()
+    expect(mocks.fetchSummary.mock.calls.at(-1)?.[0]).toEqual({ month: '2026-09' })
+  })
+
+  it('keeps whole-month totals when changing pagination, search, type, and category', async () => {
+    renderTransactionsPage()
+    const month = lastTransactionQuery().month
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search transactions' }), {
+      target: { value: 'market' },
+    })
+    await waitFor(() => expect(lastTransactionQuery().keyword).toBe('market'))
+    await chooseRadixOption(/filter by type/i, /income/i)
+    await chooseRadixOption(/filter by category/i, /salary/i)
+
+    expect(lastTransactionQuery()).toMatchObject({
+      keyword: 'market',
+      type: TransactionType.INCOME,
+      categoryId: 1,
+    })
+    expect(
+      mocks.fetchSummary.mock.calls.every(
+        ([params]) => JSON.stringify(params) === JSON.stringify({ month }),
+      ),
+    ).toBe(true)
+    const summary = within(screen.getByRole('region', { name: /transaction summary$/ }))
+    expect(summary.getByText('888.83')).toBeTruthy()
+    expect(summary.getByText('3 transactions')).toBeTruthy()
+  })
+
+  it('shows zero totals and counts for a month without transactions', () => {
+    Object.assign(mocks.summaryData, {
+      income: 0,
+      expenses: 0,
+      investment: 0,
+      net: 0,
+      incomeTransactionCount: 0,
+      expenseTransactionCount: 0,
+      investmentTransactionCount: 0,
+      transactionCount: 0,
+    })
+    renderTransactionsPage()
+
+    const summary = within(screen.getByRole('region', { name: /transaction summary$/ }))
+    expect(summary.getAllByText('0')).toHaveLength(4)
+    expect(summary.getAllByText('0 transactions')).toHaveLength(3)
+  })
+
+  it('shows loading placeholders and lets the user retry a failed summary independently', () => {
+    mocks.summaryState.isPending = true
+    const { rerender } = renderTransactionsPage()
+
+    const summary = screen.getByRole('region', { name: /transaction summary$/ })
+    expect(summary.getAttribute('aria-busy')).toBe('true')
+    expect(within(summary).getByLabelText('Loading net balance')).toBeTruthy()
+    expect(within(summary).getByLabelText('Loading income')).toBeTruthy()
+    expect(within(summary).getByLabelText('Loading expenses')).toBeTruthy()
+    expect(within(summary).queryByText('888.83')).toBeNull()
+
+    mocks.summaryState.isPending = false
+    mocks.summaryState.isError = true
+    rerender(
+      <ToastProvider>
+        <TransactionsPage />
+      </ToastProvider>,
+    )
+
+    expect(screen.getByText('Could not load transaction summary')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Retry summary' }))
+    expect(mocks.refetchSummary).toHaveBeenCalledOnce()
+    expect(mocks.refetchTransactions).not.toHaveBeenCalled()
+    expect(within(screen.getByRole('table')).getByText('Market run')).toBeTruthy()
+    expect(within(summary).queryByText('888.83')).toBeNull()
+  })
+
+  it('preserves the minus sign when the monthly net balance is negative', () => {
+    Object.assign(mocks.summaryData, { income: 0, net: -345.67 })
+    renderTransactionsPage()
+
+    const summary = within(screen.getByRole('region', { name: /transaction summary$/ }))
+    expect(summary.getByText('-345.67')).toBeTruthy()
+    expect(summary.getByText('345.67')).toBeTruthy()
   })
 })

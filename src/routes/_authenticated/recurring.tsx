@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated/recurring')({
   component: RecurringPage,
   head: () => ({
     meta: [
-      { title: 'Recurring | My Finance' },
+      { title: 'Recurring | Ledgr' },
       {
         name: 'description',
         content: 'Create and manage recurring income and expense schedules.',

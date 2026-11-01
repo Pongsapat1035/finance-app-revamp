@@ -1,30 +1,16 @@
 // @vitest-environment jsdom
 
 import type { AnchorHTMLAttributes, ReactNode } from 'react'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { CurrentUser } from '#/api/user/current-user.type'
 import useAuthStore from '#/store/authStore'
 import { AppSidebar } from './app-shell'
 
-const currentUserMock = vi.hoisted(() => ({
-  data: {
-    id: 7,
-    email: 'actual@example.com',
-    name: 'Actual User',
-    status: 'VERIFIED' as const,
-    createdAt: '2026-09-01T00:00:00.000Z',
-    updatedAt: '2026-09-02T00:00:00.000Z',
-  } as CurrentUser | undefined,
-  isError: false,
-}))
-
-vi.mock('#/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => currentUserMock,
-}))
+const navigate = vi.hoisted(() => vi.fn())
 
 vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => navigate,
   Link: ({
     to,
     children,
@@ -38,15 +24,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 afterEach(() => {
   cleanup()
-  currentUserMock.data = {
-    id: 7,
-    email: 'actual@example.com',
-    name: 'Actual User',
-    status: 'VERIFIED',
-    createdAt: '2026-09-01T00:00:00.000Z',
-    updatedAt: '2026-09-02T00:00:00.000Z',
-  }
-  currentUserMock.isError = false
+  navigate.mockClear()
 })
 
 describe('AppSidebar', () => {
@@ -59,55 +37,35 @@ describe('AppSidebar', () => {
     )
     expect(screen.getByRole('link', { name: 'Budgets' }).getAttribute('href')).toBe('/budgets')
     expect(screen.getByRole('link', { name: 'Recurring' }).getAttribute('href')).toBe('/recurring')
-    expect(screen.getByText('Actual User')).toBeTruthy()
-    expect(screen.getByText('actual@example.com')).toBeTruthy()
-  })
-
-  it('uses a neutral name fallback when the backend name is null', () => {
-    if (currentUserMock.data) currentUserMock.data.name = null
-    render(<AppSidebar activeItem="Profile" />)
-
-    expect(screen.getByText('Name not provided')).toBeTruthy()
-    expect(screen.getByText('actual@example.com')).toBeTruthy()
-  })
-
-  it('does not show sample identity while loading or after an account error', () => {
-    currentUserMock.data = undefined
-    const view = render(<AppSidebar activeItem="Profile" />)
-    expect(screen.getByText('Loading account')).toBeTruthy()
-    expect(screen.queryByText('mina@example.com')).toBeNull()
-
-    currentUserMock.isError = true
-    view.rerender(<AppSidebar activeItem="Profile" />)
-    expect(screen.getByText('Account unavailable')).toBeTruthy()
-    expect(screen.queryByText('mina@example.com')).toBeNull()
   })
 
   it('marks the active route for assistive technology', () => {
-    render(<AppSidebar activeItem="Recurring" />)
+    const view = render(<AppSidebar activeItem="Recurring" />)
 
     expect(screen.getByRole('link', { name: 'Recurring' }).getAttribute('aria-current')).toBe(
       'page',
     )
     expect(screen.getByRole('link', { name: 'Overview' }).getAttribute('aria-current')).toBeNull()
+    view.rerender(<AppSidebar activeItem="Profile" />)
+    expect(screen.getByRole('link', { name: 'Settings' }).getAttribute('aria-current')).toBe('page')
   })
 
-  it('opens account actions and clears the token when logging out', async () => {
+  it('confirms before clearing the token and logging out', () => {
     useAuthStore.setState({ token: 'session-token' })
     render(<AppSidebar activeItem="Overview" />)
 
-    fireEvent.pointerDown(screen.getByRole('button', { name: 'Open profile menu' }), {
-      button: 0,
-      ctrlKey: false,
-    })
+    expect(screen.getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/profile')
 
-    expect(
-      (await screen.findByRole('menuitem', { name: 'View profile' })).getAttribute('href'),
-    ).toBe('/profile')
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+    expect(useAuthStore.getState().token).toBe('session-token')
+    fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }))
+    expect(useAuthStore.getState().token).toBe('session-token')
 
-    const logOut = screen.getByRole('menuitem', { name: 'Log out' })
-    logOut.addEventListener('click', (event) => event.preventDefault())
-    fireEvent.click(logOut)
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+    fireEvent.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Log out' }),
+    )
     expect(useAuthStore.getState().token).toBe('')
+    expect(navigate).toHaveBeenCalledWith({ to: '/auth' })
   })
 })

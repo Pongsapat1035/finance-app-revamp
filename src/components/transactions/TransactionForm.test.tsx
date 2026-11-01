@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import dayjs from 'dayjs'
 import TransactionForm from './TransactionForm'
+import { TransactionType } from '#/enum/enum'
 
 describe('TransactionForm', () => {
   it('labels required fields without rendering an empty marker row', () => {
@@ -16,7 +17,7 @@ describe('TransactionForm', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <TransactionForm
-          type="expense"
+          type={TransactionType.EXPEND}
           setType={vi.fn()}
           categories={[]}
           onManageCategories={vi.fn()}

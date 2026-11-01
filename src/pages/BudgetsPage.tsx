@@ -118,7 +118,6 @@ export default function BudgetsPage() {
   return (
     <AppPageShell
       activeItem="Budgets"
-      searchLabel="Search budgets"
       periodControl={
         <DatePickerField
           label="Budget month"

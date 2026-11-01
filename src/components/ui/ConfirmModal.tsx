@@ -68,7 +68,7 @@ const toneStyles: Record<
   destructive: {
     icon: TriangleAlert,
     iconClass: 'bg-[#fee4e2] text-destructive-text',
-    confirmClass: 'bg-destructive text-destructive-foreground hover:bg-[#dd3b32]',
+    confirmClass: 'bg-destructive-text text-primary-foreground hover:bg-destructive-text/90',
   },
 }
 

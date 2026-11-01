@@ -6,7 +6,7 @@ export const Route = createFileRoute('/')({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: 'Ledgr | Personal finance, clearly organized' },
+      { title: 'Ledgr' },
       {
         name: 'description',
         content: 'Ledgr brings your income, expenses, and savings into one clear picture.',

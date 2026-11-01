@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, Plus, ReceiptText } from 'lucide-react'
+import { Plus, ReceiptText } from 'lucide-react'
 
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
 import TransactionActionsMenu from '#/components/transactions/TransactionActionsMenu'
 import TransactionModal from '#/components/transactions/TransactionModal'
 import TransactionSummary from '#/components/transactions/TransactionSummary'
+import { transactionPresentation } from '#/components/transactions/transactionPresentation'
 import { useFetchCategory } from '#/hooks/useCategory'
 import useDebounce from '#/hooks/useDebounce'
 import Button from '#/components/ui/Button'
@@ -19,12 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/Select'
-import { useDeleteTransaction, useFetchTransaction } from '#/hooks/useTransaction'
+import {
+  useDeleteTransaction,
+  useFetchTransaction,
+  useFetchTransactionSummary,
+} from '#/hooks/useTransaction'
 import ConfirmModal from '#/components/ui/ConfirmModal'
 import type { NormalizedTransaction } from '#/api/transaction/transaction.type'
 import type { Category } from '#/api/category/category.type'
 import { TransactionType } from '#/enum/enum'
-import { formatCurrency } from '#/lib/format'
+import { formatNumber } from '#/lib/format'
 import { handleAxiosError } from '#/lib/handleAxiosError'
 import { useToast } from '#/hooks/useToast'
 import dayjs from 'dayjs'
@@ -105,6 +110,7 @@ const TransactionMobileRow = ({
   onDelete: (transaction: NormalizedTransaction) => void
 }) => {
   const isIncome = transaction.type === TransactionType.INCOME
+  const { label, icon: Icon } = transactionPresentation[transaction.type]
 
   return (
     <article className="p-4">
@@ -127,14 +133,14 @@ const TransactionMobileRow = ({
         <span
           className={`inline-flex items-center gap-1.5 ${isIncome ? 'text-success-text' : 'text-muted-foreground'}`}
         >
-          {isIncome ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
-          {isIncome ? 'Income' : 'Expense'}
+          <Icon size={14} strokeWidth={1.75} />
+          {label}
         </span>
         <span
           className={`font-mono font-medium tabular-nums ${isIncome ? 'text-success-text' : ''}`}
         >
           {isIncome ? '+' : '-'}
-          {formatCurrency(transaction.amount)}
+          {formatNumber(transaction.amount)}
         </span>
       </div>
     </article>
@@ -148,6 +154,8 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [categoryKeyword, setCategoryKeyword] = useState('')
+  const [modalCategoryKeyword, setModalCategoryKeyword] = useState('')
+  const [modalCategoryType, setModalCategoryType] = useState(TransactionType.EXPEND)
   const [month, setMonth] = useState(currentMonth)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<NormalizedTransaction | null>(null)
@@ -155,14 +163,28 @@ export default function TransactionsPage() {
   const [deleteError, setDeleteError] = useState<string>()
   const { showToast } = useToast()
   const [page, setPage] = useState(1)
+  const categoryQuery = useFetchCategory({
+    page: 1,
+    limit: 100,
+    keyword: categoryKeyword.trim() || undefined,
+    type: typeFilter === 'all' ? undefined : (typeFilter as TransactionType),
+  })
   const {
     data: categories,
     isPending: categoriesLoading,
     isError: categoriesFailed,
     refetch: refetchCategories,
-  } = useFetchCategory({ page: 1, limit: 100, keyword: categoryKeyword.trim() || undefined })
+  } = useFetchCategory(
+    {
+      page: 1,
+      limit: 100,
+      keyword: modalCategoryKeyword.trim() || undefined,
+      type: modalCategoryType,
+    },
+    modalOpen,
+  )
 
-  const categoriesList = categories?.data ?? []
+  const categoriesList = categoryQuery.data?.data ?? []
 
   const handleTypeChange = (newType: string) => {
     setTypeFilter(newType)
@@ -199,6 +221,7 @@ export default function TransactionsPage() {
     categoryId: categoryFilter === 'all' ? undefined : Number(categoryFilter),
     month,
   })
+  const summaryQuery = useFetchTransactionSummary({ month })
   const deleteTransaction = useDeleteTransaction()
   const visibleTransactions = transactions?.data ?? []
   const hasActiveFilters = Boolean(
@@ -223,12 +246,13 @@ export default function TransactionsPage() {
       header: 'Type',
       cell: (transaction) => {
         const isIncome = transaction.type === TransactionType.INCOME
+        const { label, icon: Icon } = transactionPresentation[transaction.type]
         return (
           <span
             className={`inline-flex items-center gap-1.5 text-xs ${isIncome ? 'text-success-text' : 'text-foreground'}`}
           >
-            {isIncome ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
-            {isIncome ? 'Income' : 'Expense'}
+            <Icon size={14} strokeWidth={1.75} />
+            {label}
           </span>
         )
       },
@@ -252,7 +276,7 @@ export default function TransactionsPage() {
         return (
           <span className={isIncome ? 'text-success-text' : undefined}>
             {isIncome ? '+' : '-'}
-            {formatCurrency(transaction.amount)}
+            {formatNumber(transaction.amount)}
           </span>
         )
       },
@@ -281,11 +305,15 @@ export default function TransactionsPage() {
 
   const openCreateModal = () => {
     setEditingTransaction(null)
+    setModalCategoryType(TransactionType.EXPEND)
+    setModalCategoryKeyword('')
     setModalOpen(true)
   }
 
   const openEditModal = (transaction: NormalizedTransaction) => {
     setEditingTransaction(transaction)
+    setModalCategoryType(transaction.type)
+    setModalCategoryKeyword('')
     setModalOpen(true)
   }
 
@@ -321,7 +349,6 @@ export default function TransactionsPage() {
       <AppSidebar activeItem="Transactions" />
       <AppTopBar
         activeItem="Transactions"
-        searchLabel="Search transactions"
         periodControl={
           <DatePickerField
             label="Filter by month"
@@ -346,16 +373,27 @@ export default function TransactionsPage() {
                 Transactions
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Track income and expenses across your personal accounts.
+                Track income, expenses, and investments across your personal accounts.
               </p>
             </div>
-            <Button fullWidth={false} onClick={openCreateModal} prefixIcon={<Plus size={16} />}>
+            <Button
+              height="h-10"
+              fullWidth={false}
+              onClick={openCreateModal}
+              prefixIcon={<Plus size={16} />}
+            >
               Add transaction
             </Button>
           </div>
 
           <div className="mt-8">
-            <TransactionSummary />
+            <TransactionSummary
+              month={month}
+              summary={summaryQuery.data}
+              isLoading={summaryQuery.isPending}
+              isError={summaryQuery.isError}
+              onRetry={() => void summaryQuery.refetch()}
+            />
           </div>
 
           <section className="mt-8">
@@ -363,7 +401,7 @@ export default function TransactionsPage() {
               <div>
                 <h2 className="text-lg font-medium tracking-[-0.02em]">Recent activity</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Example transactions for the current month.
+                  Transactions for {dayjs(`${month}-01`).format('MMMM YYYY')}.
                 </p>
               </div>
             </div>
@@ -417,7 +455,7 @@ export default function TransactionsPage() {
                 title: hasActiveFilters ? 'No transactions found' : 'No transactions yet',
                 description: hasActiveFilters
                   ? 'Change the filters or add a new transaction.'
-                  : 'Add your first income or expense to start tracking money activity.',
+                  : 'Add your first income, expense, or investment to start tracking money activity.',
                 actions: hasActiveFilters
                   ? [
                       {
@@ -466,7 +504,11 @@ export default function TransactionsPage() {
         categories={categories?.data}
         categoriesLoading={categoriesLoading}
         categoriesError={categoriesFailed ? 'Check your connection and try again.' : undefined}
-        onSearchCategories={setCategoryKeyword}
+        onSearchCategories={setModalCategoryKeyword}
+        onCategoryTypeChange={(type) => {
+          setModalCategoryType(type)
+          setModalCategoryKeyword('')
+        }}
         onRetryCategories={() => void refetchCategories()}
         transaction={editingTransaction}
         onClose={closeTransactionModal}
@@ -497,11 +539,11 @@ export default function TransactionsPage() {
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   {transactionToDelete.categoryTitle} ·{' '}
-                  {transactionToDelete.type === TransactionType.INCOME ? 'Income' : 'Expense'}
+                  {transactionPresentation[transactionToDelete.type].label}
                 </p>
               </div>
               <span className="shrink-0 font-mono font-medium tabular-nums">
-                {formatCurrency(transactionToDelete.amount)}
+                {formatNumber(transactionToDelete.amount)}
               </span>
             </div>
           ) : null
