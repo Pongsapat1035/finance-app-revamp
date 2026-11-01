@@ -117,7 +117,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('#/components/app-shell', () => ({
   AppSidebar: () => <aside />,
-  AppTopBar: () => <header />,
+  AppTopBar: ({ periodControl }: { periodControl?: ReactNode }) => <header>{periodControl}</header>,
 }))
 
 vi.mock('#/hooks/useCurrentUser', () => ({

@@ -1,32 +1,55 @@
 import { Link } from '@tanstack/react-router'
-import {
-  ArrowDownLeft,
-  ArrowRight,
-  ArrowUpRight,
-  ReceiptText,
-  ShieldCheck,
-  Sparkles,
-  TrendingDown,
-  TrendingUp,
-} from 'lucide-react'
+import { ArrowRight, ReceiptText, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
 
 import GridOverlay from '#/components/GridOverlay'
 import LedgrIcon from '#/components/icons/LedgrIcon'
+import CategoryDistribution from '#/components/transactions/CategoryDistribution'
+import RecentTransactionList from '#/components/transactions/RecentTransactionList'
+import MetricCard from '#/components/ui/MetricCard'
+import { TransactionType } from '#/enum/enum'
 import { formatNumber } from '#/lib/format'
 
 const heroTransactions = [
-  { name: 'Green Market', category: 'Groceries', date: 'Jul 12', amount: -82.4 },
-  { name: 'Monthly salary', category: 'Salary', date: 'Jul 10', amount: 3500 },
-  { name: 'City apartment', category: 'Housing', date: 'Jul 8', amount: -1250 },
-  { name: 'Spotify', category: 'Subscriptions', date: 'Jul 7', amount: -11.99 },
+  {
+    id: 1,
+    description: 'Green Market',
+    categoryTitle: 'Groceries',
+    date: '2026-07-12',
+    amount: 82.4,
+    type: TransactionType.EXPEND,
+  },
+  {
+    id: 2,
+    description: 'Monthly salary',
+    categoryTitle: 'Salary',
+    date: '2026-07-10',
+    amount: 3500,
+    type: TransactionType.INCOME,
+  },
+  {
+    id: 3,
+    description: 'City apartment',
+    categoryTitle: 'Housing',
+    date: '2026-07-08',
+    amount: 1250,
+    type: TransactionType.EXPEND,
+  },
+  {
+    id: 4,
+    description: 'Spotify',
+    categoryTitle: 'Subscriptions',
+    date: '2026-07-07',
+    amount: 11.99,
+    type: TransactionType.EXPEND,
+  },
 ]
 
 const categoryBreakdown = [
-  { name: 'Housing', percent: 55.9, amount: 760, color: 'var(--chart-plum)' },
-  { name: 'Groceries', percent: 17.8, amount: 241.4, color: 'var(--chart-blue)' },
-  { name: 'Dining', percent: 10.4, amount: 142, color: 'var(--chart-green)' },
-  { name: 'Transport', percent: 8.7, amount: 118.6, color: 'var(--chart-amber)' },
-  { name: 'Other', percent: 7.2, amount: 96.99, color: 'var(--chart-neutral)' },
+  { id: 'housing', name: 'Housing', percent: 55.9, amount: 760, color: 'var(--chart-plum)' },
+  { id: 'groceries', name: 'Groceries', percent: 17.8, amount: 241.4, color: 'var(--chart-blue)' },
+  { id: 'dining', name: 'Dining', percent: 10.4, amount: 142, color: 'var(--chart-green)' },
+  { id: 'transport', name: 'Transport', percent: 8.7, amount: 118.6, color: 'var(--chart-amber)' },
+  { id: 'other', name: 'Other', percent: 7.2, amount: 96.99, color: 'var(--chart-neutral)' },
 ]
 
 const stats = [
@@ -68,7 +91,7 @@ const Nav = () => {
 
 const HeroPreviewPanel = () => {
   return (
-    <div className="overflow-hidden rounded-lg border bg-background shadow-[0_24px_70px_rgb(22_22_22/0.1)]">
+    <div className="overflow-hidden rounded-lg border bg-background shadow-[0_24px_70px_rgb(22_22_22/0.1)] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000">
       <div className="flex items-center justify-between border-b bg-muted px-5 py-4">
         <div>
           <p className="text-[11px] font-medium text-muted-foreground">EXAMPLE MONTH</p>
@@ -79,24 +102,8 @@ const HeroPreviewPanel = () => {
         </span>
       </div>
       <div className="grid grid-cols-2 gap-px bg-border">
-        <div className="bg-background p-5">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <TrendingUp size={14} strokeWidth={1.75} />
-            <span className="text-[11px]">Income</span>
-          </div>
-          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
-            {formatNumber(4150)}
-          </p>
-        </div>
-        <div className="bg-background p-5">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <TrendingDown size={14} strokeWidth={1.75} />
-            <span className="text-[11px]">Expenses</span>
-          </div>
-          <p className="mt-4 font-mono text-[22px] font-medium tracking-[-0.04em]">
-            {formatNumber(1358.99)}
-          </p>
-        </div>
+        <MetricCard label="Income" value={4150} note="July 2026" tone="neutral" />
+        <MetricCard label="Expenses" value={1358.99} note="July 2026" tone="neutral" />
       </div>
       <div className="p-5">
         <div className="flex items-end justify-between gap-6">
@@ -128,7 +135,7 @@ const Hero = () => {
   return (
     <section className="ds-grid border-b border-border">
       <div className="mx-auto grid w-full max-w-330 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center lg:gap-8 lg:px-8 lg:py-28">
-        <div className="max-w-xl">
+        <div className="max-w-xl motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000">
           <p className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <Sparkles size={14} strokeWidth={1.75} className="text-accent" />
             Personal finance, clearly organized
@@ -143,9 +150,13 @@ const Hero = () => {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               to="/auth"
-              className="ds-focus-ring ds-interactive flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
+              className="group ds-focus-ring ds-interactive flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
             >
-              Get started <ArrowRight size={15} />
+              Get started{' '}
+              <ArrowRight
+                size={15}
+                className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+              />
             </Link>
             <Link
               to="/auth"
@@ -172,9 +183,8 @@ const Hero = () => {
 const featureHighlights = [
   {
     icon: ReceiptText,
-    title: 'Categorized automatically',
-    description:
-      'Every transaction is sorted into a category the moment it lands, no manual tagging.',
+    title: 'Organized by category',
+    description: 'Choose a category for each transaction and review your spending by category.',
   },
   {
     icon: TrendingUp,
@@ -218,46 +228,18 @@ const TransactionsStory = () => {
         <div className="max-w-md">
           <p className="text-xs font-medium text-muted-foreground">Money activity</p>
           <h2 className="mt-3 text-[28px] font-medium leading-[1.1] tracking-[-0.03em] sm:text-[32px]">
-            Every transaction, organized automatically.
+            Every transaction, organized in one place.
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Income and expenses land in one ledger with categories already applied. Review recent
-            activity or add a transaction by hand in seconds.
+            Track income and expenses in one ledger. Choose a category and review recent activity in
+            seconds.
           </p>
         </div>
         <div className="overflow-hidden rounded-lg border bg-background">
           <div className="border-b bg-muted px-5 py-3">
             <p className="text-[11px] font-medium text-muted-foreground">EXAMPLE TRANSACTIONS</p>
           </div>
-          <div className="divide-y">
-            {heroTransactions.map((transaction) => {
-              const income = transaction.amount > 0
-              return (
-                <div
-                  key={`${transaction.name}-${transaction.date}`}
-                  className="flex items-center gap-3 px-5 py-3.5"
-                >
-                  <span
-                    className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success-text' : 'bg-muted text-foreground'}`}
-                  >
-                    {income ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{transaction.name}</p>
-                    <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                      {transaction.category}, {transaction.date}
-                    </p>
-                  </div>
-                  <p
-                    className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success-text' : ''}`}
-                  >
-                    {income ? '+' : '-'}
-                    {formatNumber(Math.abs(transaction.amount))}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
+          <RecentTransactionList transactions={heroTransactions} />
         </div>
       </div>
     </section>
@@ -268,40 +250,11 @@ const CategoryStory = () => {
   return (
     <section className="border-b border-border">
       <div className="mx-auto grid w-full max-w-330 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-24">
-        <div className="overflow-hidden rounded-lg border bg-background p-5 lg:order-1">
-          <p className="text-[11px] font-medium text-muted-foreground">
+        <div className="overflow-hidden rounded-lg border bg-background lg:order-1">
+          <p className="px-5 pt-5 text-[11px] font-medium text-muted-foreground">
             EXAMPLE SPENDING, JULY 2026
           </p>
-          <div
-            className="mt-4 flex h-3 overflow-hidden rounded-[2px]"
-            aria-label="Stacked spending distribution by category"
-          >
-            {categoryBreakdown.map((category) => (
-              <span
-                key={category.name}
-                style={{ width: `${category.percent}%`, backgroundColor: category.color }}
-                title={`${category.name} ${formatNumber(category.percent)}%`}
-              />
-            ))}
-          </div>
-          <div className="mt-5 divide-y">
-            {categoryBreakdown.map((category) => (
-              <div
-                key={category.name}
-                className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-2.5 first:pt-0 last:pb-0"
-              >
-                <span
-                  className="h-6 rounded-[1px]"
-                  style={{ backgroundColor: category.color }}
-                  aria-hidden="true"
-                />
-                <p className="truncate text-sm font-medium">{category.name}</p>
-                <p className="font-mono text-xs font-medium tabular-nums text-muted-foreground">
-                  {formatNumber(category.amount)}
-                </p>
-              </div>
-            ))}
-          </div>
+          <CategoryDistribution categories={categoryBreakdown} />
         </div>
         <div className="max-w-md lg:order-2">
           <p className="text-xs font-medium text-muted-foreground">Spending insight</p>
@@ -325,10 +278,14 @@ const StatsBand = () => {
         <p className="text-xs font-medium text-muted-foreground">Example data, July 2026</p>
         <div className="mt-6 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => (
-            <div key={stat.label} className="bg-background p-6">
-              <p className="font-mono text-[28px] font-medium tracking-[-0.04em]">{stat.value}</p>
-              <p className="mt-1.5 text-[11px] text-muted-foreground">{stat.label}</p>
-            </div>
+            <MetricCard
+              key={stat.label}
+              label={stat.label}
+              displayValue={stat.value}
+              note="July 2026"
+              tone="neutral"
+              className="p-6"
+            />
           ))}
         </div>
       </div>
@@ -351,9 +308,13 @@ const CTABand = () => {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/auth"
-            className="ds-focus-ring ds-interactive flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
+            className="group ds-focus-ring ds-interactive flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
           >
-            Get started <ArrowRight size={15} />
+            Get started{' '}
+            <ArrowRight
+              size={15}
+              className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+            />
           </Link>
           <Link
             to="/auth"

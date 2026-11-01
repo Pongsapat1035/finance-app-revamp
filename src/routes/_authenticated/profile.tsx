@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated/profile')({
   component: ProfilePage,
   head: () => ({
     meta: [
-      { title: 'Profile settings | My Finance' },
+      { title: 'Profile settings | Ledgr' },
       { name: 'description', content: 'Manage personal details and account security.' },
     ],
   }),

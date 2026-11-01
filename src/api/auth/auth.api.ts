@@ -34,3 +34,6 @@ export const postVerifyOtp = (payload: VerifyUser) => {
 export const postResendOtp = (payload: ResendOtp) => {
   return apiClient.post('/otp/resent-otp', payload)
 }
+
+export const changePassword = (payload: { currentPassword: string; newPassword: string }) =>
+  apiClient.post<void>('/auth/change-password', payload)

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
   head: () => ({
     meta: [
-      { title: 'Dashboard | My Finance' },
+      { title: 'Dashboard | Ledgr' },
       {
         name: 'description',
         content: 'A monthly and yearly overview of personal income and expenses.',

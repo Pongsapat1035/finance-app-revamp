@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   CalendarClock,
-  Ellipsis,
   LayoutDashboard,
   LogOut,
   Menu,
   ReceiptText,
   Search,
+  Settings,
   UserRound,
   WalletCards,
 } from 'lucide-react'
 
 import IconButton from '#/components/ui/IconButton'
 import LedgrIcon from '#/components/icons/LedgrIcon'
+import ConfirmModal from '#/components/ui/ConfirmModal'
 import BaseModal, {
   BaseModalContent,
   BaseModalBody,
@@ -24,15 +25,7 @@ import BaseModal, {
   BaseModalTrigger,
 } from '#/components/ui/BaseModal'
 import SearchInput from '#/components/ui/SearchInput'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '#/components/ui/DropdownMenu'
 import useAuthStore from '#/store/authStore'
-import { useCurrentUser } from '#/hooks/useCurrentUser'
 
 export type NavigationItem = 'Overview' | 'Transactions' | 'Budgets' | 'Recurring' | 'Profile'
 
@@ -55,12 +48,14 @@ function NavigationContent({
   onNavigate?: () => void
 }) {
   const clearToken = useAuthStore((state) => state.clearToken)
-  const currentUser = useCurrentUser()
-  const accountName = currentUser.data?.name?.trim() || 'Name not provided'
+  const navigate = useNavigate()
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   const handleLogOut = () => {
     clearToken()
+    setLogoutOpen(false)
     onNavigate?.()
+    void navigate({ to: '/auth' })
   }
 
   return (
@@ -89,7 +84,7 @@ function NavigationContent({
                 aria-current={active ? 'page' : undefined}
                 className={`ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-[13px] no-underline ${
                   active
-                    ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                     : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
                 }`}
               >
@@ -102,62 +97,38 @@ function NavigationContent({
       </nav>
 
       <div className="border-t p-3">
-        <div
-          className={`flex items-center gap-1 rounded-sm ${
-            activeItem === 'Profile' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
-          }`}
-        >
-          <div className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-3">
-            <span className="grid size-8 place-items-center rounded-full bg-muted">
-              <UserRound size={17} strokeWidth={1.75} aria-hidden="true" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium">
-                {currentUser.data
-                  ? accountName
-                  : currentUser.isError
-                    ? 'Account unavailable'
-                    : 'Loading account'}
-              </p>
-              {currentUser.data ? (
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {currentUser.data.email}
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <IconButton
-                size="size-8"
-                className="mr-1 data-[state=open]:bg-muted data-[state=open]:text-foreground"
-                aria-label="Open profile menu"
-              >
-                <Ellipsis size={16} strokeWidth={1.75} aria-hidden="true" />
-              </IconButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" collisionPadding={12}>
-              <DropdownMenuItem asChild>
-                <Link to="/profile" onClick={onNavigate}>
-                  <UserRound size={15} strokeWidth={1.75} aria-hidden="true" />
-                  View profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                asChild
-                className="text-destructive-text data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive-text"
-              >
-                <Link to="/auth" onClick={handleLogOut}>
-                  <LogOut size={15} strokeWidth={1.75} aria-hidden="true" />
-                  Log out
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="grid gap-1">
+          <Link
+            to="/profile"
+            onClick={onNavigate}
+            aria-current={activeItem === 'Profile' ? 'page' : undefined}
+            className={`ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-[13px] no-underline ${
+              activeItem === 'Profile'
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground'
+            }`}
+          >
+            <Settings size={17} strokeWidth={1.75} aria-hidden="true" />
+            Settings
+          </Link>
+          <button
+            type="button"
+            onClick={() => setLogoutOpen(true)}
+            className="ds-focus-ring ds-interactive flex h-10 items-center gap-3 rounded-sm px-2.5 text-left text-[13px] text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <LogOut size={17} strokeWidth={1.75} aria-hidden="true" />
+            Log out
+          </button>
         </div>
       </div>
+      <ConfirmModal
+        open={logoutOpen}
+        onOpenChange={setLogoutOpen}
+        title="Log out?"
+        description="You will need to sign in again to access your account."
+        confirmLabel="Log out"
+        onConfirm={handleLogOut}
+      />
     </>
   )
 }
@@ -247,6 +218,7 @@ export function MenuSearch({ activeItem }: { activeItem?: NavigationItem }) {
       </BaseModalTrigger>
       <BaseModalContent
         scrollable={false}
+        className="h-[min(26rem,92dvh)] sm:h-[min(26rem,92dvh)]"
         onOpenAutoFocus={(event) => {
           event.preventDefault()
           inputRef.current?.focus()

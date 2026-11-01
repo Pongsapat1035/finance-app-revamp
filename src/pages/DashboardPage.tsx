@@ -1,17 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { isAxiosError } from 'axios'
 import { Link } from '@tanstack/react-router'
-import {
-  ArrowDownLeft,
-  ArrowRight,
-  ArrowUpRight,
-  CalendarDays,
-  ChevronDown,
-  TrendingUp,
-} from 'lucide-react'
+import { ArrowDownLeft, ArrowRight, ArrowUpRight, CalendarDays, TrendingUp } from 'lucide-react'
 
 import type {
   ExpenseCategorySummary,
@@ -19,7 +12,13 @@ import type {
   TransactionSummaryResponse,
 } from '#/api/summary/summary.type'
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
+import UpcomingRecurringRow from '#/components/recurring/UpcomingRecurringRow'
+import CategoryDistribution, {
+  type CategoryDistributionItem,
+} from '#/components/transactions/CategoryDistribution'
+import RecentTransactionList from '#/components/transactions/RecentTransactionList'
 import MetricCard from '#/components/ui/MetricCard'
+import DatePickerField from '#/components/ui/DatePicker'
 import { transactionPresentation } from '#/components/transactions/transactionPresentation'
 import EmptyState from '#/components/ui/EmptyState'
 import ErrorState from '#/components/ui/ErrorState'
@@ -46,8 +45,6 @@ type PeriodInfo = {
   averageLabel: string
 }
 
-type CategoryItem = { id: string; name: string; amount: number; percent: number; color: string }
-
 type ChartPoint = {
   key: string
   label: string
@@ -70,18 +67,18 @@ const roundTo = (value: number, digits: number) => {
   return Math.round(value * factor) / factor
 }
 
-const getPeriodInfo = (period: Period, today: dayjs.Dayjs): PeriodInfo => {
+const getPeriodInfo = (period: Period, date: dayjs.Dayjs): PeriodInfo => {
   if (period === 'monthly') {
-    const label = today.format('MMMM YYYY')
+    const label = date.format('MMMM YYYY')
     return {
       label,
       contextLabel: label,
-      range: `${today.startOf('month').format('MMM D')}-${today.endOf('month').format('D, YYYY')}`,
+      range: `${date.startOf('month').format('MMM D')}-${date.endOf('month').format('D, YYYY')}`,
       averageLabel: 'Average daily spend',
     }
   }
 
-  const year = today.format('YYYY')
+  const year = date.format('YYYY')
   return {
     label: `${year} overview`,
     contextLabel: year,
@@ -93,9 +90,16 @@ const getPeriodInfo = (period: Period, today: dayjs.Dayjs): PeriodInfo => {
 const getSavingsRate = (income: number, net: number) =>
   income > 0 ? roundTo((net / income) * 100, 1) : null
 
-// Average over the elapsed part of the current period so days or months still ahead do not dilute it.
-const getAverageSpend = (expenses: number, period: Period, today: dayjs.Dayjs) =>
-  roundTo(expenses / (period === 'monthly' ? today.date() : today.month() + 1), 2)
+// Use elapsed days in the current month and all days for a completed month.
+const getAverageSpend = (expenses: number, period: Period, today: dayjs.Dayjs, month: string) => {
+  const divisor =
+    period === 'yearly'
+      ? today.month() + 1
+      : month === today.format('YYYY-MM')
+        ? today.date()
+        : dayjs(`${month}-01`).daysInMonth()
+  return roundTo(expenses / divisor, 2)
+}
 
 const toChartPoints = (
   data: NetCashFlowResponse,
@@ -118,7 +122,7 @@ const toChartPoints = (
     }
   })
 
-const toCategoryItems = (data: ExpenseCategorySummary[]): CategoryItem[] =>
+const toCategoryItems = (data: ExpenseCategorySummary[]): CategoryDistributionItem[] =>
   data.map((item, index) => ({
     id: String(item.categoryId ?? 'uncategorized'),
     name: item.title,
@@ -243,6 +247,7 @@ function MetricStrip({
             key={item.label}
             {...item}
             iconSize={15}
+            className="transition-colors hover:bg-muted motion-reduce:transition-none"
             noteClassName="truncate"
             displayValue={
               isPending ? (
@@ -263,6 +268,7 @@ function CashFlowChart({
   info,
   period,
   today,
+  month,
   data,
   isPending,
   isError,
@@ -271,6 +277,7 @@ function CashFlowChart({
   info: PeriodInfo
   period: Period
   today: dayjs.Dayjs
+  month: string
   data?: NetCashFlowResponse
   isPending: boolean
   isError: boolean
@@ -310,7 +317,7 @@ function CashFlowChart({
           <div className="h-64 rounded-sm bg-muted motion-safe:animate-pulse" />
         </div>
       ) : (
-        <CashFlowChartBody info={info} period={period} today={today} data={data} />
+        <CashFlowChartBody info={info} period={period} today={today} month={month} data={data} />
       )}
     </section>
   )
@@ -320,11 +327,13 @@ function CashFlowChartBody({
   info,
   period,
   today,
+  month,
   data,
 }: {
   info: PeriodInfo
   period: Period
   today: dayjs.Dayjs
+  month: string
   data: NetCashFlowResponse
 }) {
   const points = toChartPoints(data, period, today)
@@ -400,7 +409,7 @@ function CashFlowChartBody({
         <div className="bg-muted px-5 py-3">
           <p className="text-[10px] text-muted-foreground">{info.averageLabel.toUpperCase()}</p>
           <p className="mt-1 font-mono text-sm font-medium">
-            {formatNumber(getAverageSpend(expenses, period, today))}
+            {formatNumber(getAverageSpend(expenses, period, today, month))}
           </p>
         </div>
       </div>
@@ -417,7 +426,7 @@ function CategoryBreakdown({
   onRetry,
 }: {
   info: PeriodInfo
-  categories?: CategoryItem[]
+  categories?: CategoryDistributionItem[]
   isPending: boolean
   isError: boolean
   errorDescription?: string
@@ -450,43 +459,7 @@ function CategoryBreakdown({
           description={`Expenses you add for ${info.contextLabel} will appear here.`}
         />
       ) : (
-        <div className="p-5">
-          <div
-            className="flex h-3 overflow-hidden rounded-[2px]"
-            aria-label="Stacked spending distribution"
-          >
-            {categories.map((category) => (
-              <span
-                key={category.id}
-                style={{ width: `${category.percent}%`, backgroundColor: category.color }}
-                title={`${category.name} ${formatNumber(category.percent)}%`}
-              />
-            ))}
-          </div>
-          <div className="mt-6 divide-y">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="grid grid-cols-[4px_1fr_auto] items-center gap-3 py-3 first:pt-0 last:pb-0"
-              >
-                <span
-                  className="h-8 rounded-[1px]"
-                  style={{ backgroundColor: category.color }}
-                  aria-hidden="true"
-                />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{category.name}</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {formatNumber(category.percent)}% of expenses
-                  </p>
-                </div>
-                <p className="font-mono text-xs font-medium tabular-nums">
-                  {formatNumber(category.amount)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <CategoryDistribution categories={categories} />
       )}
     </section>
   )
@@ -496,16 +469,24 @@ function DashboardListLoading({
   label,
   count,
   showIcon = false,
+  showDate = false,
 }: {
   label: string
   count: number
   showIcon?: boolean
+  showDate?: boolean
 }) {
   return (
     <div className="divide-y motion-safe:animate-pulse" aria-label={label}>
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="flex items-center gap-3 px-5 py-3.5" aria-hidden="true">
           {showIcon && <div className="size-9 shrink-0 rounded-sm bg-muted" />}
+          {showDate && (
+            <>
+              <div className="h-8 w-14 shrink-0 rounded-sm bg-muted" />
+              <div className="h-9 w-1 shrink-0 rounded-sm bg-muted" />
+            </>
+          )}
           <div className="grid min-w-0 flex-1 gap-2">
             <div className="h-4 w-32 max-w-full rounded-sm bg-muted" />
             <div className="h-3 w-40 max-w-full rounded-sm bg-muted" />
@@ -519,13 +500,20 @@ function DashboardListLoading({
 
 function RecentTransactions() {
   const transactionsQuery = useFetchTransaction({ page: 1, limit: 5 })
+  const [minimumLoadingElapsed, setMinimumLoadingElapsed] = useState(false)
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setMinimumLoadingElapsed(true), 1000)
+    return () => window.clearTimeout(timeout)
+  }, [])
+  const isLoading =
+    !transactionsQuery.isError && (transactionsQuery.isPending || !minimumLoadingElapsed)
   const transactions = transactionsQuery.data?.data ?? []
 
   return (
     <section
       className="overflow-hidden rounded-lg border bg-background"
       aria-label="Latest transactions"
-      aria-busy={transactionsQuery.isPending}
+      aria-busy={isLoading}
     >
       <div className="flex items-start justify-between gap-4 border-b px-5 py-4">
         <div>
@@ -541,7 +529,7 @@ function RecentTransactions() {
           View all <ArrowRight size={13} />
         </Link>
       </div>
-      {transactionsQuery.isPending ? (
+      {isLoading ? (
         <DashboardListLoading label="Loading latest transactions" count={5} showIcon />
       ) : transactionsQuery.isError ? (
         <ErrorState
@@ -555,37 +543,7 @@ function RecentTransactions() {
           description="Add your first transaction from the Transactions page."
         />
       ) : (
-        <div className="divide-y">
-          {transactions.map((transaction) => {
-            const income = transaction.type === TransactionType.INCOME
-            const { label, icon: Icon } = transactionPresentation[transaction.type]
-            return (
-              <div
-                key={transaction.id}
-                className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/65"
-              >
-                <span
-                  className={`grid size-9 shrink-0 place-items-center rounded-sm ${income ? 'bg-success-soft text-success-text' : 'bg-muted text-foreground'}`}
-                >
-                  <Icon size={16} strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{transaction.description}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                    {label} · {transaction.categoryTitle ?? 'Uncategorized'},{' '}
-                    {dayjs(transaction.date).format('MMM D, YYYY')}
-                  </p>
-                </div>
-                <p
-                  className={`shrink-0 font-mono text-xs font-medium tabular-nums ${income ? 'text-success-text' : ''}`}
-                >
-                  {income ? '+' : '-'}
-                  {formatNumber(transaction.amount)}
-                </p>
-              </div>
-            )
-          })}
-        </div>
+        <RecentTransactionList transactions={transactions} />
       )}
     </section>
   )
@@ -598,7 +556,7 @@ function RecurringPayments() {
 
   return (
     <section
-      className="overflow-hidden rounded-lg border bg-background"
+      className="flex flex-col overflow-hidden rounded-lg border bg-background"
       aria-label="Upcoming recurring"
       aria-busy={upcomingQuery.isPending}
     >
@@ -610,14 +568,14 @@ function RecurringPayments() {
           </div>
           <Link
             to="/recurring"
-            className="ds-focus-ring flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-xs font-medium text-muted-foreground no-underline hover:bg-muted hover:text-foreground"
+            className="ds-focus-ring flex items-center gap-1.5 text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground"
           >
-            Manage <ArrowRight size={13} strokeWidth={1.75} />
+            Manage <ArrowRight size={13} />
           </Link>
         </div>
       </div>
       {upcomingQuery.isPending ? (
-        <DashboardListLoading label="Loading upcoming recurring" count={3} />
+        <DashboardListLoading label="Loading upcoming recurring" count={3} showDate />
       ) : upcomingQuery.isError ? (
         <ErrorState
           title="Could not load upcoming recurring"
@@ -632,25 +590,17 @@ function RecurringPayments() {
       ) : (
         <div className="divide-y">
           {payments.map((payment) => (
-            <div
+            <UpcomingRecurringRow
               key={`${payment.id}-${payment.dueDate}`}
-              className="flex items-center gap-3 px-5 py-3.5"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{payment.description}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  {payment.category?.title ?? 'Uncategorized'}, due{' '}
-                  {dayjs(payment.dueDate).format('MMM D, YYYY')}
-                </p>
-              </div>
-              <p className="shrink-0 font-mono text-xs font-medium tabular-nums">
-                {formatNumber(payment.amount)}
-              </p>
-            </div>
+              dueDate={payment.dueDate}
+              description={payment.description}
+              category={payment.category?.title ?? 'Uncategorized'}
+              amount={payment.amount}
+            />
           ))}
         </div>
       )}
-      <div className="flex items-center justify-between border-t bg-muted px-5 py-3">
+      <div className="mt-auto flex items-center justify-between border-t bg-muted px-5 py-3">
         <p className="text-[11px] text-muted-foreground">Expected total (THB)</p>
         <p className="font-mono text-sm font-medium">
           {upcomingQuery.isPending ? (
@@ -674,8 +624,9 @@ export default function DashboardPage() {
   const userName = user?.name?.trim()
   const [period, setPeriod] = useState<Period>('monthly')
   const today = dayjs().tz('Asia/Bangkok')
-  const month = today.format('YYYY-MM')
-  const info = getPeriodInfo(period, today)
+  const currentMonth = today.format('YYYY-MM')
+  const [month, setMonth] = useState(currentMonth)
+  const info = getPeriodInfo(period, period === 'monthly' ? dayjs(`${month}-01`) : today)
   const summaryParams = period === 'monthly' ? { month } : { year: today.year() }
 
   const summaryQuery = useFetchTransactionSummary(summaryParams)
@@ -689,8 +640,7 @@ export default function DashboardPage() {
       <AppSidebar activeItem="Overview" />
       <AppTopBar
         activeItem="Overview"
-        periodLabel={info.label}
-        periodClassName="hidden text-xs text-muted-foreground sm:block"
+        periodControl={<PeriodSwitch period={period} setPeriod={setPeriod} />}
       />
 
       <main className="lg:ml-56">
@@ -705,14 +655,21 @@ export default function DashboardPage() {
                 Here is the full picture for {info.contextLabel}. Amounts in THB.
               </p>
             </div>
-            <div className="flex flex-col gap-2 sm:items-end">
-              <PeriodSwitch period={period} setPeriod={setPeriod} />
-              <button
-                type="button"
-                className="ds-focus-ring flex h-8 items-center justify-between gap-3 rounded-sm px-1 text-xs text-muted-foreground sm:justify-end"
-              >
-                <CalendarDays size={14} /> {info.range} <ChevronDown size={13} />
-              </button>
+            <div>
+              {period === 'monthly' ? (
+                <DatePickerField
+                  label="Filter by month"
+                  mode="month"
+                  value={month}
+                  onValueChange={setMonth}
+                  max={currentMonth}
+                  className="w-40 gap-0 [&>label]:sr-only [&>button]:h-9 [&>button]:text-xs"
+                />
+              ) : (
+                <p className="flex h-9 items-center gap-2 text-xs text-muted-foreground">
+                  <CalendarDays size={14} aria-hidden="true" /> {info.range}
+                </p>
+              )}
             </div>
           </div>
 
@@ -732,6 +689,7 @@ export default function DashboardPage() {
               info={info}
               period={period}
               today={today}
+              month={month}
               data={cashFlowQuery.data}
               isPending={cashFlowQuery.isPending}
               isError={cashFlowQuery.isError}

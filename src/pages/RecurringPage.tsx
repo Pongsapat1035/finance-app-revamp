@@ -302,7 +302,12 @@ export default function RecurringPage() {
             Manage monthly income and expenses before they appear in your transaction history.
           </p>
         </div>
-        <Button fullWidth={false} onClick={openCreate} prefixIcon={<Plus size={16} />}>
+        <Button
+          height="h-10"
+          fullWidth={false}
+          onClick={openCreate}
+          prefixIcon={<Plus size={16} />}
+        >
           Create recurring
         </Button>
       </div>
@@ -481,7 +486,7 @@ export default function RecurringPage() {
         }}
         tone="destructive"
         title="Delete this recurring transaction?"
-        description="The schedule is removed and will no longer appear in upcoming activity. Existing transactions are not affected."
+        description="Future occurrences stop. Existing transactions remain."
         details={
           deletingTransaction ? (
             <div className="flex items-start justify-between gap-4">

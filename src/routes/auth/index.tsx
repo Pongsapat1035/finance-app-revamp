@@ -6,7 +6,7 @@ export const Route = createFileRoute('/auth/')({
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: 'Welcome | Finance App' },
+      { title: 'Welcome | Ledgr' },
       {
         name: 'description',
         content: 'Track personal income and expenses in one clear dashboard.',

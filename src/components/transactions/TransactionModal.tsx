@@ -109,6 +109,9 @@ const TransactionModal = ({
       <BaseModalContent
         scrollable={false}
         showCloseButton={false}
+        className={
+          view === 'categories' ? 'h-[min(36rem,92dvh)] sm:h-[min(36rem,92dvh)]' : undefined
+        }
         aria-labelledby={
           view === 'transaction' ? 'transaction-dialog-title' : 'category-dialog-title'
         }

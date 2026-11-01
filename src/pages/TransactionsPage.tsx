@@ -376,7 +376,12 @@ export default function TransactionsPage() {
                 Track income, expenses, and investments across your personal accounts.
               </p>
             </div>
-            <Button fullWidth={false} onClick={openCreateModal} prefixIcon={<Plus size={16} />}>
+            <Button
+              height="h-10"
+              fullWidth={false}
+              onClick={openCreateModal}
+              prefixIcon={<Plus size={16} />}
+            >
               Add transaction
             </Button>
           </div>

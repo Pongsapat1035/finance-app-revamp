@@ -66,6 +66,7 @@ Color rules:
 - Do not use gradients as decoration.
 - Do not use chartreuse for body text, large surfaces, or multiple competing controls.
 - Use the chart palette for categories and comparisons. Reserve success, warning, and danger for values with their actual semantic meaning.
+- In the Dashboard latest transactions list, show income in green and expenses in red; retain the type label and plus or minus sign.
 - Never communicate status by color alone. Include a label or icon.
 - All text and controls must meet WCAG AA. Body text should target AAA where practical.
 
@@ -209,10 +210,11 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 ### Confirm dialog
 
-- Use a confirm dialog only for actions that are hard to undo, move money, or affect other people. Reversible actions get an inline undo instead.
+- Use a confirm dialog for actions that are hard to undo, move money, affect other people, or log out. Other reversible actions get an inline undo instead.
 - The title states the action as a question. The body states the consequence, including what is affected and whether it can be undone.
 - The confirm button repeats the verb from the trigger, for example `Delete transaction`, never `OK` or `Yes`.
 - Two tones only: neutral for consequential actions and destructive red for deletions. The tone icon sits in a soft square, 36px, at 4px radius.
+- Destructive confirm buttons use white text on a dark red surface for contrast.
 - Cancel comes first in the DOM and appears last on desktop. On mobile the buttons stack with confirm on top.
 - Include a bounded summary panel when the user needs to verify amounts, accounts, or counts before confirming.
 - While the action is in flight, disable both buttons, show a spinner, and block Escape, outside click, and the close button.
@@ -232,6 +234,7 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - Dashboard metrics may share one bounded panel with internal dividers.
 - Marketing imagery lives in `--muted` media wells with 8px radius.
 - Avoid three identical floating cards as a default page composition.
+- In the Dashboard upcoming recurring list, place the due date before a blue informational marker, followed by the category, description, and right-aligned amount. Show the year and do not imply a time of day.
 
 ### Tables
 
@@ -267,10 +270,11 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - The search dialog uses the existing modal and search input. Focus the input on open, support arrow keys and Enter for navigation, Escape to close, and a readable no-results state. Return focus to the trigger when dismissed.
 - Use the shared `LedgrIcon` at 32px for workspace and design-system navigation branding.
 - Use a Lucide `UserRound` icon in a neutral circular placeholder when no account photo is available.
+- Show Settings and Log out as separate sidebar actions, including in mobile navigation. Settings links to the profile page and shows its active state there. Confirm before logging out.
 - In compact app bars, show the navigation menu without a second brand mark. Keep the month picker visible when a page provides one.
 - Desktop product sidebar: 216-240px.
 - Top command bar: 56-64px.
-- Active nav item uses a stronger neutral fill. Accent color is reserved for notification counts or primary actions.
+- Active nav item uses a stronger neutral fill and text color without changing font weight or size. Accent color is reserved for notification counts or primary actions.
 - Group labels are 10-11px uppercase and muted. Do not add decorative status dots.
 - Product content should remain usable when the sidebar collapses below 1024px.
 

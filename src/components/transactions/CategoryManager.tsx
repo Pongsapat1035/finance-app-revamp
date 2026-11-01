@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowLeft, Check, CircleAlert, Pencil, Plus, Tags, Trash2, X } from 'lucide-react'
+import { Check, CircleAlert, Pencil, Plus, Tags, Trash2, X } from 'lucide-react'
 import SegmentedTab from '#/components/ui/SegmentedTab'
 import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
@@ -112,18 +112,13 @@ const CategoryManager = ({
     <>
       <BaseModalHeader>
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <IconButton onClick={onBack} className="-mt-1" aria-label="Back to transaction">
-              <ArrowLeft size={17} />
-            </IconButton>
-            <div>
-              <h2 id="category-dialog-title" className="text-xl font-medium tracking-tight">
-                Manage categories
-              </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Create, rename, or remove your categories.
-              </p>
-            </div>
+          <div>
+            <h2 id="category-dialog-title" className="text-xl font-medium tracking-tight">
+              Manage categories
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Create, rename, or remove your categories.
+            </p>
           </div>
           <IconButton onClick={onClose} aria-label="Close dialog">
             <X size={17} />
@@ -131,21 +126,23 @@ const CategoryManager = ({
         </div>
       </BaseModalHeader>
 
-      <BaseModalBody>
-        <SegmentedTab
-          tabs={CATEGORY_TABS}
-          active={activeType}
-          onChange={(type) => {
-            setActiveType(type)
-            onTypeChange?.(type)
-            setEditingId(null)
-            setDeletingId(null)
-            setActionError(undefined)
-          }}
-          ariaLabel="Category type"
-        />
+      <BaseModalBody className="flex flex-col overflow-hidden">
+        <div className="shrink-0">
+          <SegmentedTab
+            tabs={CATEGORY_TABS}
+            active={activeType}
+            onChange={(type) => {
+              setActiveType(type)
+              onTypeChange?.(type)
+              setEditingId(null)
+              setDeletingId(null)
+              setActionError(undefined)
+            }}
+            ariaLabel="Category type"
+          />
+        </div>
 
-        <div className="mt-5 flex items-start gap-2">
+        <div className="mt-5 flex shrink-0 items-start gap-2">
           <div className="min-w-0 flex-1">
             <InputField
               id="new-category"
@@ -162,7 +159,7 @@ const CategoryManager = ({
           </div>
           <Button
             variant="dark"
-            height="h-11"
+            height="h-10"
             padding="px-3.5"
             fullWidth={false}
             onClick={addCategory}
@@ -176,14 +173,17 @@ const CategoryManager = ({
         {actionError && (
           <div
             role="alert"
-            className="mt-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
+            className="mt-4 flex shrink-0 items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 text-[12px] leading-5 text-destructive-text"
           >
             <CircleAlert size={15} strokeWidth={1.75} className="mt-0.5 shrink-0" />
             <span>{actionError}</span>
           </div>
         )}
 
-        <div className="mt-5 max-h-88 overflow-y-auto rounded-lg border" aria-busy={isLoading}>
+        <div
+          className="mt-5 min-h-0 flex-1 overflow-y-auto rounded-lg border"
+          aria-busy={isLoading}
+        >
           {isLoading ? (
             <div className="divide-y" aria-label="Loading categories">
               {Array.from({ length: 3 }, (_, index) => (
@@ -246,11 +246,12 @@ const CategoryManager = ({
                           Cancel
                         </Button>
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
                           height="h-8"
                           padding="px-2.5"
                           fullWidth={false}
+                          className="text-destructive-text"
                           onClick={() => deleteCategory(category.id)}
                           disabled={isRemoving}
                         >
@@ -325,7 +326,10 @@ const CategoryManager = ({
         </div>
       </BaseModalBody>
 
-      <BaseModalFooter className="flex justify-end">
+      <BaseModalFooter className="flex justify-end gap-2">
+        <Button variant="outline" height="h-10" fullWidth={false} onClick={onBack}>
+          Back
+        </Button>
         <Button variant="dark" height="h-10" fullWidth={false} onClick={onBack}>
           Done
         </Button>

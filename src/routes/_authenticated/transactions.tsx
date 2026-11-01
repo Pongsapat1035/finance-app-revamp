@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated/transactions')({
   component: TransactionsPage,
   head: () => ({
     meta: [
-      { title: 'Transactions | My Finance' },
+      { title: 'Transactions | Ledgr' },
       {
         name: 'description',
         content: 'Review personal income and expenses and add new transactions.',

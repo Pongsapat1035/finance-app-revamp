@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated/budgets')({
   component: BudgetsPage,
   head: () => ({
     meta: [
-      { title: 'Budgets | My Finance' },
+      { title: 'Budgets | Ledgr' },
       {
         name: 'description',
         content: 'Plan monthly spending limits and review category progress.',

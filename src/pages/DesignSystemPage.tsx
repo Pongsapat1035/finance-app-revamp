@@ -11,16 +11,18 @@ import {
   Eye,
   Home,
   LayoutGrid,
+  LogOut,
   Menu,
   Pencil,
   Search,
-  Settings2,
+  Settings,
   Sparkles,
   Trash2,
   UserRound,
 } from 'lucide-react'
 import ConfirmModal from '#/components/ui/ConfirmModal'
 import LedgrIcon from '#/components/icons/LedgrIcon'
+import UpcomingRecurringRow from '#/components/recurring/UpcomingRecurringRow'
 import BaseModal, {
   BaseModalBody,
   BaseModalClose,
@@ -188,7 +190,9 @@ function Swatch({ name, token, value, className, inverse = false }: (typeof colo
 }
 
 function ConfirmDialogDemo() {
-  const [openDialog, setOpenDialog] = useState<'default' | 'destructive' | 'loading' | null>(null)
+  const [openDialog, setOpenDialog] = useState<
+    'default' | 'destructive' | 'loading' | 'logout' | null
+  >(null)
   const [pending, setPending] = useState(false)
 
   const startPending = () => {
@@ -205,8 +209,8 @@ function ConfirmDialogDemo() {
         <div>
           <h3 className="text-sm font-medium">Confirm dialog</h3>
           <p className="mt-1 max-w-xl text-xs text-muted-foreground">
-            Reserved for actions that are hard to undo or move money. The title states the action,
-            the body states the consequence, and the confirm button repeats the verb.
+            Used for consequential actions and logging out. The title states the action, the body
+            states the consequence, and the confirm button repeats the verb.
           </p>
         </div>
         <code className="rounded-sm bg-muted px-1.5 py-1 font-mono text-[10px] text-muted-foreground">
@@ -234,13 +238,19 @@ function ConfirmDialogDemo() {
         >
           Close period, with pending state
         </button>
+        <button
+          onClick={() => setOpenDialog('logout')}
+          className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium hover:bg-muted"
+        >
+          Log out
+        </button>
       </div>
 
       <ul className="mt-6 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
         <li>Focus moves into the dialog and returns to the trigger on dismissal.</li>
         <li>Escape and outside click cancel, except while work is in flight.</li>
         <li>Cancel sits first in the DOM and last visually on desktop.</li>
-        <li>Never use it for reversible actions. Use an inline undo instead.</li>
+        <li>Use an inline undo for reversible actions other than logging out.</li>
       </ul>
 
       <ConfirmModal
@@ -277,6 +287,14 @@ function ConfirmDialogDemo() {
         confirmLabel="Close period"
         loading={pending}
         onConfirm={startPending}
+      />
+      <ConfirmModal
+        open={openDialog === 'logout'}
+        onOpenChange={(open) => setOpenDialog(open ? 'logout' : null)}
+        title="Log out?"
+        description="You will need to sign in again to access your account."
+        confirmLabel="Log out"
+        onConfirm={() => setOpenDialog(null)}
       />
     </article>
   )
@@ -1069,19 +1087,26 @@ export default function DesignSystemPage() {
                     </div>
                   </div>
                   <div className="grid min-h-52 sm:grid-cols-[176px_1fr]">
-                    <div className="hidden border-r p-2 sm:block">
+                    <div className="hidden flex-col border-r p-2 sm:flex">
                       {[
                         [Home, 'Overview'],
                         [LayoutGrid, 'Reports'],
-                        [Settings2, 'Settings'],
                       ].map(([Icon, label], index) => (
                         <div
                           key={label as string}
-                          className={`flex h-9 items-center gap-2 rounded-sm px-2 text-xs ${index === 0 ? 'bg-[#e5e5e2] font-medium' : 'text-muted-foreground'}`}
+                          className={`flex h-9 items-center gap-2 rounded-sm px-2 text-xs ${index === 0 ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground'}`}
                         >
                           <Icon size={15} strokeWidth={1.75} /> {label as string}
                         </div>
                       ))}
+                      <div className="mt-auto grid gap-1 border-t pt-2 text-muted-foreground">
+                        <div className="flex h-9 items-center gap-2 px-2 text-xs">
+                          <Settings size={15} strokeWidth={1.75} /> Settings
+                        </div>
+                        <div className="flex h-9 items-center gap-2 px-2 text-xs">
+                          <LogOut size={15} strokeWidth={1.75} /> Log out
+                        </div>
+                      </div>
                     </div>
                     <div className="bg-white p-5 sm:p-7">
                       <p className="text-xs text-muted-foreground">Available balance</p>
@@ -1115,6 +1140,35 @@ export default function DesignSystemPage() {
               title="Data display"
               description="Align numbers, expose units, and let chart color communicate categories rather than decoration."
             />
+            <div className="mb-6 rounded-lg border p-4 text-sm">
+              <p className="font-medium">Dashboard transaction amounts</p>
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs">
+                <span className="text-success-text">Income +600</span>
+                <span className="text-destructive-text">Expense -34</span>
+              </div>
+            </div>
+            <div className="mb-6 overflow-hidden rounded-lg border">
+              <div className="border-b bg-muted px-5 py-3">
+                <p className="text-sm font-medium">Upcoming recurring example</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Dates and amounts are examples.
+                </p>
+              </div>
+              <div className="divide-y">
+                <UpcomingRecurringRow
+                  dueDate="2026-11-05"
+                  category="Housing"
+                  description="Rent"
+                  amount={12000}
+                />
+                <UpcomingRecurringRow
+                  dueDate="2026-11-12"
+                  category="Subscriptions"
+                  description="Music"
+                  amount={199}
+                />
+              </div>
+            </div>
             <div className="overflow-hidden rounded-lg border">
               <div className="flex flex-wrap items-center justify-between gap-4 border-b bg-muted px-4 py-3">
                 <div>
