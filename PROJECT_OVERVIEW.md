@@ -30,24 +30,24 @@
 
 ### 2.1 Technology ที่ใช้
 
-| กลุ่ม | เทคโนโลยี | ที่มา |
-|---|---|---|
-| Framework | TanStack Start (`@tanstack/react-start`) + TanStack Router แบบ file-based routing | `package.json`, `vite.config.ts`, `src/routes/` |
-| UI library | React 19.2 | `package.json` |
-| Language | TypeScript 6 (strict, `noUnusedLocals`, `noUnusedParameters`) | `package.json`, `tsconfig.json` |
-| Build / server | Vite 8, `nitro` (Vite plugin) | `vite.config.ts` |
-| Data fetching | TanStack Query + Axios (`ApiClient` class พร้อม interceptor) | `src/api/client.ts`, `src/hooks/*` |
-| SSR + Query | `@tanstack/react-router-ssr-query` | `src/router.tsx` |
-| Client state | Zustand 5 + `persist` (เก็บ token ใน `localStorage` key `auth-storage`) | `src/store/authStore.ts` |
-| Form | TanStack Form (`@tanstack/react-form`) | `TransactionForm.tsx`, `SignInForm.tsx`, `SignUpForm.tsx` |
-| Styling | Tailwind CSS v4 (`@tailwindcss/vite`), `tw-animate-css`, `class-variance-authority`, `clsx`, `tailwind-merge` | `package.json`, `src/styles.css` |
-| Component base | shadcn (style `new-york`, ปรับแต่งตาม design tokens) + Radix UI (checkbox, dialog, dropdown-menu, popover, select) | `components.json`, `package.json` |
-| Icon | Lucide (`lucide-react`) | `package.json`, `design.md` |
-| Date | dayjs, `react-day-picker` 10 | `package.json`, `src/components/ui/DatePicker.tsx` |
-| Test | Vitest 4, jsdom 28, Testing Library (react, dom) | `package.json` |
-| Lint / format | ESLint 10 + typescript-eslint + `eslint-plugin-react-hooks` + TanStack query/router plugins, Prettier 3 | `package.json`, `eslint.config.js` |
-| Dev tools | TanStack Devtools (Vite plugin ตอน `serve`), Router/Query devtools โหลดเฉพาะ `import.meta.env.DEV` | `vite.config.ts`, `src/routes/__root.tsx` |
-| Package manager | Yarn 1.22.22 | `package.json` |
+| กลุ่ม           | เทคโนโลยี                                                                                                          | ที่มา                                                     |
+| --------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Framework       | TanStack Start (`@tanstack/react-start`) + TanStack Router แบบ file-based routing                                  | `package.json`, `vite.config.ts`, `src/routes/`           |
+| UI library      | React 19.2                                                                                                         | `package.json`                                            |
+| Language        | TypeScript 6 (strict, `noUnusedLocals`, `noUnusedParameters`)                                                      | `package.json`, `tsconfig.json`                           |
+| Build / server  | Vite 8, `nitro` (Vite plugin)                                                                                      | `vite.config.ts`                                          |
+| Data fetching   | TanStack Query + Axios (`ApiClient` class พร้อม interceptor)                                                       | `src/api/client.ts`, `src/hooks/*`                        |
+| SSR + Query     | `@tanstack/react-router-ssr-query`                                                                                 | `src/router.tsx`                                          |
+| Client state    | Zustand 5 + `persist` (เก็บ token ใน `localStorage` key `auth-storage`)                                            | `src/store/authStore.ts`                                  |
+| Form            | TanStack Form (`@tanstack/react-form`)                                                                             | `TransactionForm.tsx`, `SignInForm.tsx`, `SignUpForm.tsx` |
+| Styling         | Tailwind CSS v4 (`@tailwindcss/vite`), `tw-animate-css`, `class-variance-authority`, `clsx`, `tailwind-merge`      | `package.json`, `src/styles.css`                          |
+| Component base  | shadcn (style `new-york`, ปรับแต่งตาม design tokens) + Radix UI (checkbox, dialog, dropdown-menu, popover, select) | `components.json`, `package.json`                         |
+| Icon            | Lucide (`lucide-react`)                                                                                            | `package.json`, `design.md`                               |
+| Date            | dayjs, `react-day-picker` 10                                                                                       | `package.json`, `src/components/ui/DatePicker.tsx`        |
+| Test            | Vitest 4, jsdom 28, Testing Library (react, dom)                                                                   | `package.json`                                            |
+| Lint / format   | ESLint 10 + typescript-eslint + `eslint-plugin-react-hooks` + TanStack query/router plugins, Prettier 3            | `package.json`, `eslint.config.js`                        |
+| Dev tools       | TanStack Devtools (Vite plugin ตอน `serve`), Router/Query devtools โหลดเฉพาะ `import.meta.env.DEV`                 | `vite.config.ts`, `src/routes/__root.tsx`                 |
+| Package manager | Yarn 1.22.22                                                                                                       | `package.json`                                            |
 
 ### 2.2 โครงสร้างโค้ด
 
@@ -74,65 +74,71 @@ src/
 
 ### 2.3 หน้าจอและ route
 
-| Path | หน้า | ต้อง login | ข้อมูลจาก backend |
-|---|---|---|---|
-| `/` | `HomePage` (หน้าแนะนำผลิตภัณฑ์) | ไม่ (guest-only) | ไม่มี |
-| `/auth` | สมัคร / เข้าสู่ระบบ + ปุ่ม Google | ไม่ (guest-only) | ใช่ |
-| `/auth/otp` | กรอก OTP ยืนยันอีเมล | ไม่ (guest-only) | ใช่ |
-| `/auth/forgot-password` | ลืมรหัสผ่าน | ไม่ (guest-only) | ไม่ (ไม่มีการเรียก API ใน `ForgotPasswordPage.tsx`) |
-| `/auth/google/callback` | แลก handoff code เป็น JWT | ไม่ | ใช่ |
-| `/dashboard` | ภาพรวมการเงิน | ใช่ | บางส่วน (ดูข้อ 4) |
-| `/transactions` | รายการธุรกรรม + จัดการหมวดหมู่ | ใช่ | ใช่ |
-| `/budgets` | งบประมาณรายเดือน | ใช่ | ใช่ |
-| `/recurring` | รายการประจำ | ใช่ | ใช่ |
-| `/profile` | โปรไฟล์ | ใช่ | อ่านอย่างเดียว (ดูข้อ 4) |
-| `/design-system` | หน้าอ้างอิง design system | ไม่ | ไม่มี |
+| Path                    | หน้า                              | ต้อง login       | ข้อมูลจาก backend                                   |
+| ----------------------- | --------------------------------- | ---------------- | --------------------------------------------------- |
+| `/`                     | `HomePage` (หน้าแนะนำผลิตภัณฑ์)   | ไม่ (guest-only) | ไม่มี                                               |
+| `/auth`                 | สมัคร / เข้าสู่ระบบ + ปุ่ม Google | ไม่ (guest-only) | ใช่                                                 |
+| `/auth/otp`             | กรอก OTP ยืนยันอีเมล              | ไม่ (guest-only) | ใช่                                                 |
+| `/auth/forgot-password` | ลืมรหัสผ่าน                       | ไม่ (guest-only) | ไม่ (ไม่มีการเรียก API ใน `ForgotPasswordPage.tsx`) |
+| `/auth/google/callback` | แลก handoff code เป็น JWT         | ไม่              | ใช่                                                 |
+| `/dashboard`            | ภาพรวมการเงิน                     | ใช่              | บางส่วน (ดูข้อ 4)                                   |
+| `/transactions`         | รายการธุรกรรม + จัดการหมวดหมู่    | ใช่              | ใช่                                                 |
+| `/budgets`              | งบประมาณรายเดือน                  | ใช่              | ใช่                                                 |
+| `/recurring`            | รายการประจำ                       | ใช่              | ใช่                                                 |
+| `/profile`              | โปรไฟล์                           | ใช่              | อ่านอย่างเดียว (ดูข้อ 4)                            |
+| `/design-system`        | หน้าอ้างอิง design system         | ไม่              | ไม่มี                                               |
 
 ที่มา: `src/routes/**`, `src/routes/__root.tsx` (กฎ guest-only: ถ้า login แล้วจะถูกส่งไป `/dashboard`), `src/routes/_authenticated.tsx` (route guard: ถ้ายังไม่ login จะส่งไป `/auth?redirect=...`)
 
 ### 2.4 สิ่งที่ frontend ทำได้ในแต่ละหน้า
 
 **Authentication** (`src/hooks/useAuth.ts`, `src/pages/auth/GoogleCallbackPage.tsx`)
+
 - สมัครด้วยอีเมล → เก็บ context ใน `sessionStorage` (`otpContext`) → ไปหน้า OTP → ยืนยัน / ขอ OTP ใหม่
 - เข้าสู่ระบบด้วยอีเมล/รหัสผ่าน แล้วเก็บ token ใน store
 - Redirect หลัง login ยอมเฉพาะ origin เดียวกันและ path ที่อยู่ใน allow-list (`/dashboard`, `/transactions`, `/budgets`, `/recurring`, `/profile`) นอกนั้นกลับไป `/dashboard`
 - Google Sign-In: เรียก `GET /auth/google/link` แล้ว redirect ไป Google → callback รับ `code` จาก query → `POST /auth/google/exchange` → เก็บ token → ลบ `code` ออกจาก URL ด้วย `history.replaceState`
 
 **Transactions** (`src/pages/TransactionsPage.tsx`)
+
 - ตารางรายการพร้อม pagination, ค้นหาด้วย keyword (debounce), กรองตามประเภท / หมวดหมู่ / เดือน
 - เพิ่ม / แก้ไข / ลบรายการ (modal + confirm dialog + toast)
 - สรุปยอดของเดือนที่เลือก จาก `GET /summary/transaction?month=` (`TransactionSummary.tsx`) โดย response มี `income`, `expenses`, `investment`, `net` และจำนวนรายการแต่ละประเภท (`src/api/summary/summary.type.ts`)
 - จัดการหมวดหมู่ (สร้าง / แก้ไข / ลบ) ผ่าน `CategoryManager`
 
 **Budgets** (`src/pages/BudgetsPage.tsx`)
+
 - เลือกเดือน → ดูงบที่ตั้งไว้เทียบยอดใช้จริง (planned / spent / remaining / percentUsed)
 - รายการหมวดที่ใช้เกินงบ (`/budget/exceeded`)
 - สร้าง / แก้ไข / ลบงบ และแสดงรายการประจำที่จะครบกำหนด
 
 **Recurring** (`src/pages/RecurringPage.tsx`)
+
 - รายการประจำพร้อมค้นหา, กรองตามหมวดหมู่, pagination
 - สร้าง / แก้ไข / ลบ (วันที่ของเดือน, วันเริ่ม, วันสิ้นสุด, เปิด/ปิดใช้งาน)
 - แสดงรายการที่จะครบกำหนดภายใน 30 วัน
 
 **Dashboard** (`src/pages/DashboardPage.tsx`)
+
 - "Latest transactions" ดึง 5 รายการล่าสุดจาก API จริง
 - "Upcoming recurring" ดึงจาก `/recurring-transaction/upcoming`
 
 **Profile** (`src/pages/ProfilePage.tsx`)
+
 - แสดงชื่อ / อีเมลของผู้ใช้จาก `GET /me`; sidebar ใช้ข้อมูลเดียวกัน (`app-shell.tsx`, `useCurrentUser`)
 
 ### 2.5 Endpoint ที่ frontend เรียกใช้
 
-| Domain | Method + Path | ไฟล์ |
-|---|---|---|
-| Auth | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/verify`, `POST /otp/resent-otp` | `src/api/auth/auth.api.ts` |
-| Auth (Google) | `GET /auth/google/link`, `POST /auth/google/exchange` | `src/api/auth/auth.api.ts` |
-| User | `GET /me` | `src/api/user/current-user.api.ts` |
-| Category | `POST /category`, `GET /category`, `PATCH /category/:id`, `DELETE /category/:id` | `src/api/category/category.api.ts` |
-| Transaction | `POST /transaction`, `GET /transaction`, `PUT /transaction/:id`, `DELETE /transaction/:id` | `src/api/transaction/transaction.api.ts` |
-| Summary | `GET /summary/transaction?month=` | `src/api/summary/summary.api.ts` |
-| Budget | `POST /budget`, `GET /budget?period=`, `GET /budget/exceeded?period=`, `GET /budget/:id`, `PATCH /budget/:id`, `DELETE /budget/:id` | `src/api/budget/budget.api.ts` |
-| Recurring | `POST /recurring-transaction`, `GET /recurring-transaction`, `GET /recurring-transaction/upcoming`, `GET /recurring-transaction/:id`, `PUT /recurring-transaction/:id`, `DELETE /recurring-transaction/:id` | `src/api/recurring-transaction/recurring-transaction.api.ts` |
+| Domain        | Method + Path                                                                                                                                                                                               | ไฟล์                                                         |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Auth          | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/verify`, `POST /otp/resent-otp`                                                                                                                       | `src/api/auth/auth.api.ts`                                   |
+| Auth (Google) | `GET /auth/google/link`, `POST /auth/google/exchange`                                                                                                                                                       | `src/api/auth/auth.api.ts`                                   |
+| User          | `GET /me`                                                                                                                                                                                                   | `src/api/user/current-user.api.ts`                           |
+| Category      | `POST /category`, `GET /category`, `PATCH /category/:id`, `DELETE /category/:id`                                                                                                                            | `src/api/category/category.api.ts`                           |
+| Transaction   | `POST /transaction`, `GET /transaction`, `PUT /transaction/:id`, `DELETE /transaction/:id`                                                                                                                  | `src/api/transaction/transaction.api.ts`                     |
+| Summary       | `GET /summary/transaction?month=`                                                                                                                                                                           | `src/api/summary/summary.api.ts`                             |
+| Budget        | `POST /budget`, `GET /budget?period=`, `GET /budget/exceeded?period=`, `GET /budget/:id`, `PATCH /budget/:id`, `DELETE /budget/:id`                                                                         | `src/api/budget/budget.api.ts`                               |
+| Recurring     | `POST /recurring-transaction`, `GET /recurring-transaction`, `GET /recurring-transaction/upcoming`, `GET /recurring-transaction/:id`, `PUT /recurring-transaction/:id`, `DELETE /recurring-transaction/:id` | `src/api/recurring-transaction/recurring-transaction.api.ts` |
 
 การ invalidate cache: เมื่อสร้าง / แก้ไข / ลบ transaction หรือ category จะ invalidate query key `budget` ด้วย เพื่อให้ยอดใช้จริงในหน้างบประมาณอัปเดตตาม (`src/hooks/useTransaction.ts`, `src/hooks/useCategory.ts`)
 
@@ -158,32 +164,32 @@ src/
 
 ### 3.1 ประวัติ commit (จาก `git log`, 41 commits)
 
-| ช่วง | สิ่งที่ทำ |
-|---|---|
-| เริ่มต้น | `933b8c6` นำ core function มาจาก repo เดิม (merge commit `c1c321a` อ้างถึง `finance-app-revamp`), แยก auth form, เพิ่ม protected route, base UI components |
-| Transaction / Category | เชื่อม category CRUD และ transaction CRUD กับ API, flow เพิ่ม / แก้ไข / ลบ พร้อม confirm และ toast |
-| App shell + CI | shared sidebar / top bar, scaffold TanStack Query, เพิ่ม ESLint, Prettier, CI workflow |
-| ตาราง / filter | table primitives, ค้นหา, filter ผูกกับ API, test ครอบ loading และ category recovery |
-| Auth | ล้าง token เมื่อ 401, Google OAuth (`4f98859`) |
-| Budget / Recurring | `8fa191f` งบประมาณจริงและจัดการรายการประจำ |
-| ล่าสุดที่ commit แล้ว | `a54fb0e` รวม toast, `f5d74a6` เชื่อม current user API + app shell |
+| ช่วง                   | สิ่งที่ทำ                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| เริ่มต้น               | `933b8c6` นำ core function มาจาก repo เดิม (merge commit `c1c321a` อ้างถึง `finance-app-revamp`), แยก auth form, เพิ่ม protected route, base UI components |
+| Transaction / Category | เชื่อม category CRUD และ transaction CRUD กับ API, flow เพิ่ม / แก้ไข / ลบ พร้อม confirm และ toast                                                         |
+| App shell + CI         | shared sidebar / top bar, scaffold TanStack Query, เพิ่ม ESLint, Prettier, CI workflow                                                                     |
+| ตาราง / filter         | table primitives, ค้นหา, filter ผูกกับ API, test ครอบ loading และ category recovery                                                                        |
+| Auth                   | ล้าง token เมื่อ 401, Google OAuth (`4f98859`)                                                                                                             |
+| Budget / Recurring     | `8fa191f` งบประมาณจริงและจัดการรายการประจำ                                                                                                                 |
+| ล่าสุดที่ commit แล้ว  | `a54fb0e` รวม toast, `f5d74a6` เชื่อม current user API + app shell                                                                                         |
 
 ### 3.2 การเปลี่ยนแปลงที่ยังไม่ commit (จาก `git status` / `git diff --stat`)
 
 tracked files แก้ไข 22 ไฟล์ (+471 / −1,258 บรรทัด) และมีไฟล์ใหม่ที่ยังไม่ track
 
-| การเปลี่ยนแปลง | รายละเอียด | ไฟล์ |
-|---|---|---|
-| ย้าย Dashboard ออกจาก route | `routes/_authenticated/dashboard.tsx` เหลือเป็นตัวผูก path กับ `DashboardPage` (diff แสดงว่าไฟล์นี้เปลี่ยน 491 บรรทัด ส่วนใหญ่เป็นการลบ) และเนื้อหาไปอยู่ใน `DashboardPage.tsx` (565 บรรทัด) | `src/routes/_authenticated/dashboard.tsx`, `src/pages/DashboardPage.tsx` (ใหม่) |
-| ลบหน้า mockup | ลบ `/reports` และ `/settings` | `src/routes/_authenticated/reports.tsx`, `settings.tsx` (deleted) |
-| เพิ่มหน้า Recurring | หน้า + route ใหม่ | `src/pages/RecurringPage.tsx`, `src/routes/_authenticated/recurring.tsx` (ใหม่) |
-| Summary API | เพิ่ม client เรียก `/summary/transaction` และ hook `useFetchTransactionSummary` ต่อเข้า `TransactionSummary` | `src/api/summary/` (ใหม่), `src/hooks/useTransaction.ts`, `src/components/transactions/TransactionSummary.tsx` |
-| IconPicker | component เลือก Lucide icon พร้อมค้นหา + test + เพิ่มใน design system และ `design.md` | `src/components/ui/IconPicker.tsx`, `test/IconPicker.test.tsx` (ใหม่), `design.md` |
-| Invalidate budget | category mutations ทั้ง 3 ตัว invalidate query `budget` เพิ่ม | `src/hooks/useCategory.ts` |
-| Recurring form | ปรับ `RecurringFormModal` (+95 บรรทัด) | `src/components/recurring/RecurringFormModal.tsx` |
-| Pagination | ปรับ component + เพิ่ม test | `src/components/ui/Pagination.tsx`, `test/Pagination.test.tsx` |
-| Test เพิ่ม | `BudgetsPage.test.tsx`, `format.test.ts` (ใหม่), ขยาย `TransactionsPage.test.tsx` (+143 บรรทัด) | — |
-| Design doc | เพิ่มหัวข้อ Icon picker, กฎ navigation (LedgrIcon, UserRound placeholder), กฎจัดรูปแบบตัวเลข | `design.md` |
+| การเปลี่ยนแปลง              | รายละเอียด                                                                                                                                                                                   | ไฟล์                                                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ย้าย Dashboard ออกจาก route | `routes/_authenticated/dashboard.tsx` เหลือเป็นตัวผูก path กับ `DashboardPage` (diff แสดงว่าไฟล์นี้เปลี่ยน 491 บรรทัด ส่วนใหญ่เป็นการลบ) และเนื้อหาไปอยู่ใน `DashboardPage.tsx` (565 บรรทัด) | `src/routes/_authenticated/dashboard.tsx`, `src/pages/DashboardPage.tsx` (ใหม่)                                |
+| ลบหน้า mockup               | ลบ `/reports` และ `/settings`                                                                                                                                                                | `src/routes/_authenticated/reports.tsx`, `settings.tsx` (deleted)                                              |
+| เพิ่มหน้า Recurring         | หน้า + route ใหม่                                                                                                                                                                            | `src/pages/RecurringPage.tsx`, `src/routes/_authenticated/recurring.tsx` (ใหม่)                                |
+| Summary API                 | เพิ่ม client เรียก `/summary/transaction` และ hook `useFetchTransactionSummary` ต่อเข้า `TransactionSummary`                                                                                 | `src/api/summary/` (ใหม่), `src/hooks/useTransaction.ts`, `src/components/transactions/TransactionSummary.tsx` |
+| IconPicker                  | component เลือก Lucide icon พร้อมค้นหา + test + เพิ่มใน design system และ `design.md`                                                                                                        | `src/components/ui/IconPicker.tsx`, `test/IconPicker.test.tsx` (ใหม่), `design.md`                             |
+| Invalidate budget           | category mutations ทั้ง 3 ตัว invalidate query `budget` เพิ่ม                                                                                                                                | `src/hooks/useCategory.ts`                                                                                     |
+| Recurring form              | ปรับ `RecurringFormModal` (+95 บรรทัด)                                                                                                                                                       | `src/components/recurring/RecurringFormModal.tsx`                                                              |
+| Pagination                  | ปรับ component + เพิ่ม test                                                                                                                                                                  | `src/components/ui/Pagination.tsx`, `test/Pagination.test.tsx`                                                 |
+| Test เพิ่ม                  | `BudgetsPage.test.tsx`, `format.test.ts` (ใหม่), ขยาย `TransactionsPage.test.tsx` (+143 บรรทัด)                                                                                              | —                                                                                                              |
+| Design doc                  | เพิ่มหัวข้อ Icon picker, กฎ navigation (LedgrIcon, UserRound placeholder), กฎจัดรูปแบบตัวเลข                                                                                                 | `design.md`                                                                                                    |
 
 ---
 
@@ -191,15 +197,15 @@ tracked files แก้ไข 22 ไฟล์ (+471 / −1,258 บรรทั�
 
 ### Frontend
 
-| จุด | สถานะ | ที่มา |
-|---|---|---|
-| Dashboard: ชุดตัวเลขสรุป, กราฟ cash flow, สัดส่วนรายจ่ายตามหมวด | ยังใช้ข้อมูลตัวอย่างที่ฝังในโค้ด (`periodData`, ค่าเป็นเดือน July 2026) | `src/pages/DashboardPage.tsx:41` |
-| Dashboard: ข้อความทักทาย | ฝังเป็น "Good morning, Mina" | `src/pages/DashboardPage.tsx` (ใน `DashboardPage`) |
-| Dashboard: ปุ่มเลือกช่วงเวลา (monthly / yearly + ปุ่มวันที่) | สลับเฉพาะข้อมูลตัวอย่าง ไม่ได้ส่ง parameter ไป API | `src/pages/DashboardPage.tsx` |
-| Profile: ปุ่มบันทึก | `onSubmit` ตั้งค่า state `saved` ในเครื่องเท่านั้น ไม่มี API สำหรับ update ใน `current-user.api.ts` (มีแค่ `GET /me`) | `src/pages/ProfilePage.tsx`, `src/api/user/current-user.api.ts` |
-| Forgot password | หน้าไม่มีการเรียก API | `src/pages/auth/ForgotPasswordPage.tsx` |
-| Token | เก็บใน `localStorage`; 401 ล้าง token แต่ไม่มี refresh token flow ใน client | `src/store/authStore.ts`, `src/api/client.ts` |
-| สกุลเงิน | แสดงผลเป็น THB | `src/pages/DashboardPage.tsx` ("THB") |
+| จุด                                                             | สถานะ                                                                                                                 | ที่มา                                                           |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Dashboard: ชุดตัวเลขสรุป, กราฟ cash flow, สัดส่วนรายจ่ายตามหมวด | ยังใช้ข้อมูลตัวอย่างที่ฝังในโค้ด (`periodData`, ค่าเป็นเดือน July 2026)                                               | `src/pages/DashboardPage.tsx:41`                                |
+| Dashboard: ข้อความทักทาย                                        | ฝังเป็น "Good morning, Mina"                                                                                          | `src/pages/DashboardPage.tsx` (ใน `DashboardPage`)              |
+| Dashboard: ปุ่มเลือกช่วงเวลา (monthly / yearly + ปุ่มวันที่)    | สลับเฉพาะข้อมูลตัวอย่าง ไม่ได้ส่ง parameter ไป API                                                                    | `src/pages/DashboardPage.tsx`                                   |
+| Profile: ปุ่มบันทึก                                             | `onSubmit` ตั้งค่า state `saved` ในเครื่องเท่านั้น ไม่มี API สำหรับ update ใน `current-user.api.ts` (มีแค่ `GET /me`) | `src/pages/ProfilePage.tsx`, `src/api/user/current-user.api.ts` |
+| Forgot password                                                 | หน้าไม่มีการเรียก API                                                                                                 | `src/pages/auth/ForgotPasswordPage.tsx`                         |
+| Token                                                           | เก็บใน `localStorage`; 401 ล้าง token แต่ไม่มี refresh token flow ใน client                                           | `src/store/authStore.ts`, `src/api/client.ts`                   |
+| สกุลเงิน                                                        | แสดงผลเป็น THB                                                                                                        | `src/pages/DashboardPage.tsx` ("THB")                           |
 
 ### Backend (จาก README ของ backend)
 
@@ -226,16 +232,16 @@ REST API สำหรับแอปบันทึกรายรับ-รา�
 
 ### Tech Stack
 
-| ส่วน | เทคโนโลยี |
-|---|---|
-| Framework | NestJS 11, TypeScript |
-| Database | PostgreSQL + Prisma 7 (driver adapter `@prisma/adapter-pg`) |
-| Auth | JWT (Passport), bcrypt, Google OAuth 2.0 + PKCE |
-| Validation / Docs | class-validator, class-transformer, Swagger (ป้องกันด้วย Basic Auth) |
-| Security | helmet, CORS allow-list, rate limiting (`@nestjs/throttler`) |
-| Email | Resend |
-| Test | Jest (unit + e2e), supertest |
-| DevOps | Docker multi-stage, GitHub Actions, Google Cloud Run, Artifact Registry, Secret Manager |
+| ส่วน              | เทคโนโลยี                                                                               |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Framework         | NestJS 11, TypeScript                                                                   |
+| Database          | PostgreSQL + Prisma 7 (driver adapter `@prisma/adapter-pg`)                             |
+| Auth              | JWT (Passport), bcrypt, Google OAuth 2.0 + PKCE                                         |
+| Validation / Docs | class-validator, class-transformer, Swagger (ป้องกันด้วย Basic Auth)                    |
+| Security          | helmet, CORS allow-list, rate limiting (`@nestjs/throttler`)                            |
+| Email             | Resend                                                                                  |
+| Test              | Jest (unit + e2e), supertest                                                            |
+| DevOps            | Docker multi-stage, GitHub Actions, Google Cloud Run, Artifact Registry, Secret Manager |
 
 ### ฟีเจอร์หลัก
 
@@ -272,9 +278,11 @@ src/
 ### วิธีการและการตัดสินใจทางเทคนิค
 
 #### 1. เก็บเงินเป็นจำนวนเต็ม (satang)
+
 ฐานข้อมูลเก็บยอดเงินเป็น `Int` หน่วยสตางค์ (฿123.45 = `12345`) เพื่อไม่ให้เกิดความคลาดเคลื่อนของ floating point API รับและส่งเป็นบาท โดยแปลงที่ขอบระบบด้วย decorator `@BahtToSatang()` ซึ่งตรวจด้วยว่าไม่ติดลบ ทศนิยมไม่เกิน 2 ตำแหน่ง และไม่เกินช่วงของ `Int4` ส่วนการคำนวณผลต่าง (เช่น รายรับ − รายจ่าย) ทำเป็นสตางค์ก่อนแล้วค่อยแปลงเป็นบาท
 
 #### 2. งบประมาณแบบ projection ที่อัปเดตใน transaction เดียวกัน
+
 ตาราง `Budget` เก็บ `spentAmount` ไว้ล่วงหน้า เพื่อให้หน้า budget ไม่ต้อง aggregate รายการธุรกรรมทุกครั้ง
 
 - ทุกครั้งที่สร้าง / แก้ไข / ลบธุรกรรม `BudgetProjectionService` จะปรับ `spentAmount` ภายใน Prisma `$transaction` เดียวกับตัวธุรกรรม ข้อมูลทั้งสองจึงไม่หลุดจากกัน
@@ -283,9 +291,11 @@ src/
 - มี `reconcile` ที่คำนวณยอดจากรายการธุรกรรมจริงมาเขียนทับ ใช้ซ่อมข้อมูลหากยอดเพี้ยน
 
 #### 3. เวลาและงวดรายเดือนใช้ timezone เดียว
+
 กำหนดเขตเวลาผลิตภัณฑ์เป็น `Asia/Bangkok` และใช้ฟังก์ชันกลางสำหรับหาช่วงเดือน (`[start, end)`) ทำให้ตัดงวดรายเดือนตรงกันทุก endpoint (summary, budget, recurring) วันที่ที่มากกว่าจำนวนวันในเดือน เช่น วันที่ 31 ในเดือนกุมภาพันธ์ จะถูกปรับเป็นวันสุดท้ายของเดือน
 
 #### 4. Google OAuth ที่ไม่ส่ง JWT ผ่าน URL
+
 ใช้ Authorization Code Flow + PKCE (S256) และทำให้ปลอดภัยขึ้นดังนี้
 
 - `state` และ `codeVerifier` เก็บในตาราง `GoogleOAuthAuthorization` พร้อมวันหมดอายุ และใช้ได้ครั้งเดียว
@@ -295,17 +305,20 @@ src/
 - ตรวจ `id_token` กับ audience และต้องมี `email_verified`
 
 #### 5. ยืนยันอีเมลด้วย OTP พร้อมกลไกกันการใช้งานผิดปกติ
+
 - OTP อายุ 5 นาที ใส่ผิดได้ไม่เกิน 5 ครั้ง
 - จำกัดจำนวนครั้งที่ขอ OTP ใหม่ ถ้าเกินบัญชีจะถูกระงับ (`BANNED`)
 - การยืนยัน OTP, เปลี่ยนสถานะผู้ใช้ และสร้างหมวดหมู่เริ่มต้น ทำใน transaction เดียวกัน
 
 #### 6. ความปลอดภัยระดับ API
+
 - rate limit ทั้งระบบ 10 ครั้ง/นาที และเข้มกว่านั้นที่ endpoint ของ auth/OTP (3–5 ครั้ง/นาที)
 - `ValidationPipe` แบบ global ปฏิเสธ input ที่ไม่ตรง DTO
 - helmet, CORS แบบ allow-list จาก env, Swagger เข้าได้เฉพาะผู้ที่มี Basic Auth
 - ตรวจ environment variable ที่จำเป็นตอนเริ่มระบบ ถ้าขาดหรือ URL ไม่ถูกต้องจะไม่ยอมสตาร์ท
 
 #### 7. Database design
+
 - Index ตามรูปแบบ query จริง เช่น `(userId, type, date)` สำหรับรายการธุรกรรม และ `(userId, categoryId, period)` สำหรับงบ
 - หมวดหมู่ใช้ `onDelete: Restrict` กับธุรกรรม เพื่อไม่ให้ลบหมวดหมู่ที่ยังมีการใช้งาน ส่วนข้อมูลของผู้ใช้ใช้ `Cascade`
 - unique `(userId, title, type)` กันหมวดหมู่ซ้ำ
@@ -337,13 +350,13 @@ Push → main         : build image (linux/amd64, tag ด้วย commit SHA)
 
 ## 6. การเชื่อมต่อ Frontend ↔ Backend
 
-| หัวข้อ | Frontend | Backend |
-|---|---|---|
-| Auth Google | เรียก `/auth/google/link` แล้วรับ `code` ที่ `/auth/google/callback` จึงแลก JWT ที่ `/auth/google/exchange` และลบ `code` ออกจาก URL | ไม่ส่ง JWT ใน redirect URL ใช้ handoff code ใช้ได้ครั้งเดียว อายุ 5 นาที |
-| หน่วยเงิน | ส่ง / รับเป็นบาท แล้วแสดงด้วย `formatNumber` | รับ / ส่งเป็นบาท เก็บเป็นสตางค์ (`Int`) |
-| งวดรายเดือน | ส่งเดือนเป็น `YYYY-MM` (`period` ของ budget, `month` ของ summary) | ตัดงวดตาม `Asia/Bangkok` ด้วยฟังก์ชันกลางเดียวกันทุก endpoint |
-| ยอดใช้จริงของงบ | invalidate query `budget` ทุกครั้งที่แก้ transaction / category | อัปเดต `spentAmount` ใน transaction เดียวกับตัวธุรกรรม |
-| หมวดหมู่ที่ถูกใช้อยู่ | มี `deleteCategory` ใน `category.api.ts` | `onDelete: Restrict` ลบไม่ได้ถ้ายังมีธุรกรรม |
+| หัวข้อ                | Frontend                                                                                                                            | Backend                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Auth Google           | เรียก `/auth/google/link` แล้วรับ `code` ที่ `/auth/google/callback` จึงแลก JWT ที่ `/auth/google/exchange` และลบ `code` ออกจาก URL | ไม่ส่ง JWT ใน redirect URL ใช้ handoff code ใช้ได้ครั้งเดียว อายุ 5 นาที |
+| หน่วยเงิน             | ส่ง / รับเป็นบาท แล้วแสดงด้วย `formatNumber`                                                                                        | รับ / ส่งเป็นบาท เก็บเป็นสตางค์ (`Int`)                                  |
+| งวดรายเดือน           | ส่งเดือนเป็น `YYYY-MM` (`period` ของ budget, `month` ของ summary)                                                                   | ตัดงวดตาม `Asia/Bangkok` ด้วยฟังก์ชันกลางเดียวกันทุก endpoint            |
+| ยอดใช้จริงของงบ       | invalidate query `budget` ทุกครั้งที่แก้ transaction / category                                                                     | อัปเดต `spentAmount` ใน transaction เดียวกับตัวธุรกรรม                   |
+| หมวดหมู่ที่ถูกใช้อยู่ | มี `deleteCategory` ใน `category.api.ts`                                                                                            | `onDelete: Restrict` ลบไม่ได้ถ้ายังมีธุรกรรม                             |
 
 ---
 
