@@ -12,6 +12,8 @@ import {
   uploadAvatar,
 } from '#/api/user/current-user.api'
 import { AppPageShell } from '#/components/app-shell'
+import { PageHeader } from '#/components/page-header'
+import Button, { buttonClasses } from '#/components/ui/Button'
 import ConfirmModal, {
   Dialog,
   DialogContent,
@@ -141,16 +143,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <AppPageShell activeItem="Profile" periodLabel="Profile settings">
-      <div>
-        <p className="text-xs font-medium text-muted-foreground">Personal account</p>
-        <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
-          Profile settings
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Update your personal details and account security.
-        </p>
-      </div>
+    <AppPageShell activeItem="Profile">
+      <PageHeader
+        eyebrow="Personal account"
+        title="Profile settings"
+        description="Update your personal details and account security."
+      />
 
       {(isError || error || avatar.isError) && (
         <p className="mt-6 text-sm text-destructive-text" role="alert">
@@ -212,7 +210,14 @@ export default function ProfilePage() {
                       JPG or PNG. Maximum file size 2 MiB.
                     </p>
                     <div className="mt-3 flex gap-2">
-                      <label className="relative flex h-9 cursor-pointer items-center rounded-sm border px-3 text-xs font-medium hover:bg-muted focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring has-disabled:cursor-not-allowed has-disabled:opacity-45">
+                      <label
+                        className={buttonClasses({
+                          variant: 'outline',
+                          size: 'md',
+                          className:
+                            'relative cursor-pointer focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring has-disabled:cursor-not-allowed has-disabled:opacity-50',
+                        })}
+                      >
                         Upload photo
                         <input
                           type="file"
@@ -236,17 +241,19 @@ export default function ProfilePage() {
                           }}
                         />
                       </label>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="md"
+                        fullWidth={false}
                         disabled={!user?.avatarUrl || photoPending || profileMutation.isPending}
                         onClick={() => {
                           clearMessages()
                           removeAvatarMutation.mutate()
                         }}
-                        className="ds-focus-ring h-9 rounded-sm px-3 text-xs text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-45"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -281,14 +288,14 @@ export default function ProfilePage() {
             )}
           </SettingsSection>
           <div className="flex justify-end border-t pt-5">
-            <button
+            <Button
               type="submit"
+              fullWidth={false}
               disabled={!user || profileMutation.isPending || photoPending}
-              className="ds-focus-ring ds-interactive flex h-10 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-accent-foreground hover:bg-[#c7e600] disabled:opacity-45"
+              prefixIcon={<Check size={16} strokeWidth={1.75} aria-hidden="true" />}
             >
-              <Check size={15} strokeWidth={2} />{' '}
               {profileMutation.isPending ? 'Saving...' : 'Save profile'}
-            </button>
+            </Button>
           </div>
         </form>
 
@@ -316,7 +323,7 @@ export default function ProfilePage() {
                       setPasswordError('')
                       setPasswordOpen(true)
                     }}
-                    className="ds-focus-ring mt-2 text-xs font-medium underline decoration-border underline-offset-4 hover:decoration-foreground"
+                    className={buttonClasses({ variant: 'outline', size: 'md', className: 'mt-3' })}
                   >
                     Change password
                   </button>
@@ -338,7 +345,12 @@ export default function ProfilePage() {
                 setDeleteError('')
                 setDeleteOpen(true)
               }}
-              className="ds-focus-ring mt-5 h-9 rounded-sm border border-destructive/45 px-3 text-xs font-medium text-destructive-text hover:bg-destructive/5"
+              className={buttonClasses({
+                variant: 'outline',
+                size: 'md',
+                className:
+                  'mt-5 border-destructive/45 text-destructive-text hover:bg-destructive-soft',
+              })}
             >
               Delete account
             </button>
@@ -413,13 +425,9 @@ export default function ProfilePage() {
                 {passwordError}
               </p>
             )}
-            <button
-              type="submit"
-              disabled={passwordMutation.isPending}
-              className="ds-focus-ring h-10 rounded-sm bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-45"
-            >
+            <Button type="submit" variant="dark" disabled={passwordMutation.isPending}>
               {passwordMutation.isPending ? 'Changing...' : 'Change password'}
-            </button>
+            </Button>
           </form>
         </DialogContent>
       </Dialog>

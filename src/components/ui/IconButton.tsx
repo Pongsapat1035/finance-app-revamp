@@ -11,8 +11,9 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<IconButtonVariant, string> = {
   ghost: 'text-muted-foreground hover:bg-muted hover:text-foreground',
-  'ghost-destructive': 'text-muted-foreground hover:bg-[#fff1f0] hover:text-destructive-text',
-  filled: 'bg-primary text-primary-foreground hover:bg-[#30302f]',
+  'ghost-destructive':
+    'text-muted-foreground hover:bg-destructive-soft hover:text-destructive-text',
+  filled: 'bg-primary text-primary-foreground hover:bg-primary-hover',
   outline: 'border border-input bg-background hover:bg-muted',
 }
 
@@ -22,7 +23,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         type="button"
         ref={ref}
-        className={`ds-focus-ring ds-interactive grid ${size} shrink-0 place-items-center rounded-sm ${variants[variant]} disabled:pointer-events-none disabled:opacity-40 ${className}`}
+        className={`ds-focus-ring ds-interactive grid ${size} shrink-0 place-items-center rounded-sm ${variants[variant]} disabled:pointer-events-none disabled:opacity-50 ${className}`}
         {...props}
       >
         {children}

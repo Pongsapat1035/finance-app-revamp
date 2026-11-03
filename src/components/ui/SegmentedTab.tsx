@@ -16,9 +16,14 @@ const SegmentedTab = <T extends string>({
   onChange,
   ariaLabel,
 }: SegmentedTabProps<T>) => {
+  const activeIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.value === active),
+  )
+
   return (
     <div
-      className="border-b"
+      className="relative border-b"
       style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       role="tablist"
       aria-label={ariaLabel}
@@ -37,10 +42,15 @@ const SegmentedTab = <T extends string>({
             }`}
           >
             {tab.label}
-            {isActive && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-foreground" />}
           </button>
         )
       })}
+      {/* One indicator that slides to the active tab */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-px left-0 h-0.5 bg-foreground motion-safe:transition-transform motion-safe:duration-(--duration-base) motion-safe:ease-(--ease-in-out)"
+        style={{ width: `${100 / tabs.length}%`, transform: `translateX(${activeIndex * 100}%)` }}
+      />
     </div>
   )
 }

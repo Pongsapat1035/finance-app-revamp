@@ -20,6 +20,7 @@ import {
   Trash2,
   UserRound,
 } from 'lucide-react'
+import Button, { buttonClasses } from '#/components/ui/Button'
 import ConfirmModal from '#/components/ui/ConfirmModal'
 import LedgrIcon from '#/components/icons/LedgrIcon'
 import UpcomingRecurringRow from '#/components/recurring/UpcomingRecurringRow'
@@ -41,6 +42,7 @@ import InputField from '#/components/ui/InputField'
 import { MenuSearch } from '#/components/app-shell'
 import Pagination from '#/components/ui/Pagination'
 import SearchInput from '#/components/ui/SearchInput'
+import SegmentedTab from '#/components/ui/SegmentedTab'
 import type { ToastTone } from '#/components/ui/Toast'
 import { useToast } from '#/hooks/useToast'
 import {
@@ -134,6 +136,124 @@ function SectionHeading({ title, description }: { title: string; description: st
       </h2>
       <p className="mt-2 text-[15px] leading-6 text-muted-foreground">{description}</p>
     </div>
+  )
+}
+
+const motionTokens = [
+  ['--duration-fast', '140ms', 'Hover, focus, press, and color changes'],
+  ['--duration-base', '220ms', 'Page crossfade, values replacing skeletons, tab indicators'],
+  ['--duration-enter', '300ms', 'Headers, toasts, drawers, and panels entering'],
+  ['--duration-reveal', '600ms', 'Marketing entrance and scroll reveal'],
+  ['--ease-out', 'cubic-bezier(0.22, 1, 0.36, 1)', 'Anything arriving'],
+  ['--ease-in-out', 'cubic-bezier(0.65, 0, 0.35, 1)', 'Anything moving between two positions'],
+]
+
+function MotionSection() {
+  const [replay, setReplay] = useState(0)
+  const [tab, setTab] = useState<'monthly' | 'yearly' | 'custom'>('monthly')
+
+  return (
+    <section id="motion" className="border-b px-4 py-16 sm:px-8 lg:px-12 lg:py-20">
+      <SectionHeading
+        title="Motion"
+        description="Motion explains what changed. It animates opacity and transform only, and switches off under reduced motion."
+      />
+      <div className="grid gap-5 xl:grid-cols-2">
+        <article className="overflow-hidden rounded-lg border">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-muted text-[11px] text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 font-medium">Token</th>
+                <th className="px-4 py-3 font-medium">Value</th>
+                <th className="px-4 py-3 font-medium">Use</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {motionTokens.map(([token, value, use]) => (
+                <tr key={token}>
+                  <td className="px-4 py-3 font-mono">{token}</td>
+                  <td className="px-4 py-3 font-mono text-muted-foreground">{value}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{use}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+
+        <article className="rounded-lg border p-5 sm:p-7">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-sm font-medium">Live examples</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              fullWidth={false}
+              onClick={() => setReplay((count) => count + 1)}
+            >
+              Replay
+            </Button>
+          </div>
+          <div key={replay} className="mt-6 grid gap-6">
+            <div>
+              <p className="text-[11px] text-muted-foreground">Progress fill, .ds-grow-x</p>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-[1px] bg-muted">
+                <span
+                  className="ds-grow-x block h-full w-full bg-chart-blue"
+                  style={{ transform: 'scaleX(0.64)' }}
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground">
+                Bars from the baseline, .ds-grow-y
+              </p>
+              <div className="mt-2 flex h-16 items-end gap-1.5">
+                {[30, 55, 40, 75, 60, 90, 70].map((height, index) => (
+                  <span
+                    key={index}
+                    className="ds-grow-y w-4 rounded-t-[2px] bg-success"
+                    style={
+                      {
+                        height: `${height}%`,
+                        '--ds-delay': `${index * 40}ms`,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground">
+                Entrance, .ds-rise with --ds-delay
+              </p>
+              <div className="mt-2 flex gap-2">
+                {['First', 'Second', 'Third'].map((label, index) => (
+                  <span
+                    key={label}
+                    className="ds-rise rounded-sm border px-3 py-2 text-xs"
+                    style={{ '--ds-delay': `${index * 80}ms` } as React.CSSProperties}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-6">
+            <p className="mb-2 text-[11px] text-muted-foreground">Sliding tab indicator</p>
+            <SegmentedTab
+              tabs={[
+                { label: 'Monthly', value: 'monthly' },
+                { label: 'Yearly', value: 'yearly' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              active={tab}
+              onChange={setTab}
+              ariaLabel="Example period"
+            />
+          </div>
+        </article>
+      </div>
+    </section>
   )
 }
 
@@ -618,10 +738,7 @@ export default function DesignSystemPage() {
                 ⌘ K
               </kbd>
             </div>
-            <a
-              href="#components"
-              className="ds-focus-ring ds-interactive inline-flex h-9 items-center gap-2 rounded-sm bg-accent px-3.5 text-xs font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
-            >
+            <a href="#components" className={buttonClasses({ size: 'md' })}>
               View components <ArrowRight size={14} strokeWidth={1.75} />
             </a>
           </div>
@@ -653,7 +770,7 @@ export default function DesignSystemPage() {
             <p className="mt-7 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Interface
             </p>
-            {['Components', 'Data display', 'Patterns', 'Accessibility'].map((item) => (
+            {['Components', 'Data display', 'Motion', 'Patterns', 'Accessibility'].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
@@ -883,16 +1000,41 @@ export default function DesignSystemPage() {
             <div className="grid gap-5 xl:grid-cols-2">
               <article className="rounded-lg border p-5 sm:p-7">
                 <h3 className="text-sm font-medium">Buttons</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Use <code className="font-mono">Button</code>, or{' '}
+                  <code className="font-mono">buttonClasses()</code> for links. Default is 40px; md
+                  (36px) and sm (32px) are for dense rows.
+                </p>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <button className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-accent-foreground hover:bg-[#c7e600]">
-                    Save changes <Check size={15} strokeWidth={2} />
-                  </button>
-                  <button className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[#30302f]">
+                  <Button
+                    fullWidth={false}
+                    prefixIcon={<Check size={16} strokeWidth={1.75} aria-hidden="true" />}
+                  >
+                    Save changes
+                  </Button>
+                  <Button variant="dark" fullWidth={false}>
                     Create report
-                  </button>
-                  <button className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium hover:bg-muted">
+                  </Button>
+                  <Button variant="outline" fullWidth={false}>
                     Cancel
-                  </button>
+                  </Button>
+                  <Button variant="ghost" fullWidth={false}>
+                    Remove
+                  </Button>
+                  <Button variant="destructive" fullWidth={false}>
+                    Delete
+                  </Button>
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <Button variant="outline" size="md" fullWidth={false}>
+                    Medium 36px
+                  </Button>
+                  <Button variant="outline" size="sm" fullWidth={false}>
+                    Small 32px
+                  </Button>
+                  <Button fullWidth={false} disabled>
+                    Disabled
+                  </Button>
                   <button
                     className="ds-focus-ring ds-interactive inline-flex size-10 items-center justify-center rounded-sm border bg-background hover:bg-muted"
                     aria-label="Copy"
@@ -1223,6 +1365,8 @@ export default function DesignSystemPage() {
               </div>
             </div>
           </section>
+
+          <MotionSection />
 
           <section id="patterns" className="border-b px-4 py-16 sm:px-8 lg:px-12 lg:py-20">
             <SectionHeading

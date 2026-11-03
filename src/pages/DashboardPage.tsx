@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
@@ -12,6 +12,8 @@ import type {
   TransactionSummaryResponse,
 } from '#/api/summary/summary.type'
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
+import { PageHeader } from '#/components/page-header'
+import { buttonClasses } from '#/components/ui/Button'
 import UpcomingRecurringRow from '#/components/recurring/UpcomingRecurringRow'
 import CategoryDistribution, {
   type CategoryDistributionItem,
@@ -149,10 +151,18 @@ function PeriodSwitch({
 }) {
   return (
     <div
-      className="grid grid-cols-2 rounded-sm border bg-muted p-1"
+      className="relative grid grid-cols-2 rounded-sm border bg-muted p-1"
       role="tablist"
       aria-label="Dashboard period"
     >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-1 left-1 rounded-sm bg-background shadow-[0_1px_3px_rgb(22_22_22/0.09)] motion-safe:transition-transform motion-safe:duration-(--duration-base) motion-safe:ease-(--ease-in-out)"
+        style={{
+          width: `calc((100% - 8px) / 2)`,
+          transform: `translateX(${(period === 'yearly' ? 1 : 0) * 100}%)`,
+        }}
+      />
       {(['monthly', 'yearly'] as Period[]).map((item) => {
         const active = period === item
         return (
@@ -162,10 +172,8 @@ function PeriodSwitch({
             role="tab"
             aria-selected={active}
             onClick={() => setPeriod(item)}
-            className={`ds-focus-ring ds-interactive h-8 rounded-sm px-3 text-xs font-medium capitalize ${
-              active
-                ? 'bg-background text-foreground shadow-[0_1px_3px_rgb(22_22_22/0.08)]'
-                : 'text-muted-foreground hover:text-foreground'
+            className={`ds-focus-ring ds-interactive relative h-8 rounded-sm px-3 text-xs font-medium capitalize ${
+              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {item}
@@ -229,7 +237,7 @@ function MetricStrip({
 
   return (
     <section
-      className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 xl:grid-cols-4"
+      className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border xl:grid-cols-4"
       aria-label={`${info.label} financial summary`}
       aria-busy={isPending}
     >
@@ -239,25 +247,11 @@ function MetricStrip({
           description={errorDescription}
           onRetry={onRetry}
           retryLabel="Retry summary"
-          className="bg-background sm:col-span-2 xl:col-span-4"
+          className="col-span-2 bg-background xl:col-span-4"
         />
       ) : (
         metrics.map((item) => (
-          <MetricCard
-            key={item.label}
-            {...item}
-            iconSize={15}
-            className="transition-colors hover:bg-muted motion-reduce:transition-none"
-            noteClassName="truncate"
-            displayValue={
-              isPending ? (
-                <span
-                  className="block h-8 w-28 rounded-sm bg-muted motion-safe:animate-pulse"
-                  aria-label={`Loading ${item.label.toLowerCase()}`}
-                />
-              ) : undefined
-            }
-          />
+          <MetricCard key={item.label} {...item} noteClassName="truncate" loading={isPending} />
         ))
       )}
     </section>
@@ -353,13 +347,14 @@ function CashFlowChartBody({
             role="img"
             aria-label={`Cash flow chart for ${info.contextLabel}. Income ${formatNumber(income)}, expenses ${formatNumber(expenses)}, net ${formatNumber(netCashFlow)}.`}
           >
-            {points.map((point) => (
+            {points.map((point, index) => (
               <div
                 key={point.key}
                 className={`flex h-full flex-1 items-end justify-center ${dense ? 'min-w-3 gap-0.5' : 'min-w-8 gap-1.5'}`}
+                style={{ '--ds-delay': `${index * 12}ms` } as CSSProperties}
               >
                 <span
-                  className={`w-[42%] max-w-8 rounded-t-[2px] ${point.future ? 'border border-dashed border-border bg-transparent' : 'bg-success'}`}
+                  className={`ds-grow-y w-[42%] max-w-8 rounded-t-[2px] ${point.future ? 'border border-dashed border-border bg-transparent' : 'bg-success'}`}
                   style={{
                     height: point.future
                       ? '4%'
@@ -368,7 +363,7 @@ function CashFlowChartBody({
                   title={`${point.title} income ${formatNumber(point.income)}`}
                 />
                 <span
-                  className={`w-[42%] max-w-8 rounded-t-[2px] ${point.future ? 'border border-dashed border-border bg-transparent' : 'bg-chart-plum'}`}
+                  className={`ds-grow-y w-[42%] max-w-8 rounded-t-[2px] ${point.future ? 'border border-dashed border-border bg-transparent' : 'bg-chart-plum'}`}
                   style={{
                     height: point.future
                       ? '4%'
@@ -640,38 +635,32 @@ export default function DashboardPage() {
       <AppSidebar activeItem="Overview" />
       <AppTopBar
         activeItem="Overview"
-        periodControl={<PeriodSwitch period={period} setPeriod={setPeriod} />}
+        periodControl={
+          period === 'monthly' ? (
+            <DatePickerField
+              label="Filter by month"
+              mode="month"
+              value={month}
+              onValueChange={setMonth}
+              max={currentMonth}
+              className="w-40 gap-0 [&>label]:sr-only [&>button]:h-9 [&>button]:text-xs"
+            />
+          ) : (
+            <p className="flex h-9 items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
+              <CalendarDays size={14} strokeWidth={1.75} aria-hidden="true" /> {info.range}
+            </p>
+          )
+        }
       />
 
-      <main className="lg:ml-56">
-        <div className="mx-auto w-full max-w-[1320px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Financial overview</p>
-              <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
-                {userName ? `Hello, ${userName}` : 'Hello'}
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Here is the full picture for {info.contextLabel}. Amounts in THB.
-              </p>
-            </div>
-            <div>
-              {period === 'monthly' ? (
-                <DatePickerField
-                  label="Filter by month"
-                  mode="month"
-                  value={month}
-                  onValueChange={setMonth}
-                  max={currentMonth}
-                  className="w-40 gap-0 [&>label]:sr-only [&>button]:h-9 [&>button]:text-xs"
-                />
-              ) : (
-                <p className="flex h-9 items-center gap-2 text-xs text-muted-foreground">
-                  <CalendarDays size={14} aria-hidden="true" /> {info.range}
-                </p>
-              )}
-            </div>
-          </div>
+      <main className="ds-vt-page lg:ml-56">
+        <div className="mx-auto w-full max-w-330 px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
+          <PageHeader
+            eyebrow="Financial overview"
+            title={userName ? `Hello, ${userName}` : 'Hello'}
+            description={`Here is the full picture for ${info.contextLabel}. Amounts in THB.`}
+            action={<PeriodSwitch period={period} setPeriod={setPeriod} />}
+          />
 
           <div className="mt-8">
             <MetricStrip
@@ -717,11 +706,8 @@ export default function DashboardPage() {
                 Review, filter, and add transactions from the activity page.
               </p>
             </div>
-            <Link
-              to="/transactions"
-              className="ds-focus-ring ds-interactive flex h-10 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-accent-foreground no-underline hover:bg-[#c7e600]"
-            >
-              View transactions <ArrowRight size={15} />
+            <Link to="/transactions" className={buttonClasses()}>
+              View transactions <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" />
             </Link>
           </div>
         </div>

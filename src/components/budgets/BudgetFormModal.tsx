@@ -1,8 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import dayjs from 'dayjs'
+import { LoaderCircle } from 'lucide-react'
 import type { BudgetRow } from '#/api/budget/budget.type'
 import BaseModal, {
+  BaseModalBody,
   BaseModalContent,
   BaseModalDescription,
+  BaseModalFooter,
+  BaseModalHeader,
   BaseModalTitle,
 } from '#/components/ui/BaseModal'
 import Button from '#/components/ui/Button'
@@ -42,6 +47,7 @@ export default function BudgetFormModal({
   isSubmitting,
   onSubmit,
 }: BudgetFormModalProps) {
+  const periodLabel = dayjs(`${period}-01`).format('MMMM YYYY')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [amount, setAmount] = useState('')
   const [categoryError, setCategoryError] = useState<string>()
@@ -102,71 +108,85 @@ export default function BudgetFormModal({
         onEscapeKeyDown={(event) => isSubmitting && event.preventDefault()}
         onInteractOutside={(event) => isSubmitting && event.preventDefault()}
       >
-        <div className="border-b px-5 py-4 pr-14">
-          <BaseModalTitle className="text-base font-medium">
+        <BaseModalHeader className="pr-14">
+          <BaseModalTitle className="text-lg font-medium tracking-[-0.02em]">
             {budget ? 'Edit budget' : 'Create budget'}
           </BaseModalTitle>
-          <BaseModalDescription className="mt-1 text-xs text-muted-foreground">
+          <BaseModalDescription className="mt-1 text-xs leading-5 text-muted-foreground">
             {budget
-              ? `Change the ${name} plan for ${period}.`
-              : `Set a category plan for ${period}.`}
+              ? `Change the ${name} plan for ${periodLabel}.`
+              : `Set a category plan for ${periodLabel}.`}
           </BaseModalDescription>
-        </div>
-        <form className="grid gap-4 p-5" onSubmit={submit}>
-          {budget ? (
-            <div className="grid gap-2 text-[13px]">
-              <span className="font-medium">Category</span>
-              <span className="rounded-sm border bg-muted px-3 py-2.5">{name}</span>
-            </div>
-          ) : (
-            <SelectField
-              label="Category"
-              options={options}
-              value={selectedCategory}
-              onValueChange={(value) => {
-                setSelectedCategory(value)
-                setCategoryError(undefined)
+        </BaseModalHeader>
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={submit}>
+          <BaseModalBody className="grid gap-4">
+            {budget ? (
+              <div className="grid gap-2 text-[13px]">
+                <span className="font-medium">Category</span>
+                <span className="rounded-sm border bg-muted px-3 py-2.5">{name}</span>
+              </div>
+            ) : (
+              <SelectField
+                label="Category"
+                options={options}
+                value={selectedCategory}
+                onValueChange={(value) => {
+                  setSelectedCategory(value)
+                  setCategoryError(undefined)
+                }}
+                placeholder="Choose a category"
+                error={categoryError}
+                required
+              />
+            )}
+            <InputField
+              id="budget-amount"
+              label="Monthly plan"
+              type="text"
+              inputMode="decimal"
+              value={amount}
+              onChange={(event) => {
+                setAmount(event.target.value)
+                setAmountError(undefined)
               }}
-              placeholder="Choose a category"
-              error={categoryError}
+              error={amountError}
+              touched={Boolean(amountError)}
+              helperText="Enter an amount with up to two decimal places."
               required
             />
-          )}
-          <InputField
-            id="budget-amount"
-            label="Monthly plan"
-            type="text"
-            inputMode="decimal"
-            value={amount}
-            onChange={(event) => {
-              setAmount(event.target.value)
-              setAmountError(undefined)
-            }}
-            error={amountError}
-            touched={Boolean(amountError)}
-            helperText="Enter an amount with up to two decimal places."
-            required
-          />
-          {submitError && (
-            <p role="alert" className="text-xs text-destructive-text">
-              {submitError}
-            </p>
-          )}
-          <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            {submitError && (
+              <p role="alert" className="text-xs text-destructive-text">
+                {submitError}
+              </p>
+            )}
+          </BaseModalBody>
+          <BaseModalFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
-              height="h-10"
               fullWidth={false}
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" height="h-10" fullWidth={false} disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : budget ? 'Save budget' : 'Create budget'}
+            <Button
+              type="submit"
+              fullWidth={false}
+              disabled={isSubmitting}
+              prefixIcon={
+                isSubmitting ? (
+                  <LoaderCircle
+                    size={16}
+                    strokeWidth={1.75}
+                    className="animate-spin motion-reduce:animate-none"
+                  />
+                ) : undefined
+              }
+            >
+              {isSubmitting ? 'Saving' : budget ? 'Save budget' : 'Create budget'}
             </Button>
-          </div>
+          </BaseModalFooter>
         </form>
       </BaseModalContent>
     </BaseModal>

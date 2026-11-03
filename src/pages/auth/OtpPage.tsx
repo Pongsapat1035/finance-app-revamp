@@ -68,7 +68,7 @@ export default function OtpPage() {
         </div>
 
         <div className="mt-8 border-t pt-6 text-xs leading-5 text-muted-foreground">
-          Keep this code private. My finance will never ask you to share it by message or phone.
+          Keep this code private. Ledgr will never ask you to share it by message or phone.
         </div>
       </AuthPanel>
     </AuthPageLayout>

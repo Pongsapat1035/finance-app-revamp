@@ -1,6 +1,7 @@
 import { CircleAlert, CircleCheck, Info, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { cn } from '#/lib/utils'
+import IconButton from '#/components/ui/IconButton'
 
 export type ToastTone = 'success' | 'info' | 'error'
 
@@ -43,7 +44,7 @@ const Toast = ({ title, description, tone = 'success', duration = 4000, onClose 
       <div
         role={tone === 'error' ? 'alert' : 'status'}
         aria-live={tone === 'error' ? 'assertive' : 'polite'}
-        className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-md border bg-background p-3.5 shadow-[0_8px_30px_rgb(22_22_22/0.08)] sm:min-w-[200px]"
+        className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-md border bg-background p-3.5 shadow-[0_8px_30px_rgb(22_22_22/0.08)] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-(--duration-enter) motion-safe:ease-(--ease-out) sm:min-w-[200px]"
       >
         <span className={cn('grid size-8 shrink-0 place-items-center rounded-sm', iconClass)}>
           <ToneIcon size={16} strokeWidth={1.75} aria-hidden="true" />
@@ -54,14 +55,9 @@ const Toast = ({ title, description, tone = 'success', duration = 4000, onClose 
             <p className="mt-1 text-[12px] leading-5 text-muted-foreground">{description}</p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="ds-focus-ring ds-interactive grid size-8 shrink-0 place-items-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-          aria-label="Dismiss notification"
-        >
-          <X size={15} strokeWidth={1.75} aria-hidden="true" />
-        </button>
+        <IconButton size="size-8" onClick={onClose} aria-label="Dismiss notification">
+          <X size={16} strokeWidth={1.75} aria-hidden="true" />
+        </IconButton>
       </div>
     </div>
   )

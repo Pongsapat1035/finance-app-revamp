@@ -16,7 +16,7 @@ const AuthPanel = ({ children }: AuthPanelProps) => {
             className="ds-focus-ring inline-flex items-center gap-3 text-foreground no-underline"
           >
             <LedgrIcon />
-            <span className="text-sm font-medium">My finance</span>
+            <span className="text-sm font-medium">Ledgr</span>
           </Link>
         </div>
         {children}

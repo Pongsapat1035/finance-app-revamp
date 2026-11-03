@@ -63,7 +63,7 @@ function NavigationContent({
       <div className="flex h-16 items-center gap-3 border-b px-4">
         <BrandMark />
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">My finance</p>
+          <p className="truncate text-sm font-medium">Ledgr</p>
           <p className="truncate text-[11px] text-muted-foreground">Personal workspace</p>
         </div>
       </div>
@@ -135,7 +135,7 @@ function NavigationContent({
 
 export function AppSidebar({ activeItem }: { activeItem: NavigationItem }) {
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-56 flex-col border-r bg-sidebar lg:flex">
+    <aside className="ds-vt-sidebar fixed inset-y-0 left-0 hidden w-56 flex-col border-r bg-sidebar lg:flex">
       <NavigationContent activeItem={activeItem} />
     </aside>
   )
@@ -152,7 +152,7 @@ function MobileNavigation({
 }) {
   return (
     <BaseModal open={open} onOpenChange={onOpenChange}>
-      <BaseModalContent className="inset-y-0 left-0 right-auto h-[100dvh] max-h-none w-[min(320px,calc(100%-48px))] rounded-none border-r sm:inset-y-0 sm:left-0 sm:right-auto sm:m-0 sm:h-[100dvh] sm:max-w-[320px] sm:rounded-none">
+      <BaseModalContent className="inset-y-0 left-0 right-auto h-[100dvh] max-h-none w-[min(320px,calc(100%-48px))] rounded-none border-r sm:inset-y-0 sm:left-0 sm:right-auto sm:m-0 sm:h-[100dvh] sm:max-w-[320px] sm:rounded-none data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left data-[state=open]:duration-(--duration-enter) data-[state=open]:ease-(--ease-out)">
         <BaseModalTitle className="sr-only">Application navigation</BaseModalTitle>
         <BaseModalDescription className="sr-only">
           Navigate between finance workspace pages.
@@ -207,7 +207,7 @@ export function MenuSearch({ activeItem }: { activeItem?: NavigationItem }) {
           type="button"
           aria-label="Search menus"
           aria-keyshortcuts="Meta+K Control+K"
-          className="ds-focus-ring flex h-9 min-w-0 shrink-0 items-center gap-2 rounded-sm border bg-muted px-3 text-xs text-muted-foreground hover:text-foreground md:w-full md:max-w-md md:flex-1"
+          className="ds-focus-ring ds-interactive flex h-9 min-w-0 shrink-0 items-center gap-2 rounded-sm border border-input bg-background px-3 text-xs text-muted-foreground hover:bg-muted hover:text-foreground md:w-full md:max-w-md md:flex-1 md:border-border md:bg-muted"
         >
           <Search size={15} strokeWidth={1.75} aria-hidden="true" />
           <span className="hidden truncate md:block">Search menus</span>
@@ -297,20 +297,16 @@ export function MenuSearch({ activeItem }: { activeItem?: NavigationItem }) {
 
 export function AppTopBar({
   activeItem,
-  periodLabel,
-  periodClassName = 'hidden text-xs text-muted-foreground lg:block',
   periodControl,
 }: {
   activeItem: NavigationItem
-  periodLabel?: string
-  periodClassName?: string
   periodControl?: ReactNode
 }) {
   const [navigationOpen, setNavigationOpen] = useState(false)
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b bg-background px-4 sm:px-6 lg:ml-56 lg:px-8">
+      <header className="ds-vt-topbar sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b bg-background px-4 sm:px-6 lg:ml-56 lg:px-8">
         <div className="flex items-center lg:hidden">
           <IconButton
             variant="outline"
@@ -323,11 +319,7 @@ export function AppTopBar({
         </div>
         <MenuSearch activeItem={activeItem} />
         <div className="flex items-center gap-3">
-          {periodControl ? (
-            <div className="shrink-0">{periodControl}</div>
-          ) : (
-            periodLabel && <p className={periodClassName}>{periodLabel}</p>
-          )}
+          {periodControl && <div className="shrink-0">{periodControl}</div>}
           <Link
             to="/profile"
             className="ds-focus-ring grid size-9 place-items-center rounded-full bg-muted no-underline lg:hidden"
@@ -349,27 +341,18 @@ export function AppTopBar({
 
 export function AppPageShell({
   activeItem,
-  periodLabel,
   periodControl,
-  periodClassName,
   children,
 }: {
   activeItem: NavigationItem
-  periodLabel?: string
   periodControl?: ReactNode
-  periodClassName?: string
   children: ReactNode
 }) {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
       <AppSidebar activeItem={activeItem} />
-      <AppTopBar
-        activeItem={activeItem}
-        periodLabel={periodLabel}
-        periodControl={periodControl}
-        periodClassName={periodClassName}
-      />
-      <main className="lg:ml-56">
+      <AppTopBar activeItem={activeItem} periodControl={periodControl} />
+      <main className="ds-vt-page lg:ml-56">
         <div className="mx-auto w-full max-w-330 px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
           {children}
         </div>

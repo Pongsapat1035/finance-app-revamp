@@ -8,8 +8,8 @@ This is a high-trust finance product inspired by the provided Ramp references. T
 
 Design dials:
 
-- Product UI: variance 4, motion 2, density 7.
-- Marketing UI: variance 5, motion 3, density 4.
+- Product UI: variance 4, motion 3, density 7.
+- Marketing UI: variance 5, motion 5, density 4.
 - The product should feel confident and modern, never playful, ornamental, glassy, or futuristic.
 
 ## Source references
@@ -37,28 +37,32 @@ Tokens live in `src/styles.css` as CSS variables and are exposed to Tailwind v4 
 
 ### Color
 
-| Role          | Token                | Value     | Use                                               |
-| ------------- | -------------------- | --------- | ------------------------------------------------- |
-| Canvas        | `--background`       | `#FFFFFF` | Main page and panel background                    |
-| Ink           | `--foreground`       | `#161616` | Primary text, dark buttons, dark utility surfaces |
-| Card          | `--card`             | `#FFFFFF` | Elevated or bounded content                       |
-| Soft surface  | `--muted`            | `#F6F6F4` | Secondary panels, table headers, media wells      |
-| Muted text    | `--muted-foreground` | `#686866` | Supporting copy and metadata                      |
-| Divider       | `--border`           | `#DEDEDB` | Hairlines and component boundaries                |
-| Input border  | `--input`            | `#C9C9C5` | Interactive field boundary                        |
-| Signal        | `--accent`           | `#D7F500` | Primary CTA and rare active signal                |
-| Success       | `--success`          | `#00B852` | Approved, positive, complete                      |
-| Success text  | `--success-text`     | `#007A37` | Accessible labels and icons on success surfaces   |
-| Warning       | `--warning`          | `#F5A000` | Needs review, caution                             |
-| Warning text  | `--warning-text`     | `#854900` | Accessible labels and icons on warning surfaces   |
-| Danger        | `--destructive`      | `#F04438` | Destructive or failed action                      |
-| Danger text   | `--destructive-text` | `#B42318` | Accessible labels and icons on danger surfaces    |
-| Information   | `--info`             | `#3567B7` | Informational states and selected data            |
-| Chart blue    | `--chart-blue`       | `#3B82F6` | Primary comparison series                         |
-| Chart green   | `--chart-green`      | `#00B852` | Positive or cash series                           |
-| Chart berry   | `--chart-plum`       | `#C2467D` | Secondary comparison series                       |
-| Chart amber   | `--chart-amber`      | `#F5A000` | Additional category series                        |
-| Chart neutral | `--chart-neutral`    | `#858581` | Lower-priority category series                    |
+| Role          | Token                      | Value     | Use                                               |
+| ------------- | -------------------------- | --------- | ------------------------------------------------- |
+| Canvas        | `--background`             | `#FFFFFF` | Main page and panel background                    |
+| Ink           | `--foreground`             | `#161616` | Primary text, dark buttons, dark utility surfaces |
+| Card          | `--card`                   | `#FFFFFF` | Elevated or bounded content                       |
+| Soft surface  | `--muted`                  | `#F6F6F4` | Secondary panels, table headers, media wells      |
+| Muted text    | `--muted-foreground`       | `#686866` | Supporting copy and metadata                      |
+| Divider       | `--border`                 | `#DEDEDB` | Hairlines and component boundaries                |
+| Input border  | `--input`                  | `#C9C9C5` | Interactive field boundary                        |
+| Signal        | `--accent`                 | `#D7F500` | Primary CTA and rare active signal                |
+| Signal hover  | `--accent-hover`           | `#C7E600` | Hover surface of the primary button               |
+| Ink hover     | `--primary-hover`          | `#30302F` | Hover surface of dark buttons and selected dates  |
+| Danger hover  | `--destructive-text-hover` | `#9A1E14` | Hover surface of destructive buttons              |
+| Danger soft   | `--destructive-soft`       | `#FFF1F0` | Hover and notice surfaces for destructive actions |
+| Success       | `--success`                | `#00B852` | Approved, positive, complete                      |
+| Success text  | `--success-text`           | `#007A37` | Accessible labels and icons on success surfaces   |
+| Warning       | `--warning`                | `#F5A000` | Needs review, caution                             |
+| Warning text  | `--warning-text`           | `#854900` | Accessible labels and icons on warning surfaces   |
+| Danger        | `--destructive`            | `#F04438` | Destructive or failed action                      |
+| Danger text   | `--destructive-text`       | `#B42318` | Accessible labels and icons on danger surfaces    |
+| Information   | `--info`                   | `#3567B7` | Informational states and selected data            |
+| Chart blue    | `--chart-blue`             | `#3B82F6` | Primary comparison series                         |
+| Chart green   | `--chart-green`            | `#00B852` | Positive or cash series                           |
+| Chart berry   | `--chart-plum`             | `#C2467D` | Secondary comparison series                       |
+| Chart amber   | `--chart-amber`            | `#F5A000` | Additional category series                        |
+| Chart neutral | `--chart-neutral`          | `#858581` | Lower-priority category series                    |
 
 Color rules:
 
@@ -146,10 +150,16 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 ### Buttons
 
-- Primary finance action: chartreuse background, near-black text, 40px height, 4px radius.
+- Always render buttons with `Button`. Links that look like buttons use `buttonClasses()` from the same file. Do not hand-write button classes.
+- Sizes: `default` 40px for every standard action, including auth and marketing. `md` 36px and `sm` 32px are only for dense rows, empty states, and inline secondary actions. There is no 44px button.
+- Primary finance action: chartreuse background, near-black text, 4px radius.
 - Dark action: near-black background, white text.
-- Secondary action: white background, 1px border.
-- Ghost action: transparent, with a clear hover surface.
+- Secondary action (`outline`): white background, 1px input border.
+- Ghost action: transparent, muted text, with a clear hover surface.
+- Destructive action: white text on dark red (`--destructive-text`).
+- Hover colors come from the hover tokens. Disabled buttons use 50% opacity.
+- Icons inside buttons are 16px with `strokeWidth={1.75}`.
+- Modal footer buttons are text only. The submit button shows a spinner while it works.
 - One primary action per view or bounded workflow region.
 - Button labels should be direct verbs and stay on one line.
 - Active state moves down by 1px. Focus uses a 2px near-black ring with 2px offset.
@@ -224,7 +234,10 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 ### Modal layout
 
-- Compose longer dialogs from `BaseModalHeader`, `BaseModalBody`, and `BaseModalFooter`.
+- Compose every form dialog from `BaseModalHeader`, `BaseModalBody`, and `BaseModalFooter`.
+- The title is 18px medium with `-0.02em` tracking. The description below it is 12px muted text. Form dialogs do not use a tone icon; that is reserved for confirm dialogs.
+- Widths follow the content: 448px for one or two fields, 520px by default, and 672px for two-column forms.
+- Every overlay is `#161616` at 35 percent. The close button is a 32px ghost icon button.
 - The header and footer remain fixed. Only `BaseModalBody` scrolls, and its scrollbar is visually hidden in Chrome and Safari while wheel, touch, and keyboard scrolling remain available.
 - Existing simple dialogs can keep `BaseModalContent`'s default whole-panel scrolling until they are migrated to this layout.
 
@@ -232,6 +245,8 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 - Use a card only when a border, distinct surface, or grouping communicates real hierarchy.
 - Dashboard metrics may share one bounded panel with internal dividers.
+- Use `MetricCard` for every metric. Every metric shows an icon at the top right. Pass `loading` to show the value-shaped skeleton; never show a dash as a placeholder.
+- Four-metric strips are two columns on phones and four on wide screens.
 - Marketing imagery lives in `--muted` media wells with 8px radius.
 - Avoid three identical floating cards as a default page composition.
 - In the Dashboard upcoming recurring list, place the due date before a blue informational marker, followed by the category, description, and right-aligned amount. Show the year and do not imply a time of day.
@@ -270,6 +285,8 @@ This project uses shadcn conventions. New primitives should be added under `src/
 - The search dialog uses the existing modal and search input. Focus the input on open, support arrow keys and Enter for navigation, Escape to close, and a readable no-results state. Return focus to the trigger when dismissed.
 - Use the shared `LedgrIcon` at 32px for workspace and design-system navigation branding.
 - Use a Lucide `UserRound` icon in a neutral circular placeholder when no account photo is available.
+- The sidebar brand reads "Ledgr" with "Personal workspace" below it.
+- The right side of the top bar holds the page's period control only, such as the month picker. A page without a period leaves it empty. Page-level switches, such as Monthly and Yearly on the dashboard, sit in the page header action slot.
 - Show Settings and Log out as separate sidebar actions, including in mobile navigation. Settings links to the profile page and shows its active state there. Confirm before logging out.
 - In compact app bars, show the navigation menu without a second brand mark. Keep the month picker visible when a page provides one.
 - Desktop product sidebar: 216-240px.
@@ -300,7 +317,7 @@ This project uses shadcn conventions. New primitives should be added under `src/
 ### Product pages
 
 1. Persistent shell: sidebar, command/search bar, and content canvas.
-2. Page header: title, supporting context, primary action aligned to the right.
+2. Page header: use `PageHeader` (eyebrow, title, description, optional action aligned to the right). On phones the action spans the full width.
 3. Overview data: shared bounded panel or clear grid, not floating decorative cards.
 4. Operational content: tabs, filters, table or list, pagination.
 5. Mobile: collapse to one column, move secondary actions into a menu, preserve value and status labels.
@@ -316,13 +333,37 @@ This project uses shadcn conventions. New primitives should be added under `src/
 
 ## Motion
 
-Default motion intensity is low.
+Motion explains what changed: a page arrived, a value loaded, a bar filled. Product UI uses motion level 3 and marketing uses level 5. Tokens and utilities live in `src/styles.css`, with live examples on `/design-system#motion`.
 
-- Use 120-180ms transitions for hover, focus, selection, and disclosure.
+| Token               | Value                            | Use                                                        |
+| ------------------- | -------------------------------- | ---------------------------------------------------------- |
+| `--duration-fast`   | 140ms                            | Hover, focus, press, and color changes                     |
+| `--duration-base`   | 220ms                            | Page crossfade, values replacing skeletons, tab indicators |
+| `--duration-enter`  | 300ms                            | Headers, toasts, drawers, and panels entering              |
+| `--duration-reveal` | 600ms                            | Marketing entrance and scroll reveal                       |
+| `--ease-out`        | `cubic-bezier(0.22, 1, 0.36, 1)` | Anything arriving                                          |
+| `--ease-in-out`     | `cubic-bezier(0.65, 0, 0.35, 1)` | Anything moving between two positions                      |
+
+Product UI:
+
+- Route changes use the View Transitions API (`defaultViewTransition` in `src/router.tsx`). The content area fades out in 120ms and rises in over 220ms. The sidebar and top bar keep their own transition names so they do not move.
+- Page headers enter with `.ds-enter`. Metric values replace skeletons with `.ds-value-in`.
+- Progress fills and stacked bars grow from the left with `.ds-grow-x`, using `scaleX` rather than width. Chart bars grow from the baseline with `.ds-grow-y` and a 12ms stagger.
+- Tab and segmented control indicators slide to the selected option.
+- Toasts and drawers slide in from their edge with `--duration-enter`.
+- Do not animate table rows or count numbers up in product UI. These pages are used every day and repeated motion reads as slowness.
+
+Marketing UI:
+
+- The hero enters on load with `.ds-rise`, staggered 80ms per element. The example card uses `.ds-pop` and its numbers count up once.
+- Sections below the hero reveal once on scroll with `useReveal()`, `.ds-reveal`, and `.ds-reveal-item`. Rows inside a revealed card use `.ds-reveal-rows`.
+
+Always:
+
 - Animate opacity and transform only.
-- No automatic marquee, parallax, magnetic buttons, glow, or scroll hijacking in product UI.
-- Loading uses skeletons shaped like the final content, not generic spinners.
-- Honor `prefers-reduced-motion` for every non-essential animation.
+- No automatic marquee, parallax, magnetic buttons, glow, or scroll hijacking.
+- Loading uses skeletons shaped like the final content, not generic spinners. A spinner is allowed inside a button that is submitting.
+- Every utility above is off under `prefers-reduced-motion`. Content must be fully visible without JavaScript.
 
 ## Content and data
 

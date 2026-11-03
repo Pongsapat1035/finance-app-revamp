@@ -2,6 +2,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { CircleAlert, LoaderCircle, TriangleAlert, X } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '#/lib/utils'
+import { buttonClasses, type ButtonVariant } from '#/components/ui/Button'
 
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
@@ -58,17 +59,17 @@ type ConfirmTone = 'default' | 'destructive'
 
 const toneStyles: Record<
   ConfirmTone,
-  { icon: typeof CircleAlert; iconClass: string; confirmClass: string }
+  { icon: typeof CircleAlert; iconClass: string; confirmVariant: ButtonVariant }
 > = {
   default: {
     icon: CircleAlert,
     iconClass: 'bg-info-soft text-info',
-    confirmClass: 'bg-primary text-primary-foreground hover:bg-[#30302f]',
+    confirmVariant: 'dark',
   },
   destructive: {
     icon: TriangleAlert,
     iconClass: 'bg-[#fee4e2] text-destructive-text',
-    confirmClass: 'bg-destructive-text text-primary-foreground hover:bg-destructive-text/90',
+    confirmVariant: 'destructive',
   },
 }
 
@@ -107,7 +108,7 @@ const ConfirmModal = ({
   error,
   onConfirm,
 }: ConfirmModalProps) => {
-  const { icon: ToneIcon, iconClass, confirmClass } = toneStyles[tone]
+  const { icon: ToneIcon, iconClass, confirmVariant } = toneStyles[tone]
 
   return (
     <Dialog open={open} onOpenChange={(next) => !loading && onOpenChange(next)}>
@@ -148,7 +149,7 @@ const ConfirmModal = ({
             <button
               type="button"
               disabled={loading}
-              className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center rounded-sm border bg-background px-4 text-sm font-medium hover:bg-muted disabled:pointer-events-none disabled:opacity-45"
+              className={buttonClasses({ variant: 'outline' })}
             >
               {cancelLabel}
             </button>
@@ -157,10 +158,7 @@ const ConfirmModal = ({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={cn(
-              'ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center gap-2 rounded-sm px-4 text-sm font-medium disabled:pointer-events-none disabled:opacity-70',
-              confirmClass,
-            )}
+            className={buttonClasses({ variant: confirmVariant })}
           >
             {loading && (
               <LoaderCircle

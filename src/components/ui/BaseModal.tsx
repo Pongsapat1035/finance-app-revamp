@@ -10,7 +10,7 @@ function BaseModalOverlay({ className, ...props }: ComponentProps<typeof DialogP
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        'fixed inset-0 z-50 bg-black/45',
+        'fixed inset-0 z-50 bg-foreground/35',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none',
         className,
       )}
@@ -47,8 +47,8 @@ function BaseModalContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close asChild>
-            <IconButton className="absolute right-4 top-4" aria-label="Close dialog">
-              <X size={17} />
+            <IconButton size="size-8" className="absolute right-4 top-4" aria-label="Close dialog">
+              <X size={16} strokeWidth={1.75} />
             </IconButton>
           </DialogPrimitive.Close>
         )}

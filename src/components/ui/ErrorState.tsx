@@ -39,14 +39,7 @@ const ErrorState = ({
       {action ? (
         <div className="mt-5">{action}</div>
       ) : onRetry ? (
-        <Button
-          variant="outline"
-          size="sm"
-          height="h-9"
-          fullWidth={false}
-          className="mt-5"
-          onClick={onRetry}
-        >
+        <Button variant="outline" size="md" fullWidth={false} className="mt-5" onClick={onRetry}>
           {retryLabel}
         </Button>
       ) : null}

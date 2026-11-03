@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '#/lib/utils'
@@ -9,11 +9,14 @@ export interface MetricCardProps {
   note: string
   value?: number
   displayValue?: ReactNode
+  /** Shows a value-shaped skeleton instead of the value. */
+  loading?: boolean
   icon?: LucideIcon
   iconSize?: number
   formatValue?: (value: number) => ReactNode
   tone?: 'auto' | 'neutral'
   className?: string
+  style?: CSSProperties
   valueClassName?: string
   noteClassName?: string
 }
@@ -23,11 +26,13 @@ const MetricCard = ({
   value,
   note,
   displayValue,
+  loading = false,
   icon: Icon,
   iconSize = 16,
   formatValue = formatNumber,
   tone = 'auto',
   className,
+  style,
   valueClassName,
   noteClassName,
 }: MetricCardProps) => {
@@ -43,7 +48,7 @@ const MetricCard = ({
             : undefined
 
   return (
-    <article className={cn('bg-background p-5', className)}>
+    <article className={cn('bg-background p-5', className)} style={style}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">{label}</p>
         {Icon && (
@@ -61,7 +66,16 @@ const MetricCard = ({
           valueClassName,
         )}
       >
-        {displayValue ?? (value === undefined ? null : formatValue(value))}
+        {loading ? (
+          <span
+            className="block h-8 w-28 rounded-sm bg-muted motion-safe:animate-pulse"
+            aria-label={`Loading ${label.toLowerCase()}`}
+          />
+        ) : (
+          <span className="ds-value-in block">
+            {displayValue ?? (value === undefined ? null : formatValue(value))}
+          </span>
+        )}
       </p>
       <p className={cn('mt-1.5 text-[11px] text-muted-foreground', noteClassName)}>{note}</p>
     </article>

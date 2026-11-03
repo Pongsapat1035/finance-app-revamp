@@ -1,10 +1,21 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import dayjs from 'dayjs'
-import { CalendarDays, CircleAlert, Ellipsis, Pencil, Plus, Trash2 } from 'lucide-react'
+import {
+  ArrowUpRight,
+  CalendarDays,
+  CircleAlert,
+  Ellipsis,
+  Pencil,
+  PiggyBank,
+  Plus,
+  Target,
+  Trash2,
+} from 'lucide-react'
 
 import type { BudgetRow } from '#/api/budget/budget.type'
 import BudgetFormModal from '#/components/budgets/BudgetFormModal'
 import { AppPageShell } from '#/components/app-shell'
+import { PageHeader } from '#/components/page-header'
 import Button from '#/components/ui/Button'
 import ConfirmModal from '#/components/ui/ConfirmModal'
 import DatePickerField from '#/components/ui/DatePicker'
@@ -128,28 +139,22 @@ export default function BudgetsPage() {
         />
       }
     >
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Monthly plan</p>
-          <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
-            Budgets
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Set category limits and see where this month&apos;s plan needs attention.
-          </p>
-        </div>
-        <Button
-          type="button"
-          onClick={openCreate}
-          disabled={!budgetQuery.isSuccess}
-          height="h-10"
-          fullWidth={false}
-          prefixIcon={<Plus size={16} strokeWidth={1.75} />}
-          className="whitespace-nowrap"
-        >
-          Create budget
-        </Button>
-      </div>
+      <PageHeader
+        eyebrow="Monthly plan"
+        title="Budgets"
+        description="Set category limits and see where this month's plan needs attention."
+        action={
+          <Button
+            type="button"
+            onClick={openCreate}
+            disabled={!budgetQuery.isSuccess}
+            fullWidth={false}
+            prefixIcon={<Plus size={16} strokeWidth={1.75} />}
+          >
+            Create budget
+          </Button>
+        }
+      />
 
       <section
         className="mt-8 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3"
@@ -157,8 +162,9 @@ export default function BudgetsPage() {
       >
         <MetricCard
           label="Planned"
+          icon={Target}
           value={summary?.totalPlanned}
-          displayValue={summary ? undefined : '—'}
+          loading={budgetQuery.isPending}
           note={
             summary
               ? `Across ${formatNumber(summary.plannedBudgetCount)} budgets`
@@ -170,8 +176,9 @@ export default function BudgetsPage() {
         />
         <MetricCard
           label="Spent"
+          icon={ArrowUpRight}
           value={summary?.totalSpent}
-          displayValue={summary ? undefined : '—'}
+          loading={budgetQuery.isPending}
           note={
             summary
               ? `${formatNumber(summary.percentOfPlanned)}% of planned`
@@ -183,8 +190,9 @@ export default function BudgetsPage() {
         />
         <MetricCard
           label="Remaining"
+          icon={PiggyBank}
           value={summary?.totalRemaining}
-          displayValue={summary ? undefined : '—'}
+          loading={budgetQuery.isPending}
           note={`For ${monthLabel}`}
         />
       </section>
@@ -199,7 +207,7 @@ export default function BudgetsPage() {
               </p>
             </div>
             {budgetQuery.isSuccess && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
                 {formatNumber(summary?.plannedBudgetCount ?? 0)}{' '}
                 {summary?.plannedBudgetCount === 1 ? 'plan' : 'plans'}
               </p>
@@ -229,13 +237,7 @@ export default function BudgetsPage() {
               title="No budgets for this month"
               description="Create a monthly plan for a category to track spending."
               action={
-                <Button
-                  type="button"
-                  variant="outline"
-                  height="h-10"
-                  fullWidth={false}
-                  onClick={openCreate}
-                >
+                <Button type="button" variant="outline" fullWidth={false} onClick={openCreate}>
                   Create budget
                 </Button>
               }
@@ -314,7 +316,6 @@ export default function BudgetsPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  height="h-8"
                   fullWidth={false}
                   onClick={() => void upcomingQuery.refetch()}
                   className="mt-2"
@@ -409,8 +410,10 @@ function BudgetCategoryRow({
 }) {
   const name = categoryName(row)
   const isOverPlan = row.isOverBudget
+  // Skip words like "&" so "Food & Dining" becomes "FD", not "F&"
   const initials = name
     .split(/\s+/)
+    .filter((word) => /^[\p{L}\p{N}]/u.test(word))
     .slice(0, 2)
     .map((word) => word[0])
     .join('')
@@ -423,18 +426,20 @@ function BudgetCategoryRow({
           {initials}
         </span>
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-            <p className="truncate text-sm font-medium">{name}</p>
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="min-w-0 truncate text-sm font-medium">{name}</p>
             <p className="shrink-0 font-mono text-xs font-medium tabular-nums">
               {formatNumber(row.spent)}{' '}
               <span className="text-muted-foreground">of {formatNumber(row.planned)}</span>
             </p>
           </div>
           <div className="mt-2.5 h-1.5 overflow-hidden rounded-[1px] bg-muted">
+            {/* scaleX instead of width so the fill can animate on the compositor */}
             <span
-              className="block h-full"
+              className="ds-grow-x block h-full w-full"
               style={{
-                width: `${row.percentUsed}%`,
+                transform: `scaleX(${Math.min(row.percentUsed, 100) / 100})`,
+                ...({ '--ds-delay': `${index * 40}ms` } as CSSProperties),
                 backgroundColor: isOverPlan
                   ? 'var(--warning)'
                   : chartColors[index % chartColors.length],
@@ -443,7 +448,9 @@ function BudgetCategoryRow({
           </div>
           <div className="mt-1.5 flex items-center justify-between gap-3 text-[10px] text-muted-foreground">
             <span>
-              {row.planned > 0 ? `${formatNumber(row.percentUsed)}% used` : 'Zero planned'}
+              {row.planned > 0
+                ? `${formatNumber(Math.round(row.percentUsed * 10) / 10)}% used`
+                : 'Zero planned'}
             </span>
             <span className={isOverPlan ? 'font-medium text-warning-text' : undefined}>
               {isOverPlan

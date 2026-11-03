@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
-import { CalendarClock, CircleAlert, LoaderCircle, Plus, Save, X } from 'lucide-react'
+import { CircleAlert, LoaderCircle, X } from 'lucide-react'
 
 import type { RecurringTransaction } from '#/api/recurring-transaction/recurring-transaction.type'
 import BaseModal, {
@@ -172,25 +172,21 @@ const RecurringFormModal = ({
           }}
         >
           <BaseModalHeader className="flex items-start justify-between gap-4">
-            <div className="flex min-w-0 gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-sm bg-info-soft text-info">
-                <CalendarClock size={18} strokeWidth={1.75} />
-              </span>
-              <div>
-                <BaseModalTitle className="text-lg font-medium tracking-[-0.02em]">
-                  {editing ? 'Edit recurring transaction' : 'Create recurring transaction'}
-                </BaseModalTitle>
-                <BaseModalDescription className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Set the amount and monthly billing day for this schedule.
-                </BaseModalDescription>
-              </div>
+            <div className="min-w-0">
+              <BaseModalTitle className="text-lg font-medium tracking-[-0.02em]">
+                {editing ? 'Edit recurring transaction' : 'Create recurring transaction'}
+              </BaseModalTitle>
+              <BaseModalDescription className="mt-1 text-xs leading-5 text-muted-foreground">
+                Set the amount and monthly billing day for this schedule.
+              </BaseModalDescription>
             </div>
             <IconButton
+              size="size-8"
               aria-label="Close dialog"
               disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
             >
-              <X size={17} strokeWidth={1.75} />
+              <X size={16} strokeWidth={1.75} />
             </IconButton>
           </BaseModalHeader>
 
@@ -342,7 +338,6 @@ const RecurringFormModal = ({
               <Button
                 type="button"
                 variant="outline"
-                height="h-10"
                 fullWidth={false}
                 disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
@@ -351,7 +346,6 @@ const RecurringFormModal = ({
               </Button>
               <Button
                 type="submit"
-                height="h-10"
                 fullWidth={false}
                 disabled={
                   isSubmitting ||
@@ -361,12 +355,12 @@ const RecurringFormModal = ({
                 }
                 prefixIcon={
                   isSubmitting ? (
-                    <LoaderCircle size={15} className="animate-spin motion-reduce:animate-none" />
-                  ) : editing ? (
-                    <Save size={15} />
-                  ) : (
-                    <Plus size={15} />
-                  )
+                    <LoaderCircle
+                      size={16}
+                      strokeWidth={1.75}
+                      className="animate-spin motion-reduce:animate-none"
+                    />
+                  ) : undefined
                 }
               >
                 {isSubmitting ? 'Saving' : editing ? 'Save changes' : 'Create recurring'}

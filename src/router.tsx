@@ -13,6 +13,8 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
+    // Crossfade between pages; styles.css keeps the sidebar and top bar still
+    defaultViewTransition: true,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: context.queryClient })

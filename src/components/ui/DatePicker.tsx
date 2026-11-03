@@ -168,7 +168,7 @@ function DatePickerField({
                         }}
                         className={cn(
                           'ds-focus-ring h-9 rounded-sm text-[13px] hover:bg-muted disabled:pointer-events-none disabled:text-muted-foreground disabled:opacity-35',
-                          isSelected && 'bg-foreground text-background hover:bg-[#30302f]',
+                          isSelected && 'bg-foreground text-background hover:bg-primary-hover',
                         )}
                       >
                         {monthName}
@@ -208,7 +208,7 @@ function DatePickerField({
                   [UI.Day]: 'size-8 p-0 text-center',
                   [UI.DayButton]:
                     'ds-focus-ring flex size-8 items-center justify-center rounded-sm text-[13px] hover:bg-muted',
-                  [SelectionState.selected]: 'bg-foreground text-background hover:bg-[#30302f]',
+                  [SelectionState.selected]: 'bg-foreground text-background hover:bg-primary-hover',
                   [DayFlag.today]: 'font-semibold text-info',
                   [DayFlag.outside]: 'text-muted-foreground opacity-40',
                   [DayFlag.disabled]: 'cursor-not-allowed text-muted-foreground opacity-35',
