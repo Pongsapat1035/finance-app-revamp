@@ -22,7 +22,7 @@ function useCountUp(target: number, startDelay = 0) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let frame = 0
-    const duration = 900
+    const duration = 1350
     const start = performance.now() + startDelay
     const tick = (now: number) => {
       const progress = Math.min(Math.max((now - start) / duration, 0), 1)

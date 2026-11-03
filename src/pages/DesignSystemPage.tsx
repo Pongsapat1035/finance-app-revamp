@@ -141,9 +141,9 @@ function SectionHeading({ title, description }: { title: string; description: st
 
 const motionTokens = [
   ['--duration-fast', '140ms', 'Hover, focus, press, and color changes'],
-  ['--duration-base', '220ms', 'Page crossfade, values replacing skeletons, tab indicators'],
-  ['--duration-enter', '300ms', 'Headers, toasts, drawers, and panels entering'],
-  ['--duration-reveal', '600ms', 'Marketing entrance and scroll reveal'],
+  ['--duration-base', '320ms', 'Page crossfade, values replacing skeletons, tab indicators'],
+  ['--duration-enter', '450ms', 'Headers, toasts, drawers, and panels entering'],
+  ['--duration-reveal', '900ms', 'Marketing entrance and scroll reveal'],
   ['--ease-out', 'cubic-bezier(0.22, 1, 0.36, 1)', 'Anything arriving'],
   ['--ease-in-out', 'cubic-bezier(0.65, 0, 0.35, 1)', 'Anything moving between two positions'],
 ]

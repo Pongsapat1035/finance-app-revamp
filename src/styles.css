@@ -37,9 +37,9 @@
 
   /* Motion. See the Motion section in /design.md. */
   --duration-fast: 140ms;
-  --duration-base: 220ms;
-  --duration-enter: 300ms;
-  --duration-reveal: 600ms;
+  --duration-base: 320ms;
+  --duration-enter: 450ms;
+  --duration-reveal: 900ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
@@ -266,20 +266,20 @@
   }
 
   .ds-pop {
-    animation: ds-pop 700ms var(--ease-out) both;
+    animation: ds-pop 1050ms var(--ease-out) both;
     animation-delay: var(--ds-delay, 0ms);
   }
 
   .ds-grow-x {
     transform-origin: left;
-    animation: ds-grow-x 500ms var(--ease-out) both;
+    animation: ds-grow-x 750ms var(--ease-out) both;
     animation-delay: var(--ds-delay, 0ms);
-    transition: transform 500ms var(--ease-out);
+    transition: transform 750ms var(--ease-out);
   }
 
   .ds-grow-y {
     transform-origin: bottom;
-    animation: ds-grow-y 400ms var(--ease-out) both;
+    animation: ds-grow-y 600ms var(--ease-out) both;
     animation-delay: var(--ds-delay, 0ms);
   }
 
@@ -300,23 +300,23 @@
 
   /* Rows inside a revealed card arrive one after another */
   .ds-reveal[data-visible] .ds-reveal-rows > * {
-    animation: ds-rise 500ms var(--ease-out) both;
+    animation: ds-rise 750ms var(--ease-out) both;
   }
 
   .ds-reveal-rows > :nth-child(1) {
-    animation-delay: 200ms;
+    animation-delay: 300ms;
   }
   .ds-reveal-rows > :nth-child(2) {
-    animation-delay: 280ms;
+    animation-delay: 420ms;
   }
   .ds-reveal-rows > :nth-child(3) {
-    animation-delay: 360ms;
+    animation-delay: 540ms;
   }
   .ds-reveal-rows > :nth-child(4) {
-    animation-delay: 440ms;
+    animation-delay: 660ms;
   }
   .ds-reveal-rows > :nth-child(n + 5) {
-    animation-delay: 520ms;
+    animation-delay: 780ms;
   }
 
   /* Route changes: the app content crossfades while the sidebar and top bar stay put */
@@ -327,7 +327,7 @@
   }
 
   ::view-transition-old(page) {
-    animation: ds-page-out 120ms var(--ease-out) both;
+    animation: ds-page-out 180ms var(--ease-out) both;
   }
 
   ::view-transition-new(page) {
