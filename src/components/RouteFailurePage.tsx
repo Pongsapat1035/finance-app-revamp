@@ -1,14 +1,11 @@
 import { ArrowLeft, CircleAlert, House } from 'lucide-react'
 
 import type { ErrorComponentProps, NotFoundRouteProps } from '@tanstack/react-router'
-import Button from '#/components/ui/Button'
+import Button, { buttonClasses } from '#/components/ui/Button'
 
 function RecoveryLink({ children }: { children: React.ReactNode }) {
   return (
-    <a
-      href="/"
-      className="ds-focus-ring ds-interactive inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-input bg-background px-4 text-sm font-medium text-foreground no-underline hover:bg-muted"
-    >
+    <a href="/" className={buttonClasses({ variant: 'outline' })}>
       {children}
     </a>
   )
@@ -57,7 +54,12 @@ export default function RouteErrorPage({ reset }: ErrorComponentProps) {
       title="We could not open this page"
       description="Your financial data is still safe. Try loading this page again, or return to the overview."
     >
-      <Button type="button" fullWidth={false} onClick={reset} prefixIcon={<ArrowLeft size={16} />}>
+      <Button
+        type="button"
+        fullWidth={false}
+        onClick={reset}
+        prefixIcon={<ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" />}
+      >
         Try again
       </Button>
       <RecoveryLink>

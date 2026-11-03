@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Plus, ReceiptText } from 'lucide-react'
 
 import { AppSidebar, AppTopBar } from '#/components/app-shell'
+import { PageHeader } from '#/components/page-header'
 import TransactionActionsMenu from '#/components/transactions/TransactionActionsMenu'
 import TransactionModal from '#/components/transactions/TransactionModal'
 import TransactionSummary from '#/components/transactions/TransactionSummary'
@@ -364,27 +365,22 @@ export default function TransactionsPage() {
         }
       />
 
-      <main className="lg:ml-56">
+      <main className="ds-vt-page lg:ml-56">
         <div className="mx-auto w-full max-w-330 px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Money activity</p>
-              <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
-                Transactions
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Track income, expenses, and investments across your personal accounts.
-              </p>
-            </div>
-            <Button
-              height="h-10"
-              fullWidth={false}
-              onClick={openCreateModal}
-              prefixIcon={<Plus size={16} />}
-            >
-              Add transaction
-            </Button>
-          </div>
+          <PageHeader
+            eyebrow="Money activity"
+            title="Transactions"
+            description="Track income, expenses, and investments across your personal accounts."
+            action={
+              <Button
+                fullWidth={false}
+                onClick={openCreateModal}
+                prefixIcon={<Plus size={16} strokeWidth={1.75} />}
+              >
+                Add transaction
+              </Button>
+            }
+          />
 
           <div className="mt-8">
             <TransactionSummary
@@ -461,14 +457,12 @@ export default function TransactionsPage() {
                       {
                         label: 'Clear filters',
                         variant: 'outline',
-                        size: 'sm',
-                        height: 'h-9',
+                        size: 'md',
                         onClick: handleClearFilters,
                       },
                       {
                         label: 'Add transaction',
-                        size: 'sm',
-                        height: 'h-9',
+                        size: 'md',
                         onClick: openCreateModal,
                       },
                     ]
@@ -476,7 +470,6 @@ export default function TransactionsPage() {
                       {
                         label: 'Add transaction',
                         variant: 'dark',
-                        height: 'h-10',
                         icon: Plus,
                         onClick: openCreateModal,
                       },

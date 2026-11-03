@@ -2,16 +2,19 @@ import { useState } from 'react'
 import dayjs from 'dayjs'
 import {
   CalendarClock,
+  CalendarDays,
   CirclePause,
   CirclePlay,
   Ellipsis,
   Pencil,
   Plus,
+  Repeat,
   Trash2,
 } from 'lucide-react'
 
 import type { RecurringTransaction } from '#/api/recurring-transaction/recurring-transaction.type'
 import { AppPageShell } from '#/components/app-shell'
+import { PageHeader } from '#/components/page-header'
 import RecurringFormModal, {
   type RecurringFormValues,
 } from '#/components/recurring/RecurringFormModal'
@@ -291,26 +294,21 @@ export default function RecurringPage() {
   ]
 
   return (
-    <AppPageShell activeItem="Recurring" periodLabel="Monthly schedules">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Scheduled money activity</p>
-          <h1 className="mt-2 text-[34px] font-medium leading-tight tracking-[-0.045em] sm:text-[40px]">
-            Recurring
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Manage monthly income and expenses before they appear in your transaction history.
-          </p>
-        </div>
-        <Button
-          height="h-10"
-          fullWidth={false}
-          onClick={openCreate}
-          prefixIcon={<Plus size={16} />}
-        >
-          Create recurring
-        </Button>
-      </div>
+    <AppPageShell activeItem="Recurring">
+      <PageHeader
+        eyebrow="Scheduled money activity"
+        title="Recurring"
+        description="Manage monthly income and expenses before they appear in your transaction history."
+        action={
+          <Button
+            fullWidth={false}
+            onClick={openCreate}
+            prefixIcon={<Plus size={16} strokeWidth={1.75} />}
+          >
+            Create recurring
+          </Button>
+        }
+      />
 
       <section
         className="mt-8 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3"
@@ -318,6 +316,7 @@ export default function RecurringPage() {
       >
         <MetricCard
           label="Expected each month"
+          icon={CalendarClock}
           value={expectedTotal}
           note="Across active schedules"
           formatValue={formatNumber}
@@ -325,6 +324,7 @@ export default function RecurringPage() {
         />
         <MetricCard
           label="Active schedules"
+          icon={Repeat}
           value={activeScheduleCount}
           note={`${formatNumber(Math.max(0, scheduleCount - activeScheduleCount))} paused`}
           tone="neutral"
@@ -332,6 +332,7 @@ export default function RecurringPage() {
         />
         <MetricCard
           label="Next scheduled"
+          icon={CalendarDays}
           displayValue={nextTransaction ? dayjs(nextTransaction.dueDate).format('MMM D') : 'None'}
           note={nextTransaction?.description ?? 'No active schedules'}
           noteClassName="truncate"
@@ -440,14 +441,12 @@ export default function RecurringPage() {
             {
               label: 'Clear filters',
               variant: 'outline',
-              size: 'sm',
-              height: 'h-9',
+              size: 'md',
               onClick: clearFilters,
             },
             {
               label: 'Create recurring',
-              size: 'sm',
-              height: 'h-9',
+              size: 'md',
               onClick: openCreate,
             },
           ],

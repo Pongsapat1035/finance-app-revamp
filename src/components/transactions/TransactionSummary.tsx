@@ -62,7 +62,7 @@ const TransactionSummary = ({
         {monthLabel} totals (THB). Includes all transactions for the month.
       </p>
       <section
-        className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border xl:grid-cols-4"
         aria-label={`${monthLabel} transaction summary`}
         aria-busy={isLoading}
       >
@@ -71,25 +71,10 @@ const TransactionSummary = ({
             title="Could not load transaction summary"
             onRetry={onRetry}
             retryLabel="Retry summary"
-            className="bg-background sm:col-span-2 xl:col-span-4"
+            className="col-span-2 bg-background xl:col-span-4"
           />
         ) : (
-          summaryItems.map((item) => (
-            <MetricCard
-              key={item.label}
-              {...item}
-              displayValue={
-                isLoading ? (
-                  <span
-                    className="block h-8 w-32 rounded-sm bg-muted motion-safe:animate-pulse"
-                    aria-label={`Loading ${item.label.toLowerCase()}`}
-                  />
-                ) : undefined
-              }
-              className="p-5 sm:p-6"
-              valueClassName="text-[25px]"
-            />
-          ))
+          summaryItems.map((item) => <MetricCard key={item.label} {...item} loading={isLoading} />)
         )}
       </section>
     </div>

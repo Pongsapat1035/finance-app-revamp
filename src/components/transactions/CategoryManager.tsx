@@ -159,12 +159,10 @@ const CategoryManager = ({
           </div>
           <Button
             variant="dark"
-            height="h-10"
-            padding="px-3.5"
             fullWidth={false}
             onClick={addCategory}
             disabled={isLoading || Boolean(error) || isCreating}
-            prefixIcon={<Plus size={15} />}
+            prefixIcon={<Plus size={16} strokeWidth={1.75} />}
           >
             Add
           </Button>
@@ -200,9 +198,7 @@ const CategoryManager = ({
               <p className="mt-1 text-xs text-muted-foreground">{error}</p>
               <Button
                 variant="outline"
-                size="sm"
-                height="h-9"
-                padding="px-3"
+                size="md"
                 fullWidth={false}
                 className="mt-4"
                 onClick={onRetry}
@@ -226,7 +222,7 @@ const CategoryManager = ({
                 return (
                   <div key={category.id} className="p-3">
                     {isDeleting ? (
-                      <div className="flex flex-wrap items-center gap-3 rounded-sm bg-[#fff1f0] p-3">
+                      <div className="flex flex-wrap items-center gap-3 rounded-sm bg-destructive-soft p-3">
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-medium text-destructive-text">
                             Delete {category.title}?
@@ -238,8 +234,6 @@ const CategoryManager = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          height="h-8"
-                          padding="px-2.5"
                           fullWidth={false}
                           onClick={() => setDeletingId(null)}
                         >
@@ -248,8 +242,6 @@ const CategoryManager = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          height="h-8"
-                          padding="px-2.5"
                           fullWidth={false}
                           className="text-destructive-text"
                           onClick={() => deleteCategory(category.id)}
@@ -327,10 +319,10 @@ const CategoryManager = ({
       </BaseModalBody>
 
       <BaseModalFooter className="flex justify-end gap-2">
-        <Button variant="outline" height="h-10" fullWidth={false} onClick={onBack}>
+        <Button variant="outline" fullWidth={false} onClick={onBack}>
           Back
         </Button>
-        <Button variant="dark" height="h-10" fullWidth={false} onClick={onBack}>
+        <Button variant="dark" fullWidth={false} onClick={onBack}>
           Done
         </Button>
       </BaseModalFooter>

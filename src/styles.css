@@ -29,6 +29,20 @@
   --input: #c9c9c5;
   --ring: #161616;
 
+  /* Hover surfaces for filled controls */
+  --accent-hover: #c7e600;
+  --primary-hover: #30302f;
+  --destructive-text-hover: #9a1e14;
+  --destructive-soft: #fff1f0;
+
+  /* Motion. See the Motion section in /design.md. */
+  --duration-fast: 140ms;
+  --duration-base: 320ms;
+  --duration-enter: 450ms;
+  --duration-reveal: 900ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
   --success: #00b852;
   --success-text: #007a37;
   --success-soft: #ddfbe8;
@@ -76,6 +90,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-primary-hover: var(--primary-hover);
+  --color-destructive-text-hover: var(--destructive-text-hover);
+  --color-destructive-soft: var(--destructive-soft);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-text: var(--destructive-text);
@@ -181,5 +199,165 @@
 
   .ds-interactive:active {
     transform: translateY(1px);
+  }
+}
+
+/*
+ * Motion utilities. See the Motion section in /design.md.
+ * Everything animates opacity or transform only and is off under reduced motion.
+ */
+@keyframes ds-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ds-rise-distance, 24px));
+  }
+}
+
+@keyframes ds-pop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+/* No `to` frame: each element animates to its own transform, such as a scaleX progress value */
+@keyframes ds-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes ds-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes ds-page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ds-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Page headers and other content that appears with the page */
+  .ds-enter {
+    --ds-rise-distance: 8px;
+    animation: ds-rise var(--duration-enter) var(--ease-out) both;
+  }
+
+  /* A value replacing its skeleton */
+  .ds-value-in {
+    --ds-rise-distance: 6px;
+    animation: ds-rise var(--duration-base) var(--ease-out) both;
+  }
+
+  /* Marketing entrance on page load; set --ds-delay to stagger */
+  .ds-rise {
+    animation: ds-rise var(--duration-reveal) var(--ease-out) both;
+    animation-delay: var(--ds-delay, 0ms);
+  }
+
+  .ds-pop {
+    animation: ds-pop 1050ms var(--ease-out) both;
+    animation-delay: var(--ds-delay, 0ms);
+  }
+
+  .ds-grow-x {
+    transform-origin: left;
+    animation: ds-grow-x 750ms var(--ease-out) both;
+    animation-delay: var(--ds-delay, 0ms);
+    transition: transform 750ms var(--ease-out);
+  }
+
+  .ds-grow-y {
+    transform-origin: bottom;
+    animation: ds-grow-y 600ms var(--ease-out) both;
+    animation-delay: var(--ds-delay, 0ms);
+  }
+
+  /* Scroll reveal: useReveal() sets data-visible once the section is in view */
+  @media (scripting: enabled) {
+    .ds-reveal:not([data-visible]) .ds-reveal-item {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  .ds-reveal .ds-reveal-item {
+    transition:
+      opacity var(--duration-reveal) var(--ease-out),
+      transform var(--duration-reveal) var(--ease-out);
+    transition-delay: var(--ds-delay, 0ms);
+  }
+
+  /* Rows inside a revealed card arrive one after another */
+  .ds-reveal[data-visible] .ds-reveal-rows > * {
+    animation: ds-rise 750ms var(--ease-out) both;
+  }
+
+  .ds-reveal-rows > :nth-child(1) {
+    animation-delay: 300ms;
+  }
+  .ds-reveal-rows > :nth-child(2) {
+    animation-delay: 420ms;
+  }
+  .ds-reveal-rows > :nth-child(3) {
+    animation-delay: 540ms;
+  }
+  .ds-reveal-rows > :nth-child(4) {
+    animation-delay: 660ms;
+  }
+  .ds-reveal-rows > :nth-child(n + 5) {
+    animation-delay: 780ms;
+  }
+
+  /* Route changes: the app content crossfades while the sidebar and top bar stay put */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--duration-base);
+    animation-timing-function: var(--ease-out);
+  }
+
+  ::view-transition-old(page) {
+    animation: ds-page-out 180ms var(--ease-out) both;
+  }
+
+  ::view-transition-new(page) {
+    animation: ds-page-in var(--duration-base) var(--ease-out) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+.ds-vt-sidebar {
+  view-transition-name: sidebar;
+}
+
+.ds-vt-topbar {
+  view-transition-name: topbar;
+}
+
+.ds-vt-page {
+  view-transition-name: page;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Bars inside a section that has not been revealed wait, then grow when it is */
+  .ds-reveal:not([data-visible]) :is(.ds-grow-x, .ds-grow-y) {
+    animation: none;
   }
 }

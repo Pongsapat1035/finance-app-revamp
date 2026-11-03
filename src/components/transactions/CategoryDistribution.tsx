@@ -16,7 +16,7 @@ export default function CategoryDistribution({
   return (
     <div className="p-5">
       <div
-        className="flex h-3 overflow-hidden rounded-[2px]"
+        className="ds-grow-x flex h-3 overflow-hidden rounded-[2px]"
         aria-label="Stacked spending distribution"
       >
         {categories.map((category) => (

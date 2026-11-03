@@ -1,4 +1,4 @@
-import { ArrowRight, CircleAlert, LoaderCircle, X } from 'lucide-react'
+import { CircleAlert, LoaderCircle, X } from 'lucide-react'
 import TypeSelector from '#/components/ui/TypeSelector'
 import Button from '#/components/ui/Button'
 import IconButton from '#/components/ui/IconButton'
@@ -90,17 +90,22 @@ const TransactionForm = ({
       <BaseModalHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="transaction-dialog-title" className="text-xl font-medium tracking-tight">
+            <h2 id="transaction-dialog-title" className="text-lg font-medium tracking-[-0.02em]">
               {mode === 'edit' ? 'Edit transaction' : 'Add transaction'}
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
               {mode === 'edit'
                 ? 'Update the amount, category, date, or description.'
                 : 'Record money coming in or going out.'}
             </p>
           </div>
-          <IconButton onClick={onClose} disabled={isSubmitting} aria-label="Close dialog">
-            <X size={17} />
+          <IconButton
+            size="size-8"
+            onClick={onClose}
+            disabled={isSubmitting}
+            aria-label="Close dialog"
+          >
+            <X size={16} strokeWidth={1.75} />
           </IconButton>
         </div>
       </BaseModalHeader>
@@ -314,33 +319,24 @@ const TransactionForm = ({
           <Button
             type="button"
             variant="outline"
-            height="h-10"
             fullWidth={false}
             disabled={isSubmitting}
             onClick={onClose}
-            className="disabled:pointer-events-none disabled:opacity-45"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             variant="primary"
-            height="h-10"
             fullWidth={false}
             disabled={isSubmitting}
-            className="disabled:pointer-events-none disabled:opacity-70"
             prefixIcon={
               isSubmitting ? (
                 <LoaderCircle
-                  size={15}
-                  strokeWidth={2}
+                  size={16}
+                  strokeWidth={1.75}
                   className="animate-spin motion-reduce:animate-none"
                 />
-              ) : undefined
-            }
-            suffixIcon={
-              !isSubmitting && mode === 'create' ? (
-                <ArrowRight size={15} strokeWidth={2} />
               ) : undefined
             }
           >

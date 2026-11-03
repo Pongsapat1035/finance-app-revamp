@@ -1,7 +1,7 @@
 import { type LucideIcon } from 'lucide-react'
 import { Fragment, type ReactNode } from 'react'
 
-import Button from '#/components/ui/Button'
+import Button, { type ButtonSize, type ButtonVariant } from '#/components/ui/Button'
 import EmptyState, { type EmptyStateProps } from '#/components/ui/EmptyState'
 import ErrorState, { type ErrorStateProps } from '#/components/ui/ErrorState'
 import Pagination, { type PaginationProps } from '#/components/ui/Pagination'
@@ -27,9 +27,8 @@ export interface DataTableColumn<Row> {
 export interface DataTableStateAction {
   label: string
   onClick: () => void
-  variant?: 'primary' | 'outline' | 'dark' | 'destructive'
-  size?: 'default' | 'sm'
-  height?: string
+  variant?: ButtonVariant
+  size?: ButtonSize
   icon?: LucideIcon
 }
 
@@ -75,15 +74,14 @@ const DataTable = <Row,>({
   const emptyStateActions = emptyState?.actions
   const emptyStateAction = emptyStateActions?.length ? (
     <div className="flex flex-wrap justify-center gap-2">
-      {emptyStateActions.map(({ label, onClick, variant, size, height, icon: Icon }, index) => (
+      {emptyStateActions.map(({ label, onClick, variant, size, icon: Icon }, index) => (
         <Button
           key={`${label}-${index}`}
           type="button"
           variant={variant}
           size={size}
-          height={height}
           fullWidth={false}
-          prefixIcon={Icon && <Icon size={15} strokeWidth={1.75} aria-hidden="true" />}
+          prefixIcon={Icon && <Icon size={16} strokeWidth={1.75} aria-hidden="true" />}
           onClick={onClick}
         >
           {label}
